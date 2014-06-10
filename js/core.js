@@ -1,3 +1,10 @@
+consts = {
+	"accurancy_plus" 	:			0.12,
+	"accurancy_minus" : 		-0.12,
+	"combo_factor"		: 		1.1,
+
+}
+
 function Player(consts, name) {
 	this.health = 1;
 	this.accurancy = 0;
@@ -13,13 +20,13 @@ Player.prototype.solve = function(isSolve) {
 		console.log("Task decided!");
 		this.tasks.push(1);
 		this.combo += 1;
-		this.accurancy += 0.12;
+		this.accurancy += consts["accurancy_plus"];
 		this.bullets += 1;
 	} else {
 		console.log("Task doesn't decided!");
 		this.tasks.push(0);
 		this.combo = 1;
-		this.accurancy -= 0.12;
+		this.accurancy -= consts["accurancy_minus"];
 	}
 };
 
@@ -30,7 +37,7 @@ function calcDmg(health) {
 			+ 0.2;
 };
 function calcCombo(combo) {
-	return Math.pow(1.1, combo);
+	return Math.pow(consts["combo_factor"], combo);
 };
 
 function calcProtect(healthEnemy) {
@@ -73,6 +80,14 @@ Player.prototype.treatment = function() {
 	this.health = (this.health > 1) ? 1 : this.health;
 };
 
+Player.prototype.info = function () {
+	console.groupCollapsed();
+	console.info(this.name);
+	console.log("Health: %.3f", this.health);
+
+	console.groupEnd();
+};
+
 pl1 = new Player({}, "lalka1");
 pl2 = new Player({}, "azaza2");
 pl1.solve(1);
@@ -84,4 +99,5 @@ pl1.solve(1);
 pl1.health = 0.9;
 pl1.treatment();
 console.log(pl1.health);
+pl1;
 pl1;
