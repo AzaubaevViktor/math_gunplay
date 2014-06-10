@@ -1,0 +1,48 @@
+html, body {
+	height: 100%;
+}
+
+.block {
+	margin: 0px;
+	padding: 10px;
+	width: 50%;
+	height: 50%;
+	float: left;
+	border: 1px solid #DDD;
+}
+
+.miniblock {
+	margin: 0px;
+	padding: 10px;
+	width: 33%;
+	min-height: 20%;
+	float: left;
+	border: 1px solid #DDD;
+	vertical-align: middle;
+
+}
+
+img {
+	margin: auto;
+}
+
+.name {
+	font-size: 20px;
+}
+
+.percent {
+	font-size: 40px;
+	height: 100%;
+}
+
+.treatment {
+	font-size: 30px;
+}
+
+.vc {
+	vertical-align: middle !important;
+}
+
+.vb {
+	vertical-align: bottom !important;
+}
