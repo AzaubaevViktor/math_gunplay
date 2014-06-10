@@ -1,11 +1,35 @@
+function str_repeat ( input, multiplier ) {	// Repeat a string
+	// 
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+
+	var buf = '';
+
+	for (i=0; i < multiplier; i++){
+		buf += input;
+	}
+
+	return buf;
+}
+
+
 consts = {
 	"accurancy_plus" 	:			0.12,
 	"accurancy_minus" : 		-0.12,
 	"combo_factor"		: 		1.1,
-
 }
 
-function Player(consts, name) {
+function Player(consts, name, elem) {
+	this.elem = elem;
+	this.elName = elem.find(".name");
+
+	this.elBull = elem.find(".bullets");
+	this.elSolv = elem.find(".btn-solve");
+	this.elPict = elem.find(".image-avatar");
+	this.elHlth = elem.find(".health");
+
+	this.elTrth = elem.find(".treatment>a");
+	this.elAttk = elem.find(".btn-attack");
+	this.elComb = elem.find(".combo");
 	this.health = 1;
 	this.accurancy = 0;
 	this.combo = 0;
@@ -14,6 +38,18 @@ function Player(consts, name) {
 	this.name = name;
 };
 
+Player.prototype.updateUI = function() {
+	this.elBull.text(str_repeat("|", this.bullets));
+	this.elHlth.text((this.health*100).toFixed(1) + "%");
+	this.elTrth.html(str_repeat("<span class='glyphicon glyphicon-plus-sign'></span> ",
+		Math.floor(this.bullets / 3)));
+	if (this.bullets) {
+		this.elAttk.removeClass("disabled");
+	} else {
+		this.elAttk.addClass("disabled");
+	}
+	this.elComb.text("x" + (calcCombo(this.combo)).toFixed(1));
+}
 
 Player.prototype.solve = function(isSolve) {
 	if (isSolve) {
@@ -88,8 +124,8 @@ Player.prototype.info = function () {
 	console.groupEnd();
 };
 
-pl1 = new Player({}, "lalka1");
-pl2 = new Player({}, "azaza2");
+pl1 = new Player({}, "lalka1", $("#one"));
+pl2 = new Player({}, "azaza2", $("#two"));
 pl1.solve(1);
 pl1.shot(pl2);
 pl1.solve(1);

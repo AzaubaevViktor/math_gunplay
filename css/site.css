@@ -2,11 +2,16 @@ html, body {
 	height: 100%;
 }
 
+table {
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
 .block {
 	margin: 0px;
 	padding: 10px;
-	width: 50%;
-	height: 50%;
+	min-width: 50%;
+	min-height: 50%;
 	float: left;
 	border: 1px solid #DDD;
 }
@@ -30,12 +35,27 @@ img {
 	font-size: 24pt;
 }
 
-.percent {
+.health {
 	font-size: 44pt;
+}
+
+.combo {
+	font-size: 34pt;
+	padding: 0px;
+	margin: 0px;
 }
 
 .treatment {
 	font-size: 24pt;
+	margin: 0px;
+}
+
+.btn-attack {
+	font-size: 24pt;
+}
+
+.btn-solve {
+	font-size: 16pt;
 }
 
 .vc {
