@@ -10,36 +10,45 @@
 
 <div id="one" class="block">
 <table height="100%" class="table text-center">
-<thead>
-<tr>
-<th width="33%" colspan="3" class="text-center"><p class="name">Имя игрока</p></th>
-</tr>
-</thead>
-<td width="33%" class="text-left">
-	<p class="bullets">||||||</p>
-	<button type="button" class="btn btn-success btn-solve">Решил задачу</button>
-</td>
-<td width="33%" class="vc"><img src="..." width="100px" class="image-avatar img-rounded"></td>
-<td width="33%" class="vc"><p class="text-left health">50%</p></td>
-<tr>
-<td class="vb"><p class=" text-left treatment"> <a>
-	<span class="glyphicon glyphicon-plus-sign"></span>
-	<span class="glyphicon glyphicon-plus-sign"></span>
-</a> </p></td>
-<td class="vb">
-	<button type="button" class="btn btn-danger btn-attack">Атаковать</button></td>
-<td class="vb"><p class="combo">x1,4</p></td>
-</tr>
-<tr style="display:none">
-<td colspan=3>azaza</td>
-</tr>
+	<thead>
+		<tr>
+			<th width="33%" colspan="3" class="text-center"><p class="text name"></p></th>
+		</tr>
+	</thead>
+	<tr>
+		<td width="33%" class="text-left">
+			<p class="text bullets"></p>
+			<button type="button" class="btn btn-success btn-solve disabled text">Решил задачу</button><br>
+			<button type="button" class="btn btn-warning btn-not-solve disabled text">Не решил задачу</button>
+		</td>
+		<td width="33%" class="vc">
+			<img src="..." class="image-avatar img-rounded">
+		</td>
+		<td width="33%" class="vc">
+			<p class="text-left text health"></p>
+		</td>
+	</tr>
+	<tr class="attack">
+		<td class="vb">
+			<p class=" text-left text treatment"><a> </a></p>
+		</td>
+		<td class="vb">
+			<button type="button" class="disabled btn btn-danger btn-attack text">Атаковать</button>
+		</td>
+		<td class="vb">
+			<p class="text combo"></p>
+		</td>
+	</tr>
+	<tr width="100%" class="attacked none">
+		<td class="text vc">Вероятность: <p class="probablity">33</p>%</td>
+		<td><button byte="button" class="btn btn-warning btn-kill text">Пиу!</button>
+		<td class="text vc">Урон: <p class="damage">16</p>%</td>
+	</tr>
 </table>
 </div>
-<div class="block">
-	
-</div>
-<div class="block">lal</div>
-<div class="block">azaza</div>
+<div id="two" class="block"></div>
+<div id="three" class="block"></div>
+<div id="four" class="block"></div>
 	
 <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="js/core.js"></script>

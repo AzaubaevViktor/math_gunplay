@@ -13,7 +13,7 @@ table {
 	min-width: 50%;
 	min-height: 50%;
 	float: left;
-	border: 1px solid #DDD;
+	border: 1px solid #333;
 }
 
 .miniblock {
@@ -24,38 +24,58 @@ table {
 	float: left;
 	border: 1px solid #DDD;
 	vertical-align: middle;
-
 }
 
 img {
 	margin: auto;
 }
 
+.text {
+	font-size: 15pt;
+}
+
 .name {
-	font-size: 24pt;
+	
 }
 
 .health {
-	font-size: 44pt;
+	
 }
 
 .combo {
-	font-size: 34pt;
 	padding: 0px;
 	margin: 0px;
 }
 
 .treatment {
-	font-size: 24pt;
 	margin: 0px;
 }
 
+.image-avatar {
+	width: 50%;
+}
+
+.btn {
+	border-radius: 0px; 
+}
+
 .btn-attack {
-	font-size: 24pt;
+	
 }
 
 .btn-solve {
-	font-size: 16pt;
+	margin-bottom: 10px; 
+}
+
+.btn-not-solve {
+}
+
+.probablity {
+	display: inline;
+}
+
+.damage {
+	display: inline;
 }
 
 .vc {
@@ -64,4 +84,8 @@ img {
 
 .vb {
 	vertical-align: bottom !important;
+}
+
+.none {
+	display: none;
 }
