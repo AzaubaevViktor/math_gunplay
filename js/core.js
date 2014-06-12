@@ -13,12 +13,11 @@ function str_repeat ( input, multiplier ) {	// Repeat a string
 
 
 consts = {
-	"accurancy_plus" 	:			0.12,
-	"accurancy_minus" : 		-0.12,
 	"combo_factor"		: 		1.1,
 }
 
-function Player(consts, name, elem) {
+function Player(name, elem) {
+	// Elements
 	this.elem = elem;
 	this.elName = elem.find(".name");
 
@@ -27,6 +26,7 @@ function Player(consts, name, elem) {
 	this.elNSlv = elem.find(".btn-not-solve");
 	this.elPict = elem.find(".image-avatar");
 	this.elHlth = elem.find(".health");
+	this.elProb = elem.find(".probablity");
 
 	this.elTrth = elem.find(".treatment>a");
 	this.elAttk = elem.find(".btn-attack");
@@ -35,18 +35,22 @@ function Player(consts, name, elem) {
 	this.elBtAttack = elem.find(".attack");
 	this.elBtAttacked = elem.find(".attacked"); 
 
-	this.elProb = elem.find(".probablity");
 	this.elButtonAttacked = elem.find(".btn-kill");
 	this.elDamg = elem.find(".damage");
 
+	// Game parameters
 	this.health = 1;
 	this.accurancy = 0;
 	this.combo = 0;
 	this.tasks = [];
 	this.bullets = 0;
 	this.name = name;
+
 	this.players = [];
+
+	// Flags
 	this.isAttackedMode = 0;
+	this.isDead = 0;
 
 	this.elSolv.removeClass("disabled");
 	var parent = this
@@ -71,7 +75,7 @@ function Player(consts, name, elem) {
 		parent.attacked();
 	});
 
-	this.updateUI();
+	this.update();
 };
 
 Player.prototype.addPlayers = function (players) {
@@ -84,43 +88,67 @@ Player.prototype.addPlayers = function (players) {
 };
 
 Player.prototype.updateUI = function() {
-	console.log("UI update!");
-	this.elName.text(this.name);
-	this.elBull.html("&nbsp;" + str_repeat("|", this.bullets));
-	this.elHlth.text((this.health*100).toFixed(1) + "%");
-	this.elTrth.html(str_repeat("<span class='glyphicon glyphicon-plus-sign'></span> ",
-		Math.floor(this.bullets / 3)));
+	if (!this.isDead) {
+		this.elName.text(this.name);
+		this.elBull.html("&nbsp;" + str_repeat("|", this.bullets));
+		this.elProb.text((calcHit(this.accurancy)*100).toFixed(1) + "%");
+		this.elHlth.text((this.health*100).toFixed(1) + "%");
+		this.elTrth.html(str_repeat("<span class='glyphicon glyphicon-plus-sign'></span> ",
+			Math.floor(this.bullets / 3)));
 
-	if (this.bullets) {
-		this.elAttk.removeClass("disabled");
-	} else {
-		this.elAttk.addClass("disabled");
-	}
-	this.elComb.text("x" + (calcCombo(this.combo)).toFixed(1));
+		if (this.bullets) {
+			this.elAttk.removeClass("disabled");
+		} else {
+			this.elAttk.addClass("disabled");
+		}
+		this.elComb.text("x" + (calcCombo(this.combo)).toFixed(1));
 
-	if (this.isAttackedMode) {
-		this.elBtAttack.addClass("none");
-		this.elBtAttacked.removeClass("none");
+		if (2 == this.isAttackedMode) {
+			this.elBtAttack.addClass("none");
+			this.elBtAttacked.removeClass("none");
+		} else {
+			this.elBtAttack.removeClass("none");
+			this.elBtAttacked.addClass("none");
+		}
 	} else {
 		this.elBtAttack.removeClass("none");
 		this.elBtAttacked.addClass("none");
+		this.elSolv.addClass("disabled");
+		this.elNSlv.addClass("disabled");
+		this.elBtAttack.addClass("disabled");
+		this.elBtAttacked.addClass("disabled");
+		this.elAttk.addClass("disabled");
+		this.elProb.text("--");
+		this.elHlth.text("0%");
+	};
+};
+
+Player.prototype.updateState = function() {
+	this.isDead = (0 >= this.health);
+	if (this.isDead) {
+		this.health = 0;
 	}
-}
+};
+
+Player.prototype.update = function() {
+	this.updateState();
+	this.updateUI();
+};
 
 Player.prototype.solve = function(isSolve) {
 	if (isSolve) {
 		console.log("Task decided!");
 		this.tasks.push(1);
 		this.combo += 1;
-		this.accurancy += consts["accurancy_plus"];
+		this.accurancy += 1;
 		this.bullets += 1;
 	} else {
 		console.log("Task doesn't decided!");
 		this.tasks.push(0);
 		this.combo = 0;
-		this.accurancy -= consts["accurancy_minus"];
+		this.accurancy -= 1;
 	}
-	this.updateUI();
+	this.update();
 };
 
 
@@ -137,7 +165,7 @@ function calcProtect(healthEnemy) {
 	return healthEnemy + 1;
 };
 function calcHit(acc) {
-	 return (acc * 0.5 + 0.3);
+	 return (Math.atan(acc/7)/Math.PI*2*(1-0.2) + 0.2);
 };
 function isHit(acc) {
 	return (Math.random() < calcHit(acc));
@@ -160,13 +188,10 @@ Player.prototype.shot = function(Enemy) {
 		if (isHit(this.accurancy)) {
 			console.log("HIT!");
 			Enemy.health -= dmg;
-			console.info(Enemy.health*100);
 		}
 	} else {
 		console.warn("Has no bullets to shot!");
 	}
-	this.updateUI();
-	Enemy.updateUI();
 };
 
 Player.prototype.treatment = function() {
@@ -178,7 +203,7 @@ Player.prototype.treatment = function() {
 	} else {
 		console.warn("Not enought bullets for treatment");
 	}
-	this.updateUI();
+	this.update();
 };
 
 Player.prototype.buttons = function (enable) {
@@ -199,16 +224,15 @@ Player.prototype.attackMode = function (type)  {
 		this.isAttackedMode = 1;
 		for (var i=0;i<this.players.length;i++) {
 			this.players[i].isAttackedMode = 2;
-			this.players[i].updateUI();
-			this.players[i].elProb.text((calcHit(this.accurancy)*100).toFixed(1));
+			this.players[i].update();
 			this.players[i].elDamg.text((_damage(this, this.players[i])*100).toFixed(1));
-		}
+			}
 	} else if (1 == this.isAttackedMode) {
 		// Click this.elAttk button
 		this.isAttackedMode = 0;
 		for (var i=0;i<this.players.length;i++) {
 			this.players[i].isAttackedMode = 0;
-			this.players[i].updateUI();
+			this.players[i].update();
 		}
 	};
 };
@@ -221,10 +245,10 @@ Player.prototype.attacked = function () {
 	}
 	pl.shot(this);
 	this.isAttackedMode = 0;
-	this.updateUI();
+	this.update();
 	for (var i=0;i<this.players.length;i++) {
 		this.players[i].isAttackedMode = 0;
-		this.players[i].updateUI();
+		this.players[i].update();
 	}
 };
 
@@ -243,10 +267,10 @@ $(document).ready(function () {
 	$("#three").html($("#one").html());
 	$("#four").html($("#one").html());
 
-pl1 = new Player({}, "Player 1", $("#one"));
-pl2 = new Player({}, "Player 2", $("#two"));
-pl3 = new Player({}, "Player 3", $("#three"));
-pl4 = new Player({}, "Player 4", $("#four"));
+pl1 = new Player("Player 1", $("#one"));
+pl2 = new Player("Player 2", $("#two"));
+pl3 = new Player("Player 3", $("#three"));
+pl4 = new Player("Player 4", $("#four"));
 
 players = [pl1, pl2, pl3, pl4];
 
