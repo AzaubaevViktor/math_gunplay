@@ -12,10 +12,6 @@ function str_repeat ( input, multiplier ) {	// Repeat a string
 }
 
 
-consts = {
-	"combo_factor"		: 		1.1,
-}
-
 function Player(name, elem) {
 	// Elements
 	this.elem = elem;
@@ -90,7 +86,7 @@ Player.prototype.addPlayers = function (players) {
 Player.prototype.updateUI = function() {
 	if (!this.isDead) {
 		this.elName.text(this.name);
-		this.elBull.html("&nbsp;" + str_repeat("|", this.bullets));
+		this.elBull.html("&nbsp;" + str_repeat("<img width='6pt' src='pics/bullet.png'>", this.bullets));
 		this.elProb.text((calcHit(this.accurancy)*100).toFixed(1) + "%");
 		this.elHlth.text((this.health*100).toFixed(1) + "%");
 		this.elTrth.html(str_repeat("<span class='glyphicon glyphicon-plus-sign'></span> ",
@@ -101,7 +97,7 @@ Player.prototype.updateUI = function() {
 		} else {
 			this.elAttk.addClass("disabled");
 		}
-		this.elComb.text("x" + (calcCombo(this.combo)).toFixed(1));
+		this.elComb.text("x" + (calcCombo(this.combo)).toFixed(2) + " [" + this.combo + "]");
 
 		if (2 == this.isAttackedMode) {
 			this.elBtAttack.addClass("none");
@@ -165,7 +161,8 @@ function calcProtect(healthEnemy) {
 	return healthEnemy + 1;
 };
 function calcHit(acc) {
-	 return (Math.atan(acc/7)/Math.PI*2*(1-0.2) + 0.2);
+	var at = Math.atan(acc/7)/Math.PI*2; // -pi/2 pi/2 -> -1..1
+	return (2*at*at + 5*at + 3)/10; // -1 -> 0; 0 -> 0.3; 1 -> 1
 };
 function isHit(acc) {
 	return (Math.random() < calcHit(acc));
@@ -262,6 +259,11 @@ Player.prototype.info = function () {
 	console.groupEnd();
 };
 
+
+consts = {
+	"combo_factor"		: 		1.05,
+}
+
 $(document).ready(function () {
 	$("#two").html($("#one").html());
 	$("#three").html($("#one").html());
@@ -279,5 +281,10 @@ for (var i=0; i< players.length; i++) {
 	console.log(pl);
 	pl.addPlayers(players);
 }
+
+$("#stats").popover();
+$("#savestate").tooltip();
+$("#cancellation").tooltip();
+
 
 });

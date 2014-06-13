@@ -2,6 +2,10 @@ html, body {
 	height: 100%;
 }
 
+body {
+	padding-top: 51px;
+}
+
 table {
 	margin: 0px !important;
 	padding: 0px !important;
@@ -49,6 +53,10 @@ img {
 
 .treatment {
 	margin: 0px;
+}
+
+.treatment > a {
+
 }
 
 .image-avatar {
