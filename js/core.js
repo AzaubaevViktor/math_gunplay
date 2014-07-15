@@ -148,14 +148,12 @@ View.prototype.addSnapshot = function () {
 View.prototype.addPlayer = function () {
 	var player = this.model.players.slice(-1)[0];
 	var plId = this.model.kPlayers - 1;
-	var playerHTML = "<div id=\"player" + plId + "\" class=\"block\">" +
+	var playerHTML = "<div id=\"player" + plId + "\" class=\"block\" style=\"display:none\">" +
                		 this.newPlayerTemplate +
 							     "</div>";
 	this.elPlayers.append(playerHTML);
 
 	obj = this.elPlayers.find("#player" + plId);
-
-	obj.slideUp();
 
 	var els = {};
 
@@ -264,6 +262,15 @@ Controller.prototype.bindNewPlayer = function (playerHtml, index) {
 	)
 };
 
+Controller.prototype.bindAddNewUserInput = function (input) {
+	input.keyup(function(e) {
+  	if(e.keyCode == 13){
+			name = input.val();
+			input.val("");
+			model.addPlayer(name);
+    }
+  });
+};
 
 $(document).ready(function () {
 	console.log("I'm alive!");
@@ -275,9 +282,7 @@ $(document).ready(function () {
 	view.joinModel(model);
 	view.joinController(controller);
 	controller.joinModel(view);
+	controller.bindAddNewUserInput($("#newusername"))
 
 	// For test
-	model.addPlayer("Player 0");
-	model.addPlayer("player 1");
-	model.addPlayer("player 2");
 });
