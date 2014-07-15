@@ -1,290 +1,283 @@
 function str_repeat ( input, multiplier ) {	// Repeat a string
-	// 
 	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-
 	var buf = '';
-
 	for (i=0; i < multiplier; i++){
 		buf += input;
 	}
-
 	return buf;
 }
 
+/* class Model:
+ *  addSnapshot
+ *  backToSnapshot
+ *  joinView
+ *  addPlayer
+ *  calcProblity
+ *  calcDamage
+ *  isAlive
+ *  this.isAttackMode
+ *  attack
+ *  unsolve
+ *
+ * generated events:
+ *  addSnapshot
+ *  addPlayer
+ *  hit
+ *  miss
+ *  updatePlayers
+ */
 
-function Player(name, elem) {
-	// Elements
-	this.elem = elem;
-	this.elName = elem.find(".name");
-
-	this.elBull = elem.find(".bullets");
-	this.elSolv = elem.find(".btn-solve");
-	this.elNSlv = elem.find(".btn-not-solve");
-	this.elPict = elem.find(".image-avatar");
-	this.elHlth = elem.find(".health");
-	this.elProb = elem.find(".probablity");
-
-	this.elTrth = elem.find(".treatment>a");
-	this.elAttk = elem.find(".btn-attack");
-	this.elComb = elem.find(".combo");
-
-	this.elBtAttack = elem.find(".attack");
-	this.elBtAttacked = elem.find(".attacked"); 
-
-	this.elButtonAttacked = elem.find(".btn-kill");
-	this.elDamg = elem.find(".damage");
-
-	// Game parameters
-	this.health = 1;
-	this.accurancy = 0;
-	this.combo = 0;
-	this.tasks = [];
-	this.bullets = 0;
-	this.name = name;
-
+function Model() {
 	this.players = [];
-
-	// Flags
-	this.isAttackedMode = 0;
-	this.isDead = 0;
-
-	this.elSolv.removeClass("disabled");
-	var parent = this
-	this.elSolv.click(function () {
-		parent.solve(1);
-	});
-
-	this.elNSlv.removeClass("disabled");
-	this.elNSlv.click(function () {
-		parent.solve(0);
-	});
-
-	this.elTrth.click(function () {
-		parent.treatment();
-	});
-
-	this.elAttk.click(function () {
-		parent.attackMode();
-	});
-
-	this.elButtonAttacked.click(function () {
-		parent.attacked();
-	});
-
-	this.update();
-};
-
-Player.prototype.addPlayers = function (players) {
-	for (var i = 0; i < players.length; i++) {
-		pl = players[i];
-		if (this != pl) {
-			this.players.push(pl);
-		}
-	}
-};
-
-Player.prototype.updateUI = function() {
-	if (!this.isDead) {
-		this.elName.text(this.name);
-		this.elBull.html("&nbsp;" + str_repeat("<img width='6pt' src='pics/bullet.png'>", this.bullets));
-		this.elProb.text((calcHit(this.accurancy)*100).toFixed(1) + "%");
-		this.elHlth.text((this.health*100).toFixed(1) + "%");
-		this.elTrth.html(str_repeat("<span class='glyphicon glyphicon-plus-sign'></span> ",
-			Math.floor(this.bullets / 3)));
-
-		if (this.bullets) {
-			this.elAttk.removeClass("disabled");
-		} else {
-			this.elAttk.addClass("disabled");
-		}
-		this.elComb.text("x" + (calcCombo(this.combo)).toFixed(2) + " [" + this.combo + "]");
-
-		if (2 == this.isAttackedMode) {
-			this.elBtAttack.addClass("none");
-			this.elBtAttacked.removeClass("none");
-		} else {
-			this.elBtAttack.removeClass("none");
-			this.elBtAttacked.addClass("none");
-		}
-	} else {
-		this.elBtAttack.removeClass("none");
-		this.elBtAttacked.addClass("none");
-		this.elSolv.addClass("disabled");
-		this.elNSlv.addClass("disabled");
-		this.elBtAttack.addClass("disabled");
-		this.elBtAttacked.addClass("disabled");
-		this.elAttk.addClass("disabled");
-		this.elProb.text("--");
-		this.elHlth.text("0%");
-	};
-};
-
-Player.prototype.updateState = function() {
-	this.isDead = (0 >= this.health);
-	if (this.isDead) {
-		this.health = 0;
-	}
-};
-
-Player.prototype.update = function() {
-	this.updateState();
-	this.updateUI();
-};
-
-Player.prototype.solve = function(isSolve) {
-	if (isSolve) {
-		console.log("Task decided!");
-		this.tasks.push(1);
-		this.combo += 1;
-		this.accurancy += 1;
-		this.bullets += 1;
-	} else {
-		console.log("Task doesn't decided!");
-		this.tasks.push(0);
-		this.combo = 0;
-		this.accurancy -= 1;
-	}
-	this.update();
-};
-
-
-function calcDmg(health) {
-	return 	(0.619048) * health * health
-			- (0.519048) * health
-			+ 0.2;
-};
-function calcCombo(combo) {
-	return Math.pow(consts["combo_factor"], combo);
-};
-
-function calcProtect(healthEnemy) {
-	return healthEnemy + 1;
-};
-function calcHit(acc) {
-	var at = Math.atan(acc/7)/Math.PI*2; // -pi/2 pi/2 -> -1..1
-	return (2*at*at + 5*at + 3)/10; // -1 -> 0; 0 -> 0.3; 1 -> 1
-};
-function isHit(acc) {
-	return (Math.random() < calcHit(acc));
-};
-function _damage(pl, en) {
-	return calcDmg(pl.health) * calcCombo(pl.combo) / calcProtect(en.health);
-};
-
-
-Player.prototype.shot = function(Enemy) {
-	if (this.bullets) {
-		dmg = _damage(this, Enemy);
-		console.log("Shot %s -> %s, prob:%d% Assume hit:%d%",
-			this.name,
-			Enemy.name,
-			calcHit(this.accurancy)*100,
-			dmg*100);
-		this.bullets -= 1;
-
-		if (isHit(this.accurancy)) {
-			console.log("HIT!");
-			Enemy.health -= dmg;
-		}
-	} else {
-		console.warn("Has no bullets to shot!");
-	}
-};
-
-Player.prototype.treatment = function() {
-	console.log("Treatment of %s",this.name)
-	if (3 <= this.bullets) {
-		this.health += 0.3;
-		this.health = (this.health > 1) ? 1 : this.health;
-		this.bullets -= 3;
-	} else {
-		console.warn("Not enought bullets for treatment");
-	}
-	this.update();
-};
-
-Player.prototype.buttons = function (enable) {
-	if (enable) {
-		this.elAttk.removeClass("disabled");
-		this.elSolv.removeClass("disabled");
-		this.elNSlv.removeClass("disabled");
-	} else {
-		this.elAttk.addClass("disabled");
-		this.elSolv.addClass("disabled");
-		this.elNSlv.addClass("disabled");
-	}
-};
-
-Player.prototype.attackMode = function (type)  {
-	if (0 == this.isAttackedMode) {
-		// Standart state
-		this.isAttackedMode = 1;
-		for (var i=0;i<this.players.length;i++) {
-			this.players[i].isAttackedMode = 2;
-			this.players[i].update();
-			this.players[i].elDamg.text((_damage(this, this.players[i])*100).toFixed(1));
-			}
-	} else if (1 == this.isAttackedMode) {
-		// Click this.elAttk button
-		this.isAttackedMode = 0;
-		for (var i=0;i<this.players.length;i++) {
-			this.players[i].isAttackedMode = 0;
-			this.players[i].update();
-		}
-	};
-};
-
-Player.prototype.attacked = function () {
-	for (var i=0;i<this.players.length;i++) {
-		if (1 == this.players[i].isAttackedMode) {
-			var pl = this.players[i];
-		}
-	}
-	pl.shot(this);
-	this.isAttackedMode = 0;
-	this.update();
-	for (var i=0;i<this.players.length;i++) {
-		this.players[i].isAttackedMode = 0;
-		this.players[i].update();
-	}
-};
-
-Player.prototype.info = function () {
-	console.groupCollapsed();
-	console.info("Info about `%s`", this.name);
-	console.log("Health:    %.3f", this.health);
-	console.log("Accurancy: %.3f%", this.accurancy*100);
-	console.log("Combo:     [%d] %.3f", this.combo, calcCombo(this.combo));
-	console.log("Bullets:   %d", this.bullets);
-	console.groupEnd();
-};
-
-
-consts = {
-	"combo_factor"		: 		1.05,
+	this.kPlayers = 0;
+	this.snapshots = [];
+	this.view = undefined;
+	this.isAttackMode = -1;
 }
+
+Model.prototype.addSnapshot = function () {
+	this.snapshots.push(this.players.slice(-1)[0]);
+	this.view.addSnapshot();
+};
+
+Model.prototype.backToSnapshot = function () {
+	this.players = this.snapshots.pop(); // Возможно нужно будет добавить slice
+};
+
+Model.prototype.joinView = function (view) {
+	this.view = view;
+};
+
+Model.prototype.addPlayer = function (name) {
+	player = {
+		'name': name,
+		'health': 1,
+		'solved': 0,
+		'unsolved': 0
+	}
+	this.players.push(player);
+	this.kPlayers += 1;
+
+	this.view.addPlayer();
+}
+
+Model.prototype.calcProbablity = function (plInd) {
+	player = this.players[plInd];
+	return Math.max((player['solved'] + 2) / (player['solved'] + player['unsolved'] + 4), 0.5)
+}
+
+Model.prototype.calcDamage = function (plInd) {
+	if (plInd == -1) {
+		return 0;
+	}
+	player = this.players[plInd];
+	return player['health'] / 5;
+};
+
+Model.prototype.isAlive = function (plInd) {
+	player = this.players[plInd];
+	return player['health'] > 0;
+};
+
+Model.prototype.attackModeChange = function (plInd) {
+	this.isAttackMode = (this.isAttackMode != -1) ? -1 : plInd;
+
+	this.view.updatePlayers();
+};
+
+Model.prototype.attack = function (toInd) {
+	fromInd = this.isAttackMode;
+	this.isAttackMode = -1;
+	pl1 = this.players[fromInd];
+	pl2 = this.players[toInd];
+
+	prob = this.isAlive(toInd) && this.calcProbablity(fromInd);
+	if (Math.random() < prob) {
+		this.view.hit(fromInd, toInd);
+		pl2['health'] -= this.calcDamage(fromInd);
+	} else {
+		this.view.miss(fromInd, toInd);
+	}
+
+	pl1['solved'] += 1;
+
+	this.addSnapshot();
+
+	this.view.updatePlayers();
+}
+
+Model.prototype.unsolve = function (plInd) {
+	player = this.players[plInd];
+	player['unsolved'] += 1;
+
+	this.addSnapshot();
+
+	this.view.updatePlayers();
+};
+
+
+/* class View:
+ *
+ * generated events:
+ *
+ * listened events:
+ *
+ */
+function View() {
+	this.players = [];
+	this.model = undefined;
+	this.controller = undefined;
+	this.elBody = $("body");
+	this.elPlayers = $(".players");
+	this.newPlayerTemplate = this.elPlayers.find("#template").html();
+	this.animateDur = 500;
+}
+
+View.prototype.joinModel = function (model) {
+	this.model = model;
+};
+
+View.prototype.joinController = function (controller) {
+	this.controller = controller;
+};
+
+View.prototype.addSnapshot = function () {
+	;
+};
+
+View.prototype.addPlayer = function () {
+	var player = this.model.players.slice(-1)[0];
+	var plId = this.model.kPlayers - 1;
+	var playerHTML = "<div id=\"player" + plId + "\" class=\"block\">" +
+               		 this.newPlayerTemplate +
+							     "</div>";
+	this.elPlayers.append(playerHTML);
+
+	obj = this.elPlayers.find("#player" + plId);
+
+	obj.slideUp();
+
+	var els = {};
+
+	els['root'] = obj;
+
+	els['state'] = {
+		'name': obj.find(".username"),
+		'health': obj.find(".health"),
+		'probablity': obj.find(".probablity"),
+		'tasks': obj.find(".tasks"),
+	};
+
+	els['bars'] = {
+		'actBar': obj.find(".actionbar"),
+		'attackBar': obj.find(".attackbar"),
+	};
+
+	els['buttons'] = {
+		'solved': obj.find(".solved"),
+		'unsolved': obj.find(".unsolved"),
+		'attack': obj.find(".attack"),
+	};
+
+	els['damage'] = obj.find(".damage");
+
+	this.players.push(els);
+
+	els['state']['name'].text(player['name']);
+
+	this.updatePlayers();
+	els['root'].slideDown(this.animateDur);
+
+	this.controller.bindNewPlayer(els, plId);
+};
+
+View.prototype.updatePlayers = function () {
+	var players = this.model.players;
+
+	var am = this.model.isAttackMode;
+	var damage = this.model.calcDamage(am);
+	var view = this;
+	var model = this.model;
+	var anim = this.animateDur;
+
+	players.forEach(function(player, index) {
+		var plHtml = view.players[index];
+		var isAlive = model.isAlive(index);
+
+		plHtml['state']['health'].text(
+			((isAlive && player['health'])*100).toFixed(1) + "%");
+		plHtml['state']['probablity'].text(
+			((isAlive && view.model.calcProbablity(index))*100).toFixed(1));
+		plHtml['state']['tasks'].text("Задач Р/Н: " + player['solved'] + "/" + player['unsolved']);
+
+		if (!isAlive) {
+			plHtml['buttons']['solved'].addClass("disabled");
+			plHtml['buttons']['unsolved'].addClass("disabled");
+		}
+
+		if ((am != -1) && (am != index)) {
+			plHtml['bars']['actBar'].slideUp(anim);
+			plHtml['bars']['attackBar'].slideDown(anim);
+			plHtml['damage'].text("Урон: " + (damage*100).toFixed(1) + "%");
+		} else {
+			plHtml['bars']['actBar'].slideDown(anim);
+			plHtml['bars']['attackBar'].slideUp(anim);
+		}
+	});
+};
+
+View.prototype.hit = function (fromInd, toInd) {
+	console.log(fromInd + "->" + toInd + " Попал!");
+};
+
+View.prototype.miss = function (fromInd, toInd) {
+	console.log(fromInd + "->" + toInd + " не Попал!");
+};
+
+
+// Class Controller
+function Controller() {
+	this.model = undefined;
+}
+
+Controller.prototype.joinModel = function (model) {
+	this.model = model;
+};
+
+Controller.prototype.bindNewPlayer = function (playerHtml, index) {
+	playerHtml['buttons']['solved'].click(
+		function() {
+			model.attackModeChange(index)
+			}
+		);
+
+	playerHtml['buttons']['unsolved'].click(
+		function() {
+			model.unsolve(index);
+		}
+	);
+
+	playerHtml['buttons']['attack'].click(
+		function() {
+			model.attack(index);
+		}
+	)
+};
+
 
 $(document).ready(function () {
-	$("#two").html($("#one").html());
-	$("#three").html($("#one").html());
-	$("#four").html($("#one").html());
+	console.log("I'm alive!");
+	view = new View();
+	model = new Model();
+	controller = new Controller();
 
-pl1 = new Player("Player 1", $("#one"));
-pl2 = new Player("Player 2", $("#two"));
-pl3 = new Player("Player 3", $("#three"));
-pl4 = new Player("Player 4", $("#four"));
+	model.joinView(view);
+	view.joinModel(model);
+	view.joinController(controller);
+	controller.joinModel(view);
 
-players = [pl1, pl2, pl3, pl4];
-
-for (var i=0; i< players.length; i++) {
-	var pl = players[i];
-	console.log(pl);
-	pl.addPlayers(players);
-}
-
-$("#stats").popover();
-$("#savestate").tooltip();
-$("#cancellation").tooltip();
-
-
+	// For test
+	model.addPlayer("Player 0");
+	model.addPlayer("player 1");
+	model.addPlayer("player 2");
 });

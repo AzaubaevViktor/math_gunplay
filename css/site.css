@@ -12,92 +12,81 @@ table {
 }
 
 .block {
-	margin: 0px;
-	padding: 10px;
-	min-width: 50%;
-	min-height: 50%;
-	float: left;
-	border: 1px solid #333;
+	margin: 10px 0 0 10px;
+	padding: 5px;
+	min-width: 320px;
+	border: 1px solid #DDD;
+	display: inline-block;
+	overflow: hidden;
 }
 
-.miniblock {
-	margin: 0px;
-	padding: 10px;
-	width: 33%;
-	min-height: 20%;
-	float: left;
-	border: 1px solid #DDD;
-	vertical-align: middle;
+.addplayer {
+	margin: auto;
+	text-align: center;
+	font-size: 50pt;
 }
+
+/* User card */
 
 img {
 	margin: auto;
 }
 
-.text {
-	font-size: 15pt;
-}
-
-.name {
-	
-}
-
-.health {
-	
-}
-
-.combo {
-	padding: 0px;
-	margin: 0px;
-}
-
-.treatment {
-	margin: 0px;
-}
-
-.treatment > a {
-
-}
-
 .image-avatar {
-	width: 50%;
+	width: 33%;
+	float: left;
+	margin: 0 7px 0 0;
+}
+
+.info {
+	text-align: left;
+}
+
+.block .glyphicon {
+	margin-top: 6px;
+	margin-right: 3px;
+}
+
+p {
+	margin-bottom:3px;
+}
+
+.username, .health, .probablity, .tasks {
+	vertical-align: top;
+}
+
+.health, .probablity, .tasks {
+	font-size: 17px;
+}
+
+.username, .health, .probablity, .tasks {
+	display: inline;
+}
+
+.username {
+	font-size: 20px;
 }
 
 .btn {
-	border-radius: 0px; 
-}
-
-.btn-attack {
-	
-}
-
-.btn-solve {
-	margin-bottom: 10px; 
-}
-
-.btn-not-solve {
-}
-
-.probablity {
-	display: inline;
+	border-radius: 0px;
 }
 
 .damage {
 	display: inline;
+	font-size: 19px;
+	vertical-align: middle;
+	margin-left: 10px;
 }
 
-.vc {
-	vertical-align: middle !important;
+.actionbar, .attackbar {
+	margin-top: 5px;
 }
 
-.vb {
-	vertical-align: bottom !important;
-}
-
-.none {
+.hidden {
 	display: none;
 }
 
-.inline {
-	display: inline;
+
+.text {
+	font-size: 15pt;
 }

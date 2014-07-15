@@ -14,66 +14,61 @@
     	<a class="navbar-brand">Математическая перестрелка</a>
   	</div>
   	<p class="navbar-text">01:33</p>
-  	<button type="button" class="btn btn-default navbar-btn cancellation" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+  	<button id="cancellation" type="button" class="btn btn-default navbar-btn cancellation" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
   		<span class="glyphicon glyphicon-step-backward"></span>
   	</button>
-  	<button id="savestate" type="button" class="btn btn-default navbar-btn savestate" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Сохранить игру">
-  		<span class="glyphicon glyphicon-floppy-disk"></span>
-  	</button>
-
-  	<button id="stats" title="Графики" type="button" class="btn btn-default navbar-btn navbar-right stats" data-container="body" data-toggle="popover" data-placement="bottom" data-content="">
-  		<span class="glyphicon glyphicon-stats"></span>
-  	</button>  	
   </div>
 </nav>
 
+<div class="players">
+	<div id="template" class="block hidden">
+		<div class="up">
+			<img class="image-avatar" src="..."></img>
+			<div class="info">
+				<p class="username">%</p><br>
+				<span class="glyphicon glyphicon-plus"></span><p class="health">%</p><br>
+				<span class="glyphicon glyphicon-screenshot"></span><p class="probablity">%</p><br>
+				<p class="tasks">%</p>
+			</div>
+		</div>
+		<div class="actionbar">
+			<button class="btn btn-default btn-success solved">РЕШЕНА</button>
+			<button class="btn btn-default btn-danger unsolved">НЕ РЕШЕНА</button>
+		</div>
+		<div class="attackbar" style="display:none">
+			<button class="btn btn-default btn-warning attack">ВЫСТРЕЛ</button>
+			<p class="damage">%</p>
+		</div>
+	</div>
 
-<div id="one" class="block">
-<table height="100%" class="table text-center">
-	<thead>
-		<tr>
-			<th width="33%" colspan="3" class="text-center"><p class="text name"></p></th>
-		</tr>
-	</thead>
-	<tr>
-		<td width="33%" class="text-left">
-			<p class="text bullets"></p>
-			<button type="button" class="btn btn-success btn-solve disabled text">Решил задачу</button><br>
-			<button type="button" class="btn btn-warning btn-not-solve disabled text">Не решил задачу</button>
-		</td>
-		<td width="33%" class="vc">
-			<img src="..." class="image-avatar img-rounded">
-		</td>
-		<td width="33%" class="vc text-left">
-			<span class='glyphicon glyphicon-plus'></span>
-			<p class="inline text health"></p><br>
-			<span class='glyphicon glyphicon-screenshot'></span>
-			<p class="inline text probablity"></p>
-		</td>
-	</tr>
-	<tr class="attack">
-		<td class="vb">
-			<p class=" text-left text treatment"><a> </a></p>
-		</td>
-		<td class="vb">
-			<button type="button" class="disabled btn btn-danger btn-attack text">Атаковать</button>
-		</td>
-		<td class="vb">
-			<p class="text combo"></p>
-		</td>
-	</tr>
-	<tr width="100%" class="attacked none">
-		<td class="text vc"></td>
-		<td><button byte="button" class="btn btn-warning btn-kill text">Пиу!</button>
-		<td class="text vc">Урон: <p class="damage"></p>%</td>
-	</tr>
-</table>
+	<div id="playerNaN" class="block">
+		<div class="up">
+			<img class="image-avatar" src="..."></img>
+			<div class="info">
+				<p class="username">Вечный игрок</p><br>
+				<span class="glyphicon glyphicon-plus"></span><p class="health">84%</p><br>
+				<span class="glyphicon glyphicon-screenshot"></span><p class="probablity">50%</p><br>
+				<p class="tasks">Задачи: 5/3</p>
+			</div>
+		</div>
+		<div class="actionbar">
+			<button class="btn btn-default btn-success solved">РЕШЕНА</button>
+			<button class="btn btn-default btn-danger unsolved">НЕ РЕШЕНА</button>
+		</div>
+		<div class="attackbar hidden">
+			<button class="btn btn-default btn-warning attack">ВЫСТРЕЛ</button>
+			<p class="damage">Урон: 16%</p>
+		</div>
+	</div>
 </div>
-<div id="two" class="block"></div>
-<div id="three" class="block"></div>
-<div id="four" class="block"></div>
-	
-<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+
+<div class="block">
+	<div class="form-group">
+    <input type="text" class="form-control col-sm-1" id="newusername" placeholder="Введите имя игрока">
+	</div>
+</div>
+
+<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <script type="text/javascript" src="js/core.js"></script>
 
