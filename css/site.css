@@ -26,6 +26,14 @@ table {
 	font-size: 50pt;
 }
 
+/* navbar */
+.navbar-header:after {
+	clear: none !important;
+}
+
+.navbar-right {
+	float: right !important;
+}
 /* User card */
 
 img {
@@ -89,4 +97,9 @@ p {
 
 .text {
 	font-size: 15pt;
+}
+
+/* new player */
+.form-group {
+	margin-bottom: 0px !important;
 }
