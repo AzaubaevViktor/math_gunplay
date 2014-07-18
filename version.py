@@ -27,7 +27,7 @@ def generate_version():
         minor, typ = _t, ""
 
     # +1 because script run _before_ commit
-    version = "%s.%s.%s%s" % (major, minor, version_raw[1] + 1, typ)
+    version = "%s.%s.%d%s" % (major, minor, int(version_raw[1]) + 1, typ)
 
     proc = subprocess.Popen("git show -s --format='%ct'", shell=True, stdout=subprocess.PIPE)
     date = proc.stdout.readline()
@@ -38,5 +38,5 @@ def generate_version():
 
     return version, date
 
-open("js/version.js", "wt").write("""var __version__ = "%s";
-var __date__ = "%s";""" %generate_version())
+open("js/version.js", "wt").write("""var window.__version__ = "%s";
+var window.__date__ = "%s";""" %generate_version())
