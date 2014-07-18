@@ -274,6 +274,8 @@ Controller.prototype.bindAddNewUserInput = function (input) {
 
 $(document).ready(function () {
 	console.log("I'm alive!");
+
+	$("#version").text(__version__);
 	view = new View();
 	model = new Model();
 	controller = new Controller();
