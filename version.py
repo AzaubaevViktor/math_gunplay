@@ -38,5 +38,5 @@ def generate_version():
 
     return version, date
 
-open("js/version.js", "wt").write("""var window.__version__ = "%s";
-var window.__date__ = "%s";""" %generate_version())
+open("js/version.js", "wt").write("""var __version__ = "%s";
+var __date__ = "%s";""" %generate_version())

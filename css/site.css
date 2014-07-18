@@ -20,13 +20,16 @@ table {
 	overflow: hidden;
 }
 
-.addplayer {
-	margin: auto;
-	text-align: center;
-	font-size: 50pt;
+.btn, .form-control {
+	border-radius: 0px;
+}
+
+.hidden {
+	display:none;
 }
 
 /* navbar */
+
 .navbar-header:after {
 	clear: none !important;
 }
@@ -36,67 +39,24 @@ table {
 }
 /* User card */
 
-img {
-	margin: auto;
+.table, th {
+	text-align: center;
 }
 
-.image-avatar {
-	width: 33%;
-	float: left;
-	margin: 0 7px 0 0;
+tr.square>td {
+	background-color: #D9EDF7
 }
 
-.info {
-	text-align: left;
+tr.hospital>td {
+	background-color: #DFF0D8
 }
 
-.block .glyphicon {
-	margin-top: 6px;
-	margin-right: 3px;
+tr.resuscitation>td {
+	background-color: #FCF8E3
 }
 
-p {
-	margin-bottom:3px;
-}
-
-.username, .health, .probablity, .tasks {
-	vertical-align: top;
-}
-
-.health, .probablity, .tasks {
-	font-size: 17px;
-}
-
-.username, .health, .probablity, .tasks {
-	display: inline;
-}
-
-.username {
-	font-size: 20px;
-}
-
-.btn {
-	border-radius: 0px;
-}
-
-.damage {
-	display: inline;
-	font-size: 19px;
-	vertical-align: middle;
-	margin-left: 10px;
-}
-
-.actionbar, .attackbar {
-	margin-top: 5px;
-}
-
-.hidden {
-	display: none;
-}
-
-
-.text {
-	font-size: 15pt;
+tr.morgue>td {
+	background-color: #F5F5F5
 }
 
 /* new player */

@@ -165,7 +165,7 @@
         treatment: 0
       });
       this.addSnapshot();
-      this.view.updateUi();
+      this.view.addPlayer();
       return void 0;
     };
 
@@ -174,14 +174,71 @@
   })();
 
   View = (function() {
-    function View() {}
+    function View() {
+      this.elements = {
+        buttons: {
+          backward: $("#backward"),
+          forward: $("#forward"),
+          daynight: $("#daynight")
+        },
+        objects: {
+          plList: $("#pl-list"),
+          plAddplayer: $("#pl-addplayer"),
+          addPlayerInput: $("#addplayer")
+        },
+        placeTemplate: ($("#place-template")).html()
+      };
+      this.places = [];
+    }
 
     View.prototype.joinModel = function(model) {
       this.model = model;
     };
 
+    View.prototype.addPlayer = function() {
+      var plList, place, placeObj;
+      plList = this.elements.objects.plList;
+      plList.append("<td id=\"place" + this.places.length + ">\" " + this.elements.placeTemplate.replace + " </td>");
+      place = plList.find("#place" + this.places.length);
+      placeObj = {
+        "this": place,
+        id: place.find("#id"),
+        name: place.find("#name"),
+        health: place.find("#health"),
+        attack: place.find("#attack"),
+        tasks: place.find("#tasks")
+      };
+      this.places.push(placeObj);
+      return this.placePlayers();
+    };
+
+    View.prototype.placePlayers = function(lists) {};
+
+    View.prototype.dayUI = function() {
+      var getSortF, listByHealth, listById, listBySolve, listByUnsolve;
+      getSortF = function(a, b, item) {
+        return function(a, b) {
+          return b['item'] - a['item'];
+        };
+      };
+      listById = this.model.players;
+      listByHealth = deepCopy(listById);
+      listByHealth.sort(getSortF('health'));
+      listBySolve = deepCopy(listById);
+      listBySolve.sort(getSortF('solve'));
+      listByUnsolve = deepCopy(listById);
+      listByUnsolve.sort(getSortF('unsolve'));
+      return this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
+    };
+
+    View.prototype.nightUi = function() {};
+
     View.prototype.updateUi = function() {
-      return console.log("I'm update UI!");
+      if (isDay) {
+        return this.dayUI();
+      } else {
+        return this.nightUI();
+      }
     };
 
     View.prototype.updateTime = function() {

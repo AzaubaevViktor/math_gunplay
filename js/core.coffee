@@ -12,6 +12,7 @@ class Model
 
   constructor: () ->
     @isDay = true
+    @isGame = false
     @stTime = 15 * 60
     @time = 0
     @timer = undefined
@@ -68,7 +69,12 @@ class Model
     , 1000, @
 
   changeDayNight: () ->
-    @isDay = not @isDay
+    if not @isGame
+      @isGame = true
+      @isDay = true
+    else
+      @isDay = not @isDay
+
     if @isDay
       @setDayTimer()
 
@@ -131,17 +137,13 @@ class Model
 
     @addSnapshot()
 
-    @view.updateUi()
-
   miss: (plN1) ->
     pl1 = @players[plN1]
     pl1.unsolve += 1
 
     @view.miss plN1
 
-    @addSnapshot
-
-    @view.updateUi()
+    @addSnapshot()
 
   addPlayer: (name) ->
     @players.push {
@@ -154,18 +156,79 @@ class Model
 
     @addSnapshot()
 
-    @view.updateUi()
+    @view.addPlayer()
     undefined
 
 
 
 class View
   constructor: ->
+    @elements = {
+      buttons: {
+        backward: $ "#backward"
+        forward: $ "#forward"
+        daynight: $ "#daynight"
+      }
+      objects: {
+        plList: $ "#pl-list"
+        plAddplayer: $ "#pl-addplayer"
+        addPlayerInput: $ "#addplayer"
+      }
+      placeTemplate: ($ "#place-template").html()
+    }
+    @places = []
 
   joinModel: (@model) ->
 
+  addPlayer: ->
+    plList = @elements.objects.plList
+    plList.append("
+    <td id=\"place#{@places.length}>\"
+      #{@elements.placeTemplate.replace}
+    </td>")
+    place = plList.find "#place#{@places.length}"
+    placeObj = {
+      this: place
+      id: place.find "#id"
+      name: place.find "#name"
+      health: place.find "#health"
+      attack: place.find "#attack"
+      tasks: place.find "#tasks"
+    }
+    @places.push(placeObj)
+
+    @placePlayers()
+
+  placePlayers: (lists) ->
+    for list, index in lists
+
+  beforeGameUI: ->
+
+  dayUI: ->
+    getSortF = (a, b, item) ->
+      (a, b) ->
+        b['item'] - a['item']
+
+    listById = @model.players
+    listByHealth = deepCopy(listById)
+    listByHealth.sort(getSortF('health'))
+    listBySolve = deepCopy(listById)
+    listBySolve.sort(getSortF('solve'))
+    listByUnsolve = deepCopy(listById)
+    listByUnsolve.sort(getSortF('unsolve'))
+    @placePlayers([listById, listByHealth, listBySolve, listByUnsolve])
+
+
+  nightUi: ->
+
   updateUi: ->
-    console.log("I'm update UI!")
+    if not isGame
+      @beforeGameUI()
+    else
+      if isDay
+        @dayUI()
+      else
+        @nightUI()
 
   updateTime: ->
     console.log("time: #{@model.time}")
