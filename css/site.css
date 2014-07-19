@@ -9,6 +9,7 @@ body {
 table {
 	margin: 0px !important;
 	padding: 0px !important;
+	font-size: 25px;
 }
 
 .block {
@@ -37,6 +38,7 @@ table {
 .navbar-right {
 	float: right !important;
 }
+
 /* User card */
 
 .table, th {
@@ -62,4 +64,28 @@ tr.morgue>td {
 /* new player */
 .form-group {
 	margin-bottom: 0px !important;
+}
+
+
+/* carousel */
+.item {
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.carousel-control {
+	background-image: none !important;
+	width: 20px !important;
+}
+
+.carousel-indicators {
+	bottom: -33px;
+}
+
+.carousel-indicators .active {
+	background-color: black;
+}
+
+.carousel-indicators li {
+	border: 1px solid black;
 }

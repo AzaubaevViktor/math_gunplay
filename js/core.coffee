@@ -35,33 +35,39 @@ class Model
 
   # Snapshots
 
-  addSnapshot: () ->
-    @snapshotPoint += 1
-    @snapshots[@snapshotPoint..] = {
-      'isDay': @isDay,
-      'players': deepCopy @players
-    }
-    undefined
-
-  loadSnapshot: (snapshotN = @snapshotPoint - 1) ->
-    @snapshotPoint = snapshotN
-    {@isDay, @players} = @snapshots[@snapshotPoint]
-
-    @view.updateUi()
-    undefined
-
   forwardSnapshot: () ->
     @snapshotPoint += 1
     @loadSnapshot @snapshotPoint
+
+  loadSnapshot: (snapshotN = @snapshotPoint - 1) ->
+    @snapshotPoint = snapshotN
+    {@isGame, @isDay, @players} = @snapshots[@snapshotPoint]
+
+    if !@isDay
+      @time = 0
+
+    @view.updateUI()
+    undefined
+
+  addSnapshot: () ->
+    @snapshotPoint += 1
+    @snapshots[@snapshotPoint..] = {
+      'isGame': @isGame
+      'isDay': @isDay
+      'players': deepCopy @players
+    }
+
+    if @view
+      @view.snapshotButtons()
+    undefined
 
   # Day/Night
 
   setDayTimer: () ->
     @time = @stTime
     @timer = setInterval (_this) ->
-      _this.time -= 1
+      _this.time <= 0
       if ! _this.time
-        clearTimeout _this.timer
         _this.changeDayNight
       else
         _this.view.updateTime()
@@ -69,6 +75,8 @@ class Model
     , 1000, @
 
   changeDayNight: () ->
+    clearInterval @timer
+
     if not @isGame
       @isGame = true
       @isDay = true
@@ -78,7 +86,9 @@ class Model
     if @isDay
       @setDayTimer()
 
-    @view.updateUi()
+    @addSnapshot()
+
+    @view.updateUI()
 
   # Players
 
@@ -122,7 +132,7 @@ class Model
 
     @addSnapshot()
 
-    @view.updateUi()
+    @view.updateUI()
     undefined
 
   attack: (plN1, plN2) ->
@@ -148,6 +158,7 @@ class Model
   addPlayer: (name) ->
     @players.push {
       name: name
+      id: @players.length
       health: 1
       solve: 0
       unsolve: 0
@@ -156,7 +167,7 @@ class Model
 
     @addSnapshot()
 
-    @view.addPlayer()
+    @view.updateUI()
     undefined
 
 
@@ -169,42 +180,114 @@ class View
         forward: $ "#forward"
         daynight: $ "#daynight"
       }
-      objects: {
-        plList: $ "#pl-list"
-        plAddplayer: $ "#pl-addplayer"
-        addPlayerInput: $ "#addplayer"
+
+      inputs: {
+        newPlayer: $ "#addplayer"
       }
-      placeTemplate: ($ "#place-template").html()
+
+      blocks: {
+        newPlayer: $ ".pl-addplayer"
+      }
+
+      carousel: {
+        this: new _Carousel($ "#carousel")
+        items: [($ "#item0"), ($ "#item1"), ($ "#item2"), ($ "#item3")]
+      }
+
+      tables: [($ "#table0")]
+
+      places: [{
+        this: $ "#table0 > .pl-list"
+        list: []
+        }]
+
+      templates: {
+        players: ($ "#players-template").html()
+        place: ($ "#place-template").html()
+      }
     }
-    @places = []
+
+    items = @elements.carousel.items
+
+    for item, ind in items[1..]
+      item.html("<table id=\"table#{ind+1}\" class=\"table\">
+          #{@elements.templates.players}
+        </table>")
+      @elements.tables.push $ "#table#{ind+1}"
+      @elements.places.push {
+        this: $ "#table#{ind+1} > .pl-list"
+        list: []
+        }
 
   joinModel: (@model) ->
 
-  addPlayer: ->
-    plList = @elements.objects.plList
-    plList.append("
-    <td id=\"place#{@places.length}>\"
-      #{@elements.placeTemplate.replace}
-    </td>")
-    place = plList.find "#place#{@places.length}"
-    placeObj = {
-      this: place
-      id: place.find "#id"
-      name: place.find "#name"
-      health: place.find "#health"
-      attack: place.find "#attack"
-      tasks: place.find "#tasks"
-    }
-    @places.push(placeObj)
+  updateUI: ->
+    @placeTest()
+    @snapshotButtons()
+    if not @model.isGame
+      @beforeGameUI()
+    else
+      if @model.isDay
+        @dayUI()
+      else
+        @nightUI()
+    undefined
 
-    @placePlayers()
+  placeTest: ->
+    places = @elements.places
+    if places[0].list.length < @model.players.length
+      for place in places
+        place.this.append(@elements.templates.place)
+        listItem = place.this.find "tr:last-child"
+        listItem.hide()
+        place.list.push {
+          this: listItem
+          id: listItem.find ".id"
+          name: listItem.find ".name"
+          health: listItem.find ".health"
+          attack: listItem.find ".attack"
+          tasks: listItem.find ".tasks"
+        }
+    else if places[0].list.length > @model.players.length
+      if places[0].list.length
+        for place in places
+          place.list[-1..][0].this.hide(500, -> @.remove())
+          place.list.pop()
 
-  placePlayers: (lists) ->
-    for list, index in lists
+    undefined
+
+  snapshotButtons: ->
+    if @model.snapshotPoint != 0
+      @elements.buttons.backward.show(500)
+    else
+      @elements.buttons.backward.hide(500)
+
+    if @model.snapshotPoint != (@model.snapshots.length - 1)
+      @elements.buttons.forward.show(500)
+    else
+      @elements.buttons.forward.hide(500)
 
   beforeGameUI: ->
+    listById = @model.players
+
+    @elements.carousel.this.hideControls()
+    @elements.carousel.this.go 0
+    @elements.carousel.this.pause()
+
+    @elements.blocks.newPlayer.show 500
+
+    @elements.buttons.daynight.text "Начать игру!"
+
+    @placePlayers([listById, [] , [], []])
 
   dayUI: ->
+
+    @elements.carousel.this.showControls()
+    @elements.carousel.this.go 0
+    @elements.carousel.this.start()
+
+    @elements.blocks.newPlayer.hide 500
+
     getSortF = (a, b, item) ->
       (a, b) ->
         b['item'] - a['item']
@@ -218,20 +301,29 @@ class View
     listByUnsolve.sort(getSortF('unsolve'))
     @placePlayers([listById, listByHealth, listBySolve, listByUnsolve])
 
-
   nightUi: ->
 
-  updateUi: ->
-    if not isGame
-      @beforeGameUI()
-    else
-      if isDay
-        @dayUI()
-      else
-        @nightUI()
+  placePlayers: (lists) ->
+    for list, l in lists
+      place = @elements.places[l]
+      for player, p in list
+        listItem = place.list[p]
+
+        listItem.id.text player.id
+        listItem.name.text player.name
+        listItem.health.text player.health * 100
+        listItem.attack.text (@model.getAttack player.id) * 100
+        listItem.tasks.text "#{player.solve}/#{player.unsolve}"
+        listItem.this.removeClass().addClass @model.getLevel player.id
+        listItem.this.show(500)
+        undefined
+      undefined
+    undefined
 
   updateTime: ->
-    console.log("time: #{@model.time}")
+    minutes = @model.time % 60
+    minutes = if minutes < 10 then "0" + minutes else minutes
+    @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
 
   hit: ->
 
@@ -239,19 +331,84 @@ class View
 
 
 
+class Controller
+  constructor: ->
+
+  joinModel: (@model) ->
+
+  joinView: (@view) ->
+
+  bind: ->
+    _this = @
+
+    input = @view.elements.inputs.newPlayer
+    input.keyup (e) ->
+      if 13 == e.keyCode
+        name = input.val()
+        input.val ""
+        _this.model.addPlayer name
+      undefined
+
+    @view.elements.buttons.daynight.click () ->
+      _this.model.changeDayNight()
+
+    @view.elements.buttons.forward.click ->
+      _this.model.forwardSnapshot()
+
+    @view.elements.buttons.backward.click ->
+      _this.model.loadSnapshot()
+
+
+class _Carousel
+  constructor: (@elem) ->
+
+  start: ->
+    @elem.carousel "cycle"
+
+  pause: ->
+    @elem.carousel "pause"
+
+  go: (num) ->
+    @elem.carousel num
+
+  next: ->
+    @elem.carousel "next"
+
+  prev: ->
+    @elem.carousel "prev"
+
+  hideControls: ->
+    @elem.find(".carousel-control").hide()
+    @elem.find(".carousel-indicators").hide()
+    undefined
+
+  showControls: ->
+    @elem.find(".carousel-control").show()
+    @elem.find(".carousel-indicators").show()
+    undefined
+
 
 ($ document).ready ->
   console.log "I'm alive!"
 
   model = new Model()
   view = new View()
+  controller = new Controller()
 
   model.joinView view
   view.joinModel model
+  controller.joinView view
+  controller.joinModel model
+
+  controller.bind()
+
   window.Model = Model
   window.View = View
+  window.Controller = Controller
+  window._Carousel = _Carousel
   window.model = model
   window.view = view
+  window.controller = controller
 
   ($ "#version").text __version__
 

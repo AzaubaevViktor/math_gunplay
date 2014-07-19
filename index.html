@@ -8,107 +8,94 @@
 </head>
 <body>
 
-<!-- NAVIGATION TOP -->
+	<!-- NAVIGATION TOP -->
 
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-  	<div class="navbar-header">
-    	<a class="navbar-brand">Математическая перестрелка</a>
-  	</div>
-  	<button id="backward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
-  		<span class="glyphicon glyphicon-step-backward"></span>
-  	</button>
-		<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
-			<span class="glyphicon glyphicon-step-forward"></span>
-		</button>
-		<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
-			День (12:03)
-		</button>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand">Математическая перестрелка</a>
+			</div>
+			<button id="backward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+				<span class="glyphicon glyphicon-step-backward"></span>
+			</button>
+			<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+				<span class="glyphicon glyphicon-step-forward"></span>
+			</button>
+			<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+				День (12:03)
+			</button>
 
 
-  	<p id="version" class="navbar-text navbar-right"></p>
-  </div>
-</nav>
+			<p id="version" class="navbar-text navbar-right"></p>
+		</div>
+	</nav>
 
-<!-- CAROUSEL -->
+	<!-- CAROUSEL -->
 
-<div id="carousel" class="carousel slide" data-ride="carousel">
-  <!-- Indicators -->
-  <ol class="carousel-indicators">
-    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-		<li data-target="#carousel-example-generic" data-slide-to="3"></li>
-  </ol>
-	<!-- Slides -->
-	<div class="carousel-inner">
-    <div class="item active">
-			<table id="players0" class="table">
-				<thead id="pl-head">
-					<tr>
-						<th>ID</th>
-						<th>Команда</th>
-						<th><span class="glyphicon glyphicon-heart"></span></th>
-						<th><span class="glyphicon glyphicon-screenshot"></span></th>
-						<th>Р/Н</th>
-					</tr>
-				</thead>
-				<tbody id="pl-list">
-					<tr id="place-template" class="square hidden">
-						<td class="id"></td>
-						<td class="name"></td>
-						<td class="health"></td>
-						<td class="attack"></td>
-						<td class="tasks"></td>
-					</tr>
-				</tbody>
-				<tbody id="pl-addplayer">
-					<tr>
-						<td></td>
-						<td colspan=4>
-							<div class="form-group">
-								<input type="text" class="form-control col-sm-1" id="addplayer" placeholder="Введите имя игрока">
-							</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-    </div>
-    <div class="item">
-			<table id="players0" class="table">
-				<thead id="pl-head">
-					<tr>
-						<th>ID</th>
-						<th>Команда</th>
-						<th><span class="glyphicon glyphicon-heart"></span></th>
-						<th><span class="glyphicon glyphicon-screenshot"></span></th>
-						<th>Р/Н</th>
-					</tr>
-				</thead>
-				<tbody id="pl-list">
-					<tr id="place-template" class="square hidden">
-						<td class="id"></td>
-						<td class="name"></td>
-						<td class="health"></td>
-						<td class="attack"></td>
-						<td class="tasks"></td>
-					</tr>
-				</tbody>
-			</table>
-    </div>
-  </div>
-	<!-- Controls -->
-  <a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
-    <span class="glyphicon glyphicon-chevron-left"></span>
-  </a>
-  <a class="right carousel-control" href="#carousel" role="button" data-slide="next">
-    <span class="glyphicon glyphicon-chevron-right"></span>
-  </a>
-</div>
+	<div id="carousel" class="carousel slide">
+		<!-- Indicators -->
+		<ol class="carousel-indicators">
+			<li data-target="#carousel" data-slide-to="0" class="active"></li>
+			<li data-target="#carousel" data-slide-to="1"></li>
+			<li data-target="#carousel" data-slide-to="2"></li>
+			<li data-target="#carousel" data-slide-to="3"></li>
+		</ol>
+		<!-- Slides -->
+		<div class="carousel-inner">
+			<div id="item0" class="item active">
 
-<div >
-	<table id="players" class="table">
-		<thead id="pl-head">
+				<table id="table0" class="table">
+					<thead class="pl-head">
+						<tr>
+							<th>ID</th>
+							<th>Команда</th>
+							<th><span class="glyphicon glyphicon-heart"></span></th>
+							<th><span class="glyphicon glyphicon-screenshot"></span></th>
+							<th>Р/Н</th>
+						</tr>
+					</thead>
+					<tbody class="pl-list"></tbody>
+					<tbody class="pl-addplayer">
+						<tr>
+							<td colspan=5>
+								<div class="form-group">
+									<input type="text" class="form-control col-sm-1 input-sm" id="addplayer" placeholder="Введите имя игрока">
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+			<div id="item1" class="item"></div>
+			<div id="item2" class="item"></div>
+			<div id="item3" class="item"></div>
+		</div>
+		<!-- Controls -->
+		<a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
+			<span class="glyphicon glyphicon-chevron-left"></span>
+		</a>
+		<a class="right carousel-control" href="#carousel" role="button" data-slide="next">
+			<span class="glyphicon glyphicon-chevron-right"></span>
+		</a>
+	</div>
+
+	<!-- TEMPLATES -->
+
+	<table class="hidden">
+		<tbody id="place-template">
+			<tr class="square">
+				<td class="id"></td>
+				<td class="name"></td>
+				<td class="health"></td>
+				<td class="attack"></td>
+				<td class="tasks"></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<table id="players-template" class="table hidden">
+		<thead class="pl-head">
 			<tr>
 				<th>ID</th>
 				<th>Команда</th>
@@ -117,33 +104,14 @@
 				<th>Р/Н</th>
 			</tr>
 		</thead>
-		<tbody id="pl-list">
-			<tr id="place-template" class="square hidden">
-				<td class="id"></td>
-				<td class="name"></td>
-				<td class="health"></td>
-				<td class="attack"></td>
-				<td class="tasks"></td>
-			</tr>
-		</tbody>
-		<tbody id="pl-addplayer">
-			<tr>
-				<td></td>
-				<td colspan=4>
-					<div class="form-group">
-						<input type="text" class="form-control col-sm-1" id="addplayer" placeholder="Введите имя игрока">
-					</div>
-				</td>
-			</tr>
-		</tbody>
+		<tbody class="pl-list"></tbody>
 	</table>
-</div>
 
 
-<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/version.js"></script>
-<script type="text/javascript" src="js/core.js"></script>
+	<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.js"></script>
+	<script type="text/javascript" src="js/version.js"></script>
+	<script type="text/javascript" src="js/core.js"></script>
 
 </body>
 </html>
