@@ -11,7 +11,7 @@ deepCopy = (v) ->
 class Model
 
   constructor: () ->
-    @isDay = true
+    @isDay = false
     @isGame = false
     @stTime = 15 * 60
     @time = 0
@@ -66,8 +66,8 @@ class Model
   setDayTimer: () ->
     @time = @stTime
     @timer = setInterval (_this) ->
-      _this.time <= 0
-      if ! _this.time
+      _this.time -= 1
+      if _this.time <= 0
         _this.changeDayNight
       else
         _this.view.updateTime()

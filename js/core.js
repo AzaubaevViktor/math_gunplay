@@ -17,7 +17,7 @@
 
   Model = (function() {
     function Model() {
-      this.isDay = true;
+      this.isDay = false;
       this.isGame = false;
       this.stTime = 15 * 60;
       this.time = 0;
@@ -76,8 +76,8 @@
     Model.prototype.setDayTimer = function() {
       this.time = this.stTime;
       return this.timer = setInterval(function(_this) {
-        _this.time <= 0;
-        if (!_this.time) {
+        _this.time -= 1;
+        if (_this.time <= 0) {
           _this.changeDayNight;
         } else {
           _this.view.updateTime();
