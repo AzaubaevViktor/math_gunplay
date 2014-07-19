@@ -19,7 +19,7 @@
     function Model() {
       this.isDay = false;
       this.isGame = false;
-      this.stTime = 15 * 60;
+      this.stTime = 500;
       this.time = 0;
       this.timer = void 0;
       this.players = [];
@@ -78,7 +78,7 @@
       return this.timer = setInterval(function(_this) {
         _this.time -= 1;
         if (_this.time <= 0) {
-          _this.changeDayNight;
+          _this.changeDayNight();
         } else {
           _this.view.updateTime();
         }
@@ -217,6 +217,10 @@
           place: ($("#place-template")).html()
         }
       };
+      this.nightMode = {
+        is: 0,
+        selected: -1
+      };
       items = this.elements.carousel.items;
       _ref = items.slice(1);
       for (ind = _i = 0, _len = _ref.length; _i < _len; ind = ++_i) {
@@ -234,9 +238,14 @@
       this.model = model;
     };
 
+    View.prototype.joinController = function(controller) {
+      this.controller = controller;
+    };
+
     View.prototype.updateUI = function() {
       this.placeTest();
       this.snapshotButtons();
+      this.nightMode.is = 0;
       if (!this.model.isGame) {
         this.beforeGameUI();
       } else {
@@ -264,8 +273,10 @@
             name: listItem.find(".name"),
             health: listItem.find(".health"),
             attack: listItem.find(".attack"),
-            tasks: listItem.find(".tasks")
+            tasks: listItem.find(".tasks"),
+            actions: listItem.find(".actions")
           });
+          place.list.slice(-1)[0].actions.hide();
         }
       } else if (places[0].list.length > this.model.players.length) {
         if (places[0].list.length) {
@@ -326,7 +337,18 @@
       return this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
     };
 
-    View.prototype.nightUi = function() {};
+    View.prototype.nightUI = function() {
+      var listById;
+      this.nightMode.is = 1;
+      this.controller.bindNight();
+      this.elements.carousel["this"].hideControls();
+      this.elements.carousel["this"].go(0);
+      this.elements.carousel["this"].pause();
+      this.elements.blocks.newPlayer.hide(500);
+      listById = this.model.players;
+      this.elements.buttons.daynight.text("Ночь");
+      return this.placePlayers([listById, [], [], []]);
+    };
 
     View.prototype.placePlayers = function(lists) {
       var l, list, listItem, p, place, player, _i, _j, _len, _len1;
@@ -338,9 +360,17 @@
           listItem = place.list[p];
           listItem.id.text(player.id);
           listItem.name.text(player.name);
-          listItem.health.text(player.health * 100);
-          listItem.attack.text((this.model.getAttack(player.id)) * 100);
-          listItem.tasks.text("" + player.solve + "/" + player.unsolve);
+          if (this.nightMode.is && (p === this.nightMode.selected)) {
+            listItem.health.hide();
+            listItem.attack.hide();
+            listItem.tasks.hide();
+            listItem.actions.show();
+          } else {
+            listItem.health.show().text(player.health * 100);
+            listItem.attack.show().text((this.model.getAttack(player.id)) * 100);
+            listItem.tasks.show().text("" + player.solve + "/" + player.unsolve);
+            listItem.actions.hide();
+          }
           listItem["this"].removeClass().addClass(this.model.getLevel(player.id));
           listItem["this"].show(500);
           void 0;
@@ -357,9 +387,9 @@
       return this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
     };
 
-    View.prototype.hit = function() {};
+    View.prototype.hit = function(plN1, plN2) {};
 
-    View.prototype.miss = function() {};
+    View.prototype.miss = function(plN) {};
 
     return View;
 
@@ -400,6 +430,26 @@
       });
     };
 
+    Controller.prototype.bindNight = function() {
+      var index, item, place, _i, _len, _ref, _results;
+      place = this.view.elements.places[0];
+      _ref = place.list;
+      _results = [];
+      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+        item = _ref[index];
+        console.log(item);
+        item["this"].click(function(view, index) {
+          console.log(1);
+          view.nightMode.selected = index;
+          return view.updateUI();
+        }, [this.view, index]);
+        _results.push(void 0);
+      }
+      return _results;
+    };
+
+    Controller.prototype.unbindNight = function() {};
+
     return Controller;
 
   })();
@@ -430,14 +480,14 @@
     };
 
     _Carousel.prototype.hideControls = function() {
-      this.elem.find(".carousel-control").hide();
-      this.elem.find(".carousel-indicators").hide();
+      this.elem.find(".carousel-control").fadeOut(500);
+      this.elem.find(".carousel-indicators").fadeOut(500);
       return void 0;
     };
 
     _Carousel.prototype.showControls = function() {
-      this.elem.find(".carousel-control").show();
-      this.elem.find(".carousel-indicators").show();
+      this.elem.find(".carousel-control").fadeIn(500);
+      this.elem.find(".carousel-indicators").fadeIn(500);
       return void 0;
     };
 
@@ -453,6 +503,7 @@
     controller = new Controller();
     model.joinView(view);
     view.joinModel(model);
+    view.joinController(controller);
     controller.joinView(view);
     controller.joinModel(model);
     controller.bind();
@@ -463,10 +514,11 @@
     window.model = model;
     window.view = view;
     window.controller = controller;
+    ($(".navbar-btn")).tooltip();
     ($("#version")).text(__version__);
-    model.addPlayer("test1");
-    model.addPlayer("test2");
-    model.addPlayer("test3");
+    model.addPlayer("Математики");
+    model.addPlayer("Лунатики");
+    model.addPlayer("Пузатики");
     model.getTreat(1, 2);
     return void 0;
   });

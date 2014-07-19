@@ -13,7 +13,7 @@ class Model
   constructor: () ->
     @isDay = false
     @isGame = false
-    @stTime = 15 * 60
+    @stTime = 500
     @time = 0
     @timer = undefined
     @players = []
@@ -68,7 +68,7 @@ class Model
     @timer = setInterval (_this) ->
       _this.time -= 1
       if _this.time <= 0
-        _this.changeDayNight
+        _this.changeDayNight()
       else
         _this.view.updateTime()
       undefined
@@ -207,6 +207,11 @@ class View
       }
     }
 
+    @nightMode = {
+      is: 0
+      selected: -1
+    }
+
     items = @elements.carousel.items
 
     for item, ind in items[1..]
@@ -221,9 +226,12 @@ class View
 
   joinModel: (@model) ->
 
+  joinController: (@controller) ->
+
   updateUI: ->
     @placeTest()
     @snapshotButtons()
+    @nightMode.is = 0
     if not @model.isGame
       @beforeGameUI()
     else
@@ -247,7 +255,9 @@ class View
           health: listItem.find ".health"
           attack: listItem.find ".attack"
           tasks: listItem.find ".tasks"
+          actions: listItem.find ".actions"
         }
+        place.list[-1..][0].actions.hide()
     else if places[0].list.length > @model.players.length
       if places[0].list.length
         for place in places
@@ -281,7 +291,6 @@ class View
     @placePlayers([listById, [] , [], []])
 
   dayUI: ->
-
     @elements.carousel.this.showControls()
     @elements.carousel.this.go 0
     @elements.carousel.this.start()
@@ -299,9 +308,27 @@ class View
     listBySolve.sort(getSortF('solve'))
     listByUnsolve = deepCopy(listById)
     listByUnsolve.sort(getSortF('unsolve'))
-    @placePlayers([listById, listByHealth, listBySolve, listByUnsolve])
+    @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
 
-  nightUi: ->
+  nightUI: ->
+    @nightMode.is = 1
+    @controller.bindNight()
+
+    @elements.carousel.this.hideControls()
+    @elements.carousel.this.go 0
+    @elements.carousel.this.pause()
+
+    @elements.blocks.newPlayer.hide 500
+
+    listById = @model.players
+
+    @elements.buttons.daynight.text "Ночь"
+
+
+    @placePlayers [listById, [], [], []]
+
+
+
 
   placePlayers: (lists) ->
     for list, l in lists
@@ -311,9 +338,16 @@ class View
 
         listItem.id.text player.id
         listItem.name.text player.name
-        listItem.health.text player.health * 100
-        listItem.attack.text (@model.getAttack player.id) * 100
-        listItem.tasks.text "#{player.solve}/#{player.unsolve}"
+        if @nightMode.is and (p == @nightMode.selected)
+          listItem.health.hide()
+          listItem.attack.hide()
+          listItem.tasks.hide()
+          listItem.actions.show()
+        else
+          listItem.health.show().text player.health * 100
+          listItem.attack.show().text (@model.getAttack player.id) * 100
+          listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
+          listItem.actions.hide()
         listItem.this.removeClass().addClass @model.getLevel player.id
         listItem.this.show(500)
         undefined
@@ -325,9 +359,9 @@ class View
     minutes = if minutes < 10 then "0" + minutes else minutes
     @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
 
-  hit: ->
+  hit: (plN1, plN2) ->
 
-  miss: ->
+  miss: (plN) ->
 
 
 
@@ -358,6 +392,21 @@ class Controller
     @view.elements.buttons.backward.click ->
       _this.model.loadSnapshot()
 
+  bindNight: ->
+    place = @view.elements.places[0]
+    for item, index in place.list
+      console.log item
+      item.this.click (view, index) ->
+        # вот эта гадость не хочет работать
+        console.log(1)
+        view.nightMode.selected = index
+        view.updateUI()
+      , [@view, index]
+      undefined
+
+  unbindNight: ->
+
+
 
 class _Carousel
   constructor: (@elem) ->
@@ -378,13 +427,13 @@ class _Carousel
     @elem.carousel "prev"
 
   hideControls: ->
-    @elem.find(".carousel-control").hide()
-    @elem.find(".carousel-indicators").hide()
+    @elem.find(".carousel-control").fadeOut(500)
+    @elem.find(".carousel-indicators").fadeOut(500)
     undefined
 
   showControls: ->
-    @elem.find(".carousel-control").show()
-    @elem.find(".carousel-indicators").show()
+    @elem.find(".carousel-control").fadeIn(500)
+    @elem.find(".carousel-indicators").fadeIn(500)
     undefined
 
 
@@ -397,6 +446,7 @@ class _Carousel
 
   model.joinView view
   view.joinModel model
+  view.joinController controller
   controller.joinView view
   controller.joinModel model
 
@@ -410,12 +460,14 @@ class _Carousel
   window.view = view
   window.controller = controller
 
+  ($ ".navbar-btn").tooltip()
+
   ($ "#version").text __version__
 
   # Test
-  model.addPlayer("test1")
-  model.addPlayer("test2")
-  model.addPlayer("test3")
+  model.addPlayer("Математики")
+  model.addPlayer("Лунатики")
+  model.addPlayer("Пузатики")
   model.getTreat(1, 2)
 
   undefined
