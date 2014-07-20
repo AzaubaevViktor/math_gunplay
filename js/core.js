@@ -19,7 +19,7 @@
     function Model() {
       this.isDay = false;
       this.isGame = false;
-      this.stTime = 500;
+      this.stTime = 15 * 60;
       this.time = 0;
       this.timer = void 0;
       this.players = [];
@@ -52,9 +52,6 @@
       }
       this.snapshotPoint = snapshotN;
       _ref = this.snapshots[this.snapshotPoint], this.isGame = _ref.isGame, this.isDay = _ref.isDay, this.players = _ref.players;
-      if (!this.isDay) {
-        this.time = 0;
-      }
       this.view.updateUI();
       return void 0;
     };
@@ -71,6 +68,12 @@
         this.view.snapshotButtons();
       }
       return void 0;
+    };
+
+    Model.prototype.clearSnapshots = function() {
+      this.snapshotPoint = -1;
+      this.snapshots = [];
+      return this.addSnapshot();
     };
 
     Model.prototype.setDayTimer = function() {
@@ -97,7 +100,7 @@
       if (this.isDay) {
         this.setDayTimer();
       }
-      this.addSnapshot();
+      this.clearSnapshots();
       return this.view.updateUI();
     };
 
@@ -150,7 +153,7 @@
       return void 0;
     };
 
-    Model.prototype.attack = function(plN1, plN2) {
+    Model.prototype.hit = function(plN1, plN2) {
       var pl1, pl2;
       pl1 = this.players[plN1];
       pl2 = this.players[plN2];
@@ -177,7 +180,6 @@
         unsolve: 0,
         treatment: 0
       });
-      this.addSnapshot();
       this.view.updateUI();
       return void 0;
     };
@@ -374,7 +376,7 @@
             listItem.tasks.hide();
             listItem.actions["this"].show();
           } else {
-            listItem.health.show().text(player.health * 100);
+            listItem.health.show().text((player.health * 100).toFixed(0));
             listItem.attack.show().text(((this.model.getAttack(player.id)) * 100).toFixed(0));
             listItem.tasks.show().text("" + player.solve + "/" + player.unsolve);
             listItem.actions["this"].hide();
@@ -397,11 +399,13 @@
 
     View.prototype.hit = function(plN1, plN2) {
       console.log("BADABOOM " + plN1 + " ====> " + plN2);
+      this.updateUI();
       return void 0;
     };
 
     View.prototype.miss = function(plN) {
       console.log("PHAHAHA " + plN);
+      this.updateUI();
       return void 0;
     };
 
@@ -475,10 +479,11 @@
           tr = _ref[solved];
           tr.on('click', {
             plN: plN,
-            _this: this
+            _this: this,
+            solved: solved
           }, function(event) {
             var _ref1, _this;
-            _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this;
+            _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this, solved = _ref1.solved;
             _this.view.nightMode.selected = -1;
             return _this.model.treat(plN, solved);
           });
@@ -501,20 +506,18 @@
             plN: plN,
             _this: this
           }, function(event) {
-            var model, view, _ref1, _this;
-            console.log("Clicked " + plN);
+            var model, plN1, view, _ref1, _this;
             _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this;
             view = _this.view, model = _this.model;
             if (-1 !== view.nightMode.attack) {
-              console.log("attack!");
-              model.attack(view.nightMode.attack, plN);
               view.nightMode.selected = -1;
+              plN1 = view.nightMode.attack;
               view.nightMode.attack = -1;
+              return model.hit(plN1, plN);
             } else {
-              console.log("no attack :(");
               view.nightMode.selected = plN === view.nightMode.selected ? -1 : plN;
+              return view.updateUI();
             }
-            return view.updateUI();
           });
           item.id.css('cursor', 'pointer');
           item.name.css('cursor', 'pointer');
@@ -592,11 +595,8 @@
     window.view = view;
     window.controller = controller;
     ($(".navbar-btn")).tooltip();
+    ($(".with-tooltip")).tooltip();
     ($("#version")).text(__version__);
-    model.addPlayer("Математики");
-    model.addPlayer("Лунатики");
-    model.addPlayer("Пузатики");
-    model.getTreat(1, 2);
     return void 0;
   });
 

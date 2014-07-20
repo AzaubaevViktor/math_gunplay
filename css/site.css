@@ -87,13 +87,17 @@ tr.morgue>td {
 }
 
 
+.name {
+	text-align: left;
+}
+
 /* new player */
 .form-group {
 	margin-bottom: 0px !important;
 }
 
-.name {
-	text-align: left;
+.input-sm {
+	font-size: 17px;
 }
 
 

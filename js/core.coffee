@@ -15,18 +15,21 @@ class Model
   constructor: () ->
     @isDay = false
     @isGame = false
-    @stTime = 500
+    @stTime = 15 * 60
     @time = 0
     @timer = undefined
     @players = []
+
     @snapshots = []
     @snapshotPoint = -1
+
     @levels = {
       square: [0.8, 1]
       hospital: [0.3, 0.8]
       resuscitation: [0, 0.3]
       morgue: [-10000, 0]
     }
+
     @view = undefined
 
     @addSnapshot()
@@ -45,9 +48,6 @@ class Model
     @snapshotPoint = snapshotN
     {@isGame, @isDay, @players} = @snapshots[@snapshotPoint]
 
-    if !@isDay
-      @time = 0
-
     @view.updateUI()
     undefined
 
@@ -63,6 +63,11 @@ class Model
       @view.snapshotButtons()
     undefined
 
+  clearSnapshots: ->
+    @snapshotPoint = -1
+    @snapshots = []
+    @addSnapshot()
+
   # Day/Night
 
   setDayTimer: () ->
@@ -76,7 +81,7 @@ class Model
       undefined
     , 1000, @
 
-  changeDayNight: () ->
+  changeDayNight: ->
     clearInterval @timer
 
     if not @isGame
@@ -88,7 +93,7 @@ class Model
     if @isDay
       @setDayTimer()
 
-    @addSnapshot()
+    @clearSnapshots()
 
     @view.updateUI()
 
@@ -137,7 +142,7 @@ class Model
     @view.updateUI()
     undefined
 
-  attack: (plN1, plN2) ->
+  hit: (plN1, plN2) ->
     pl1 = @players[plN1]
     pl2 = @players[plN2]
 
@@ -166,8 +171,6 @@ class Model
       unsolve: 0
       treatment: 0
     }
-
-    @addSnapshot()
 
     @view.updateUI()
     undefined
@@ -318,12 +321,16 @@ class View
         b[item] - a[item]
 
     listById = @model.players
+
     listByHealth = deepCopy(listById)
     listByHealth.sort(getSortF('health'))
+
     listBySolve = deepCopy(listById)
     listBySolve.sort(getSortF('solve'))
+
     listByUnsolve = deepCopy(listById)
     listByUnsolve.sort(getSortF('unsolve'))
+
     @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
 
   nightUI: ->
@@ -356,7 +363,7 @@ class View
           listItem.tasks.hide()
           listItem.actions.this.show()
         else
-          listItem.health.show().text player.health * 100
+          listItem.health.show().text (player.health * 100).toFixed(0)
           listItem.attack.show().text ((@model.getAttack player.id) * 100).toFixed(0)
           listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
           listItem.actions.this.hide()
@@ -373,10 +380,12 @@ class View
 
   hit: (plN1, plN2) ->
     console.log "BADABOOM #{plN1} ====> #{plN2}"
+    @updateUI()
     undefined
 
   miss: (plN) ->
     console.log "PHAHAHA #{plN}"
+    @updateUI()
     undefined
 
 
@@ -428,8 +437,8 @@ class Controller
         _this.view.updateUI()
 
       for tr, solved in item.actions.treat
-        tr.on 'click', {plN: plN, _this: @}, (event) ->
-          {plN, _this} = event.data
+        tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
+          {plN, _this, solved} = event.data
           _this.view.nightMode.selected = -1
           _this.model.treat(plN, solved)
         undefined
@@ -441,19 +450,17 @@ class Controller
       place = @view.elements.places[0]
       for item, plN in place.list
         item.this.on 'click', "td:not(.actions)", {plN: plN, _this: @}, (event) ->
-          console.log "Clicked #{plN}"
           {plN, _this} = event.data
           {view, model} = _this
           if -1 != view.nightMode.attack
-            console.log "attack!"
-            model.attack view.nightMode.attack, plN
             view.nightMode.selected = -1
+            plN1 = view.nightMode.attack
             view.nightMode.attack = -1
+            model.hit plN1, plN
           else
-            console.log "no attack :("
             view.nightMode.selected =
               if plN == view.nightMode.selected then -1 else plN
-          view.updateUI()
+            view.updateUI()
 
         item.id.css('cursor','pointer')
         item.name.css('cursor','pointer')
@@ -517,13 +524,13 @@ class _Carousel
   window.controller = controller
 
   ($ ".navbar-btn").tooltip()
+  ($ ".with-tooltip").tooltip()
 
   ($ "#version").text __version__
 
   # Test
-  model.addPlayer("Математики")
-  model.addPlayer("Лунатики")
-  model.addPlayer("Пузатики")
-  model.getTreat(1, 2)
+  # model.addPlayer("Математики")
+  # model.addPlayer("Лунатики")
+  # model.addPlayer("Пузатики")
 
   undefined
