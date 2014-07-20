@@ -218,8 +218,9 @@
         }
       };
       this.nightMode = {
-        is: 0,
-        selected: -1
+        is: false,
+        selected: -1,
+        attack: -1
       };
       items = this.elements.carousel.items;
       _ref = items.slice(1);
@@ -312,19 +313,19 @@
 
     View.prototype.beforeGameUI = function() {
       var listById;
-      this.nightMode.is = 0;
+      this.nightMode.is = false;
       listById = this.model.players;
       this.elements.carousel["this"].hideControls();
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].pause();
       this.elements.blocks.newPlayer.show(500);
       this.elements.buttons.daynight.text("Начать игру!");
-      return this.placePlayers([listById, [], [], []]);
+      return this.placePlayers([listById]);
     };
 
     View.prototype.dayUI = function() {
       var getSortF, listByHealth, listById, listBySolve, listByUnsolve;
-      this.nightMode.is = 0;
+      this.nightMode.is = false;
       this.elements.carousel["this"].showControls();
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].start();
@@ -341,13 +342,12 @@
       listBySolve.sort(getSortF('solve'));
       listByUnsolve = deepCopy(listById);
       listByUnsolve.sort(getSortF('unsolve'));
-      console.log(listByUnsolve);
       return this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
     };
 
     View.prototype.nightUI = function() {
       var listById;
-      this.nightMode.is = 1;
+      this.nightMode.is = true;
       this.controller.bindNight();
       this.elements.carousel["this"].hideControls();
       this.elements.carousel["this"].go(0);
@@ -355,7 +355,7 @@
       this.elements.blocks.newPlayer.hide(500);
       listById = this.model.players;
       this.elements.buttons.daynight.text("Ночь");
-      return this.placePlayers([listById, [], [], []]);
+      return this.placePlayers([listById]);
     };
 
     View.prototype.placePlayers = function(lists) {
@@ -396,12 +396,12 @@
     };
 
     View.prototype.hit = function(plN1, plN2) {
-      this.updateUI();
+      console.log("BADABOOM " + plN1 + " ====> " + plN2);
       return void 0;
     };
 
     View.prototype.miss = function(plN) {
-      this.updateUI();
+      console.log("PHAHAHA " + plN);
       return void 0;
     };
 
@@ -467,7 +467,8 @@
         }, function(event) {
           var _ref, _this;
           _ref = event.data, plN = _ref.plN, _this = _ref._this;
-          return _this.view.nightMode.selected = -1;
+          _this.view.nightMode.attack = plN;
+          return _this.view.updateUI();
         });
         _ref = item.actions.treat;
         for (solved = _i = 0, _len = _ref.length; _i < _len; solved = ++_i) {
@@ -488,17 +489,31 @@
     };
 
     Controller.prototype.bindNight = function() {
-      var index, item, place, _i, _len, _ref, _results;
+      var item, plN, place, _i, _len, _ref, _results;
       if (!this.isBindNight) {
         this.isBindNight = 1;
         place = this.view.elements.places[0];
         _ref = place.list;
         _results = [];
-        for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-          item = _ref[index];
-          item["this"].on('click', "td:not(.actions)", index, function(event) {
-            index = event.data;
-            view.nightMode.selected = index === view.nightMode.selected ? -1 : index;
+        for (plN = _i = 0, _len = _ref.length; _i < _len; plN = ++_i) {
+          item = _ref[plN];
+          item["this"].on('click', "td:not(.actions)", {
+            plN: plN,
+            _this: this
+          }, function(event) {
+            var model, view, _ref1, _this;
+            console.log("Clicked " + plN);
+            _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this;
+            view = _this.view, model = _this.model;
+            if (-1 !== view.nightMode.attack) {
+              console.log("attack!");
+              model.attack(view.nightMode.attack, plN);
+              view.nightMode.selected = -1;
+              view.nightMode.attack = -1;
+            } else {
+              console.log("no attack :(");
+              view.nightMode.selected = plN === view.nightMode.selected ? -1 : plN;
+            }
             return view.updateUI();
           });
           item.id.css('cursor', 'pointer');
@@ -559,6 +574,7 @@
   ($(document)).ready(function() {
     var controller, model, view;
     console.log("I'm alive!");
+    jQuery.fx.interval = 40;
     model = new Model();
     view = new View();
     controller = new Controller();

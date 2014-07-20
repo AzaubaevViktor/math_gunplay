@@ -8,6 +8,8 @@ getValScope = (val, scope) ->
 deepCopy = (v) ->
   $.extend true, [], v
 
+# TODO: Возможность переключаться только между одним режимом игры
+
 class Model
 
   constructor: () ->
@@ -208,8 +210,9 @@ class View
     }
 
     @nightMode = {
-      is: 0
+      is: false
       selected: -1
+      attack: -1
     }
 
     items = @elements.carousel.items
@@ -241,6 +244,7 @@ class View
     undefined
 
   placeTest: ->
+    # Проверяет, появились ли новые игроки и нужны ли для них новые места. Если так, создаёт эти места и биндит нужные действия
     places = @elements.places
     if places[0].list.length < @model.players.length
       for place in places
@@ -288,7 +292,7 @@ class View
       @elements.buttons.forward.hide(500)
 
   beforeGameUI: ->
-    @nightMode.is = 0
+    @nightMode.is = false
     listById = @model.players
 
     @elements.carousel.this.hideControls()
@@ -299,10 +303,10 @@ class View
 
     @elements.buttons.daynight.text "Начать игру!"
 
-    @placePlayers([listById, [] , [], []])
+    @placePlayers [listById]
 
   dayUI: ->
-    @nightMode.is = 0
+    @nightMode.is = false
     @elements.carousel.this.showControls()
     @elements.carousel.this.go 0
     @elements.carousel.this.start()
@@ -320,11 +324,10 @@ class View
     listBySolve.sort(getSortF('solve'))
     listByUnsolve = deepCopy(listById)
     listByUnsolve.sort(getSortF('unsolve'))
-    console.log listByUnsolve
     @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
 
   nightUI: ->
-    @nightMode.is = 1
+    @nightMode.is = true
     @controller.bindNight()
 
     @elements.carousel.this.hideControls()
@@ -337,7 +340,7 @@ class View
 
     @elements.buttons.daynight.text "Ночь"
 
-    @placePlayers [listById, [], [], []]
+    @placePlayers [listById]
 
   placePlayers: (lists) ->
     for list, l in lists
@@ -369,11 +372,11 @@ class View
     @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
 
   hit: (plN1, plN2) ->
-    @updateUI()
+    console.log "BADABOOM #{plN1} ====> #{plN2}"
     undefined
 
   miss: (plN) ->
-    @updateUI()
+    console.log "PHAHAHA #{plN}"
     undefined
 
 
@@ -398,7 +401,7 @@ class Controller
       undefined
 
     # Кнопка, сменяющая день/ночь вручную и начинающая игру
-    @view.elements.buttons.daynight.click () ->
+    @view.elements.buttons.daynight.click ->
       _this.model.changeDayNight()
 
     @view.elements.buttons.forward.click ->
@@ -409,11 +412,11 @@ class Controller
 
     undefined
 
-
   bindActions: ->
     if @view.elements.places[0].list.length
       item = @view.elements.places[0].list[-1..][0]
       plN = @view.elements.places[0].list.length - 1
+
       item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
         {plN, _this} = event.data
         _this.view.nightMode.selected = -1
@@ -421,7 +424,8 @@ class Controller
 
       item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
         {plN, _this} = event.data
-        _this.view.nightMode.selected = -1
+        _this.view.nightMode.attack = plN
+        _this.view.updateUI()
 
       for tr, solved in item.actions.treat
         tr.on 'click', {plN: plN, _this: @}, (event) ->
@@ -431,18 +435,26 @@ class Controller
         undefined
     undefined
 
-
-
   bindNight: ->
     if not @isBindNight
       @isBindNight = 1
       place = @view.elements.places[0]
-      for item, index in place.list
-        item.this.on 'click', "td:not(.actions)", index, (event) ->
-          index = event.data
-          view.nightMode.selected =
-            if index == view.nightMode.selected then -1 else index
+      for item, plN in place.list
+        item.this.on 'click', "td:not(.actions)", {plN: plN, _this: @}, (event) ->
+          console.log "Clicked #{plN}"
+          {plN, _this} = event.data
+          {view, model} = _this
+          if -1 != view.nightMode.attack
+            console.log "attack!"
+            model.attack view.nightMode.attack, plN
+            view.nightMode.selected = -1
+            view.nightMode.attack = -1
+          else
+            console.log "no attack :("
+            view.nightMode.selected =
+              if plN == view.nightMode.selected then -1 else plN
           view.updateUI()
+
         item.id.css('cursor','pointer')
         item.name.css('cursor','pointer')
         undefined
@@ -482,6 +494,7 @@ class _Carousel
 
 ($ document).ready ->
   console.log "I'm alive!"
+  jQuery.fx.interval = 40
 
   model = new Model()
   view = new View()
