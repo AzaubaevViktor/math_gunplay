@@ -529,6 +529,7 @@ class _Carousel
   ($ "#version").text __version__
 
   # Test
+  view.updateUI()
   # model.addPlayer("Математики")
   # model.addPlayer("Лунатики")
   # model.addPlayer("Пузатики")

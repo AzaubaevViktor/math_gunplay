@@ -597,6 +597,7 @@
     ($(".navbar-btn")).tooltip();
     ($(".with-tooltip")).tooltip();
     ($("#version")).text(__version__);
+    view.updateUI();
     return void 0;
   });
 
