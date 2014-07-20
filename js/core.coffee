@@ -8,23 +8,28 @@ getValScope = (val, scope) ->
 deepCopy = (v) ->
   $.extend true, [], v
 
+# TODO: Возможность переключаться только между одним режимом игры
+
 class Model
 
   constructor: () ->
-    @isDay = true
+    @isDay = false
     @isGame = false
     @stTime = 15 * 60
     @time = 0
     @timer = undefined
     @players = []
+
     @snapshots = []
     @snapshotPoint = -1
+
     @levels = {
       square: [0.8, 1]
       hospital: [0.3, 0.8]
       resuscitation: [0, 0.3]
       morgue: [-10000, 0]
     }
+
     @view = undefined
 
     @addSnapshot()
@@ -43,9 +48,6 @@ class Model
     @snapshotPoint = snapshotN
     {@isGame, @isDay, @players} = @snapshots[@snapshotPoint]
 
-    if !@isDay
-      @time = 0
-
     @view.updateUI()
     undefined
 
@@ -61,20 +63,25 @@ class Model
       @view.snapshotButtons()
     undefined
 
+  clearSnapshots: ->
+    @snapshotPoint = -1
+    @snapshots = []
+    @addSnapshot()
+
   # Day/Night
 
   setDayTimer: () ->
     @time = @stTime
     @timer = setInterval (_this) ->
-      _this.time <= 0
-      if ! _this.time
-        _this.changeDayNight
+      _this.time -= 1
+      if _this.time <= 0
+        _this.changeDayNight()
       else
         _this.view.updateTime()
       undefined
     , 1000, @
 
-  changeDayNight: () ->
+  changeDayNight: ->
     clearInterval @timer
 
     if not @isGame
@@ -86,7 +93,7 @@ class Model
     if @isDay
       @setDayTimer()
 
-    @addSnapshot()
+    @clearSnapshots()
 
     @view.updateUI()
 
@@ -123,9 +130,9 @@ class Model
 
   treat: (plN, solved) ->
     pl = @players[plN]
-    @setHealth pl, pl.health + @getTreat plN, solved
+    @setHealth plN, pl.health + @getTreat plN, solved
 
-    if @getLevel plN == "resuscitation"
+    if (@getLevel plN) == "resuscitation"
       pl.treatment = 0
     else
       pl.treatment += 1
@@ -135,7 +142,7 @@ class Model
     @view.updateUI()
     undefined
 
-  attack: (plN1, plN2) ->
+  hit: (plN1, plN2) ->
     pl1 = @players[plN1]
     pl2 = @players[plN2]
 
@@ -164,8 +171,6 @@ class Model
       unsolve: 0
       treatment: 0
     }
-
-    @addSnapshot()
 
     @view.updateUI()
     undefined
@@ -207,6 +212,12 @@ class View
       }
     }
 
+    @nightMode = {
+      is: false
+      selected: -1
+      attack: -1
+    }
+
     items = @elements.carousel.items
 
     for item, ind in items[1..]
@@ -221,6 +232,8 @@ class View
 
   joinModel: (@model) ->
 
+  joinController: (@controller) ->
+
   updateUI: ->
     @placeTest()
     @snapshotButtons()
@@ -234,6 +247,7 @@ class View
     undefined
 
   placeTest: ->
+    # Проверяет, появились ли новые игроки и нужны ли для них новые места. Если так, создаёт эти места и биндит нужные действия
     places = @elements.places
     if places[0].list.length < @model.players.length
       for place in places
@@ -247,7 +261,20 @@ class View
           health: listItem.find ".health"
           attack: listItem.find ".attack"
           tasks: listItem.find ".tasks"
+          actions: {
+            this: listItem.find ".actions"
+            solve: listItem.find ".solve"
+            unsolve: listItem.find ".unsolve"
+            treat: [
+              listItem.find ".treat0"
+              listItem.find ".treat1"
+              listItem.find ".treat2"
+              listItem.find ".treat3"
+            ]
+          }
         }
+        place.list[-1..][0].actions.this.hide()
+      @controller.bindActions()
     else if places[0].list.length > @model.players.length
       if places[0].list.length
         for place in places
@@ -268,6 +295,7 @@ class View
       @elements.buttons.forward.hide(500)
 
   beforeGameUI: ->
+    @nightMode.is = false
     listById = @model.players
 
     @elements.carousel.this.hideControls()
@@ -278,30 +306,48 @@ class View
 
     @elements.buttons.daynight.text "Начать игру!"
 
-    @placePlayers([listById, [] , [], []])
+    @placePlayers [listById]
 
   dayUI: ->
-
+    @nightMode.is = false
     @elements.carousel.this.showControls()
     @elements.carousel.this.go 0
     @elements.carousel.this.start()
 
     @elements.blocks.newPlayer.hide 500
 
-    getSortF = (a, b, item) ->
+    getSortF = (item) ->
       (a, b) ->
-        b['item'] - a['item']
+        b[item] - a[item]
 
     listById = @model.players
+
     listByHealth = deepCopy(listById)
     listByHealth.sort(getSortF('health'))
+
     listBySolve = deepCopy(listById)
     listBySolve.sort(getSortF('solve'))
+
     listByUnsolve = deepCopy(listById)
     listByUnsolve.sort(getSortF('unsolve'))
-    @placePlayers([listById, listByHealth, listBySolve, listByUnsolve])
 
-  nightUi: ->
+    @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
+
+  nightUI: ->
+    @nightMode.is = true
+    @controller.bindNight()
+
+    @elements.carousel.this.hideControls()
+    @elements.carousel.this.go 0
+    @elements.carousel.this.pause()
+
+    @elements.blocks.newPlayer.hide 500
+
+    listById = @model.players
+
+    @elements.buttons.daynight.text "Ночь"
+
+    @placePlayers [listById]
 
   placePlayers: (lists) ->
     for list, l in lists
@@ -311,9 +357,16 @@ class View
 
         listItem.id.text player.id
         listItem.name.text player.name
-        listItem.health.text player.health * 100
-        listItem.attack.text (@model.getAttack player.id) * 100
-        listItem.tasks.text "#{player.solve}/#{player.unsolve}"
+        if @nightMode.is and (p == @nightMode.selected)
+          listItem.health.hide()
+          listItem.attack.hide()
+          listItem.tasks.hide()
+          listItem.actions.this.show()
+        else
+          listItem.health.show().text (player.health * 100).toFixed(0)
+          listItem.attack.show().text ((@model.getAttack player.id) * 100).toFixed(0)
+          listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
+          listItem.actions.this.hide()
         listItem.this.removeClass().addClass @model.getLevel player.id
         listItem.this.show(500)
         undefined
@@ -325,14 +378,21 @@ class View
     minutes = if minutes < 10 then "0" + minutes else minutes
     @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
 
-  hit: ->
+  hit: (plN1, plN2) ->
+    console.log "BADABOOM #{plN1} ====> #{plN2}"
+    @updateUI()
+    undefined
 
-  miss: ->
+  miss: (plN) ->
+    console.log "PHAHAHA #{plN}"
+    @updateUI()
+    undefined
 
 
 
 class Controller
   constructor: ->
+    @isBindNight = 0
 
   joinModel: (@model) ->
 
@@ -349,7 +409,8 @@ class Controller
         _this.model.addPlayer name
       undefined
 
-    @view.elements.buttons.daynight.click () ->
+    # Кнопка, сменяющая день/ночь вручную и начинающая игру
+    @view.elements.buttons.daynight.click ->
       _this.model.changeDayNight()
 
     @view.elements.buttons.forward.click ->
@@ -357,6 +418,56 @@ class Controller
 
     @view.elements.buttons.backward.click ->
       _this.model.loadSnapshot()
+
+    undefined
+
+  bindActions: ->
+    if @view.elements.places[0].list.length
+      item = @view.elements.places[0].list[-1..][0]
+      plN = @view.elements.places[0].list.length - 1
+
+      item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
+        {plN, _this} = event.data
+        _this.view.nightMode.selected = -1
+        _this.model.miss(plN)
+
+      item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
+        {plN, _this} = event.data
+        _this.view.nightMode.attack = plN
+        _this.view.updateUI()
+
+      for tr, solved in item.actions.treat
+        tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
+          {plN, _this, solved} = event.data
+          _this.view.nightMode.selected = -1
+          _this.model.treat(plN, solved)
+        undefined
+    undefined
+
+  bindNight: ->
+    if not @isBindNight
+      @isBindNight = 1
+      place = @view.elements.places[0]
+      for item, plN in place.list
+        item.this.on 'click', "td:not(.actions)", {plN: plN, _this: @}, (event) ->
+          {plN, _this} = event.data
+          {view, model} = _this
+          if -1 != view.nightMode.attack
+            view.nightMode.selected = -1
+            plN1 = view.nightMode.attack
+            view.nightMode.attack = -1
+            model.hit plN1, plN
+          else
+            view.nightMode.selected =
+              if plN == view.nightMode.selected then -1 else plN
+            view.updateUI()
+
+        item.id.css('cursor','pointer')
+        item.name.css('cursor','pointer')
+        undefined
+
+  unbindNight: ->
+
 
 
 class _Carousel
@@ -378,18 +489,19 @@ class _Carousel
     @elem.carousel "prev"
 
   hideControls: ->
-    @elem.find(".carousel-control").hide()
-    @elem.find(".carousel-indicators").hide()
+    @elem.find(".carousel-control").fadeOut(500)
+    @elem.find(".carousel-indicators").fadeOut(500)
     undefined
 
   showControls: ->
-    @elem.find(".carousel-control").show()
-    @elem.find(".carousel-indicators").show()
+    @elem.find(".carousel-control").fadeIn(500)
+    @elem.find(".carousel-indicators").fadeIn(500)
     undefined
 
 
 ($ document).ready ->
   console.log "I'm alive!"
+  jQuery.fx.interval = 40
 
   model = new Model()
   view = new View()
@@ -397,6 +509,7 @@ class _Carousel
 
   model.joinView view
   view.joinModel model
+  view.joinController controller
   controller.joinView view
   controller.joinModel model
 
@@ -410,12 +523,14 @@ class _Carousel
   window.view = view
   window.controller = controller
 
+  ($ ".navbar-btn").tooltip()
+  ($ ".with-tooltip").tooltip()
+
   ($ "#version").text __version__
 
   # Test
-  model.addPlayer("test1")
-  model.addPlayer("test2")
-  model.addPlayer("test3")
-  model.getTreat(1, 2)
+  # model.addPlayer("Математики")
+  # model.addPlayer("Лунатики")
+  # model.addPlayer("Пузатики")
 
   undefined

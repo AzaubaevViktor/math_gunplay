@@ -17,7 +17,7 @@
 
   Model = (function() {
     function Model() {
-      this.isDay = true;
+      this.isDay = false;
       this.isGame = false;
       this.stTime = 15 * 60;
       this.time = 0;
@@ -52,9 +52,6 @@
       }
       this.snapshotPoint = snapshotN;
       _ref = this.snapshots[this.snapshotPoint], this.isGame = _ref.isGame, this.isDay = _ref.isDay, this.players = _ref.players;
-      if (!this.isDay) {
-        this.time = 0;
-      }
       this.view.updateUI();
       return void 0;
     };
@@ -73,12 +70,18 @@
       return void 0;
     };
 
+    Model.prototype.clearSnapshots = function() {
+      this.snapshotPoint = -1;
+      this.snapshots = [];
+      return this.addSnapshot();
+    };
+
     Model.prototype.setDayTimer = function() {
       this.time = this.stTime;
       return this.timer = setInterval(function(_this) {
-        _this.time <= 0;
-        if (!_this.time) {
-          _this.changeDayNight;
+        _this.time -= 1;
+        if (_this.time <= 0) {
+          _this.changeDayNight();
         } else {
           _this.view.updateTime();
         }
@@ -97,7 +100,7 @@
       if (this.isDay) {
         this.setDayTimer();
       }
-      this.addSnapshot();
+      this.clearSnapshots();
       return this.view.updateUI();
     };
 
@@ -139,8 +142,8 @@
     Model.prototype.treat = function(plN, solved) {
       var pl;
       pl = this.players[plN];
-      this.setHealth(pl, pl.health + this.getTreat(plN, solved));
-      if (this.getLevel(plN === "resuscitation")) {
+      this.setHealth(plN, pl.health + this.getTreat(plN, solved));
+      if ((this.getLevel(plN)) === "resuscitation") {
         pl.treatment = 0;
       } else {
         pl.treatment += 1;
@@ -150,7 +153,7 @@
       return void 0;
     };
 
-    Model.prototype.attack = function(plN1, plN2) {
+    Model.prototype.hit = function(plN1, plN2) {
       var pl1, pl2;
       pl1 = this.players[plN1];
       pl2 = this.players[plN2];
@@ -177,7 +180,6 @@
         unsolve: 0,
         treatment: 0
       });
-      this.addSnapshot();
       this.view.updateUI();
       return void 0;
     };
@@ -217,6 +219,11 @@
           place: ($("#place-template")).html()
         }
       };
+      this.nightMode = {
+        is: false,
+        selected: -1,
+        attack: -1
+      };
       items = this.elements.carousel.items;
       _ref = items.slice(1);
       for (ind = _i = 0, _len = _ref.length; _i < _len; ind = ++_i) {
@@ -232,6 +239,10 @@
 
     View.prototype.joinModel = function(model) {
       this.model = model;
+    };
+
+    View.prototype.joinController = function(controller) {
+      this.controller = controller;
     };
 
     View.prototype.updateUI = function() {
@@ -264,9 +275,17 @@
             name: listItem.find(".name"),
             health: listItem.find(".health"),
             attack: listItem.find(".attack"),
-            tasks: listItem.find(".tasks")
+            tasks: listItem.find(".tasks"),
+            actions: {
+              "this": listItem.find(".actions"),
+              solve: listItem.find(".solve"),
+              unsolve: listItem.find(".unsolve"),
+              treat: [listItem.find(".treat0"), listItem.find(".treat1"), listItem.find(".treat2"), listItem.find(".treat3")]
+            }
           });
+          place.list.slice(-1)[0].actions["this"].hide();
         }
+        this.controller.bindActions();
       } else if (places[0].list.length > this.model.players.length) {
         if (places[0].list.length) {
           for (_j = 0, _len1 = places.length; _j < _len1; _j++) {
@@ -296,24 +315,26 @@
 
     View.prototype.beforeGameUI = function() {
       var listById;
+      this.nightMode.is = false;
       listById = this.model.players;
       this.elements.carousel["this"].hideControls();
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].pause();
       this.elements.blocks.newPlayer.show(500);
       this.elements.buttons.daynight.text("Начать игру!");
-      return this.placePlayers([listById, [], [], []]);
+      return this.placePlayers([listById]);
     };
 
     View.prototype.dayUI = function() {
       var getSortF, listByHealth, listById, listBySolve, listByUnsolve;
+      this.nightMode.is = false;
       this.elements.carousel["this"].showControls();
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].start();
       this.elements.blocks.newPlayer.hide(500);
-      getSortF = function(a, b, item) {
+      getSortF = function(item) {
         return function(a, b) {
-          return b['item'] - a['item'];
+          return b[item] - a[item];
         };
       };
       listById = this.model.players;
@@ -326,7 +347,18 @@
       return this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
     };
 
-    View.prototype.nightUi = function() {};
+    View.prototype.nightUI = function() {
+      var listById;
+      this.nightMode.is = true;
+      this.controller.bindNight();
+      this.elements.carousel["this"].hideControls();
+      this.elements.carousel["this"].go(0);
+      this.elements.carousel["this"].pause();
+      this.elements.blocks.newPlayer.hide(500);
+      listById = this.model.players;
+      this.elements.buttons.daynight.text("Ночь");
+      return this.placePlayers([listById]);
+    };
 
     View.prototype.placePlayers = function(lists) {
       var l, list, listItem, p, place, player, _i, _j, _len, _len1;
@@ -338,9 +370,17 @@
           listItem = place.list[p];
           listItem.id.text(player.id);
           listItem.name.text(player.name);
-          listItem.health.text(player.health * 100);
-          listItem.attack.text((this.model.getAttack(player.id)) * 100);
-          listItem.tasks.text("" + player.solve + "/" + player.unsolve);
+          if (this.nightMode.is && (p === this.nightMode.selected)) {
+            listItem.health.hide();
+            listItem.attack.hide();
+            listItem.tasks.hide();
+            listItem.actions["this"].show();
+          } else {
+            listItem.health.show().text((player.health * 100).toFixed(0));
+            listItem.attack.show().text(((this.model.getAttack(player.id)) * 100).toFixed(0));
+            listItem.tasks.show().text("" + player.solve + "/" + player.unsolve);
+            listItem.actions["this"].hide();
+          }
           listItem["this"].removeClass().addClass(this.model.getLevel(player.id));
           listItem["this"].show(500);
           void 0;
@@ -357,16 +397,26 @@
       return this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
     };
 
-    View.prototype.hit = function() {};
+    View.prototype.hit = function(plN1, plN2) {
+      console.log("BADABOOM " + plN1 + " ====> " + plN2);
+      this.updateUI();
+      return void 0;
+    };
 
-    View.prototype.miss = function() {};
+    View.prototype.miss = function(plN) {
+      console.log("PHAHAHA " + plN);
+      this.updateUI();
+      return void 0;
+    };
 
     return View;
 
   })();
 
   Controller = (function() {
-    function Controller() {}
+    function Controller() {
+      this.isBindNight = 0;
+    }
 
     Controller.prototype.joinModel = function(model) {
       this.model = model;
@@ -395,10 +445,89 @@
       this.view.elements.buttons.forward.click(function() {
         return _this.model.forwardSnapshot();
       });
-      return this.view.elements.buttons.backward.click(function() {
+      this.view.elements.buttons.backward.click(function() {
         return _this.model.loadSnapshot();
       });
+      return void 0;
     };
+
+    Controller.prototype.bindActions = function() {
+      var item, plN, solved, tr, _i, _len, _ref;
+      if (this.view.elements.places[0].list.length) {
+        item = this.view.elements.places[0].list.slice(-1)[0];
+        plN = this.view.elements.places[0].list.length - 1;
+        item.actions.unsolve.on('click', {
+          plN: plN,
+          _this: this
+        }, function(event) {
+          var _ref, _this;
+          _ref = event.data, plN = _ref.plN, _this = _ref._this;
+          _this.view.nightMode.selected = -1;
+          return _this.model.miss(plN);
+        });
+        item.actions.solve.on('click', {
+          plN: plN,
+          _this: this
+        }, function(event) {
+          var _ref, _this;
+          _ref = event.data, plN = _ref.plN, _this = _ref._this;
+          _this.view.nightMode.attack = plN;
+          return _this.view.updateUI();
+        });
+        _ref = item.actions.treat;
+        for (solved = _i = 0, _len = _ref.length; _i < _len; solved = ++_i) {
+          tr = _ref[solved];
+          tr.on('click', {
+            plN: plN,
+            _this: this,
+            solved: solved
+          }, function(event) {
+            var _ref1, _this;
+            _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this, solved = _ref1.solved;
+            _this.view.nightMode.selected = -1;
+            return _this.model.treat(plN, solved);
+          });
+          void 0;
+        }
+      }
+      return void 0;
+    };
+
+    Controller.prototype.bindNight = function() {
+      var item, plN, place, _i, _len, _ref, _results;
+      if (!this.isBindNight) {
+        this.isBindNight = 1;
+        place = this.view.elements.places[0];
+        _ref = place.list;
+        _results = [];
+        for (plN = _i = 0, _len = _ref.length; _i < _len; plN = ++_i) {
+          item = _ref[plN];
+          item["this"].on('click', "td:not(.actions)", {
+            plN: plN,
+            _this: this
+          }, function(event) {
+            var model, plN1, view, _ref1, _this;
+            _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this;
+            view = _this.view, model = _this.model;
+            if (-1 !== view.nightMode.attack) {
+              view.nightMode.selected = -1;
+              plN1 = view.nightMode.attack;
+              view.nightMode.attack = -1;
+              return model.hit(plN1, plN);
+            } else {
+              view.nightMode.selected = plN === view.nightMode.selected ? -1 : plN;
+              return view.updateUI();
+            }
+          });
+          item.id.css('cursor', 'pointer');
+          item.name.css('cursor', 'pointer');
+          _results.push(void 0);
+        }
+        return _results;
+      }
+    };
+
+    Controller.prototype.unbindNight = function() {};
 
     return Controller;
 
@@ -430,14 +559,14 @@
     };
 
     _Carousel.prototype.hideControls = function() {
-      this.elem.find(".carousel-control").hide();
-      this.elem.find(".carousel-indicators").hide();
+      this.elem.find(".carousel-control").fadeOut(500);
+      this.elem.find(".carousel-indicators").fadeOut(500);
       return void 0;
     };
 
     _Carousel.prototype.showControls = function() {
-      this.elem.find(".carousel-control").show();
-      this.elem.find(".carousel-indicators").show();
+      this.elem.find(".carousel-control").fadeIn(500);
+      this.elem.find(".carousel-indicators").fadeIn(500);
       return void 0;
     };
 
@@ -448,11 +577,13 @@
   ($(document)).ready(function() {
     var controller, model, view;
     console.log("I'm alive!");
+    jQuery.fx.interval = 40;
     model = new Model();
     view = new View();
     controller = new Controller();
     model.joinView(view);
     view.joinModel(model);
+    view.joinController(controller);
     controller.joinView(view);
     controller.joinModel(model);
     controller.bind();
@@ -463,11 +594,9 @@
     window.model = model;
     window.view = view;
     window.controller = controller;
+    ($(".navbar-btn")).tooltip();
+    ($(".with-tooltip")).tooltip();
     ($("#version")).text(__version__);
-    model.addPlayer("test1");
-    model.addPlayer("test2");
-    model.addPlayer("test3");
-    model.getTreat(1, 2);
     return void 0;
   });
 

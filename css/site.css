@@ -35,6 +35,10 @@ table {
 	clear: none !important;
 }
 
+.version:before {
+	clear: none !important;
+}
+
 .navbar-right {
 	float: right !important;
 }
@@ -49,6 +53,15 @@ tr.square>td {
 	background-color: #D9EDF7
 }
 
+tr.square:hover>td {
+	background-color: #80EDF7;
+}
+tr.square:hover {
+	box-shadow: 0px 0px 15px 2px rgba(119, 119, 119, 0.1);
+	-moz-box-shadow: 0px 0px 15px 2px rgba(119, 119, 119, 0.1);
+	-webkit-box-shadow: 0px 0px 15px 2px rgba(119, 119, 119, 0.1);
+}
+
 tr.hospital>td {
 	background-color: #DFF0D8
 }
@@ -61,21 +74,52 @@ tr.morgue>td {
 	background-color: #F5F5F5
 }
 
+.name {
+	white-space: nowrap
+}
+
+.health {
+	text-align: right
+}
+
+.actions {
+	text-align: right
+}
+
+
+.name {
+	text-align: left;
+}
+
 /* new player */
 .form-group {
 	margin-bottom: 0px !important;
 }
 
+.input-sm {
+	font-size: 17px;
+}
+
+
+/* buttons */
+.dropdown-menu {
+	border-radius: 0px;
+}
 
 /* carousel */
 .item {
-	padding-left: 20px;
-	padding-right: 20px;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
+.carousel-inner {
+	overflow: visible
 }
 
 .carousel-control {
 	background-image: none !important;
 	width: 20px !important;
+	margin: 10px;
 }
 
 .carousel-indicators {

@@ -18,10 +18,10 @@
 			<button id="backward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
 				<span class="glyphicon glyphicon-step-backward"></span>
 			</button>
-			<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+			<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Повторить ход">
 				<span class="glyphicon glyphicon-step-forward"></span>
 			</button>
-			<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+			<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Текущий режим игры">
 				День (12:03)
 			</button>
 
@@ -47,11 +47,11 @@
 				<table id="table0" class="table">
 					<thead class="pl-head">
 						<tr>
-							<th>ID</th>
-							<th>Команда</th>
-							<th><span class="glyphicon glyphicon-heart"></span></th>
-							<th><span class="glyphicon glyphicon-screenshot"></span></th>
-							<th>Р/Н</th>
+							<th style="width:1px">ID</th>
+							<th style="text-align:left; width:1px">Команда</th>
+							<th style="text-align:right"><span class="glyphicon glyphicon-heart with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Здоровье"></span></th>
+							<th style="width:1px"><span class="glyphicon glyphicon-screenshot with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Урон"></span></th>
+							<th style="width:1px; white-space: nowrap" class="with-tooltip" data-toggle="popover" data-placement="left" data-title="Количество решённых и нерешённых задач">Р/Н</th>
 						</tr>
 					</thead>
 					<tbody class="pl-list"></tbody>
@@ -90,6 +90,25 @@
 				<td class="health"></td>
 				<td class="attack"></td>
 				<td class="tasks"></td>
+				<td class="actions" colspan="3">
+					<button type="button" class="btn btn-default btn-success solve">
+						Решена
+					</button>
+					<button type="button" class="btn btn-default btn-danger unsolve">
+						Не решена
+					</button>
+					<div class="btn-group">
+					  <button type="button" class="btn btn-default btn-info dropdown-toggle" data-toggle="dropdown">
+					    Лечиться <span class="caret"></span>
+					  </button>
+					  <ul class="dropdown-menu" role="menu">
+					    <li><a class="treat0" href="#">0 решённых</a></li>
+					    <li><a class="treat1" href="#">1 решённая</a></li>
+					    <li><a class="treat2" href="#">2 решённых</a></li>
+					    <li><a class="treat3" href="#">3 решённых</a></li>
+					  </ul>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 	</table>
@@ -97,11 +116,11 @@
 	<table id="players-template" class="table hidden">
 		<thead class="pl-head">
 			<tr>
-				<th>ID</th>
-				<th>Команда</th>
-				<th><span class="glyphicon glyphicon-heart"></span></th>
-				<th><span class="glyphicon glyphicon-screenshot"></span></th>
-				<th>Р/Н</th>
+				<th style="width:1px">ID</th>
+				<th style="text-align:left">Команда</th>
+				<th style="width:1px"><span class="glyphicon glyphicon-heart"></span></th>
+				<th style="width:1px"><span class="glyphicon glyphicon-screenshot"></span></th>
+				<th style="width:1px; white-space:nowrap">Р/Н</th>
 			</tr>
 		</thead>
 		<tbody class="pl-list"></tbody>
