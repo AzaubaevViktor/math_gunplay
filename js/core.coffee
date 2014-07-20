@@ -123,9 +123,9 @@ class Model
 
   treat: (plN, solved) ->
     pl = @players[plN]
-    @setHealth pl, pl.health + @getTreat plN, solved
+    @setHealth plN, pl.health + @getTreat plN, solved
 
-    if @getLevel plN == "resuscitation"
+    if (@getLevel plN) == "resuscitation"
       pl.treatment = 0
     else
       pl.treatment += 1
@@ -231,7 +231,6 @@ class View
   updateUI: ->
     @placeTest()
     @snapshotButtons()
-    @nightMode.is = 0
     if not @model.isGame
       @beforeGameUI()
     else
@@ -255,9 +254,20 @@ class View
           health: listItem.find ".health"
           attack: listItem.find ".attack"
           tasks: listItem.find ".tasks"
-          actions: listItem.find ".actions"
+          actions: {
+            this: listItem.find ".actions"
+            solve: listItem.find ".solve"
+            unsolve: listItem.find ".unsolve"
+            treat: [
+              listItem.find ".treat0"
+              listItem.find ".treat1"
+              listItem.find ".treat2"
+              listItem.find ".treat3"
+            ]
+          }
         }
-        place.list[-1..][0].actions.hide()
+        place.list[-1..][0].actions.this.hide()
+      @controller.bindActions()
     else if places[0].list.length > @model.players.length
       if places[0].list.length
         for place in places
@@ -278,6 +288,7 @@ class View
       @elements.buttons.forward.hide(500)
 
   beforeGameUI: ->
+    @nightMode.is = 0
     listById = @model.players
 
     @elements.carousel.this.hideControls()
@@ -291,15 +302,16 @@ class View
     @placePlayers([listById, [] , [], []])
 
   dayUI: ->
+    @nightMode.is = 0
     @elements.carousel.this.showControls()
     @elements.carousel.this.go 0
     @elements.carousel.this.start()
 
     @elements.blocks.newPlayer.hide 500
 
-    getSortF = (a, b, item) ->
+    getSortF = (item) ->
       (a, b) ->
-        b['item'] - a['item']
+        b[item] - a[item]
 
     listById = @model.players
     listByHealth = deepCopy(listById)
@@ -308,6 +320,7 @@ class View
     listBySolve.sort(getSortF('solve'))
     listByUnsolve = deepCopy(listById)
     listByUnsolve.sort(getSortF('unsolve'))
+    console.log listByUnsolve
     @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
 
   nightUI: ->
@@ -324,11 +337,7 @@ class View
 
     @elements.buttons.daynight.text "Ночь"
 
-
     @placePlayers [listById, [], [], []]
-
-
-
 
   placePlayers: (lists) ->
     for list, l in lists
@@ -342,12 +351,12 @@ class View
           listItem.health.hide()
           listItem.attack.hide()
           listItem.tasks.hide()
-          listItem.actions.show()
+          listItem.actions.this.show()
         else
           listItem.health.show().text player.health * 100
-          listItem.attack.show().text (@model.getAttack player.id) * 100
+          listItem.attack.show().text ((@model.getAttack player.id) * 100).toFixed(0)
           listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
-          listItem.actions.hide()
+          listItem.actions.this.hide()
         listItem.this.removeClass().addClass @model.getLevel player.id
         listItem.this.show(500)
         undefined
@@ -360,13 +369,18 @@ class View
     @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
 
   hit: (plN1, plN2) ->
+    @updateUI()
+    undefined
 
   miss: (plN) ->
+    @updateUI()
+    undefined
 
 
 
 class Controller
   constructor: ->
+    @isBindNight = 0
 
   joinModel: (@model) ->
 
@@ -383,6 +397,7 @@ class Controller
         _this.model.addPlayer name
       undefined
 
+    # Кнопка, сменяющая день/ночь вручную и начинающая игру
     @view.elements.buttons.daynight.click () ->
       _this.model.changeDayNight()
 
@@ -392,17 +407,45 @@ class Controller
     @view.elements.buttons.backward.click ->
       _this.model.loadSnapshot()
 
+    undefined
+
+
+  bindActions: ->
+    if @view.elements.places[0].list.length
+      item = @view.elements.places[0].list[-1..][0]
+      plN = @view.elements.places[0].list.length - 1
+      item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
+        {plN, _this} = event.data
+        _this.view.nightMode.selected = -1
+        _this.model.miss(plN)
+
+      item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
+        {plN, _this} = event.data
+        _this.view.nightMode.selected = -1
+
+      for tr, solved in item.actions.treat
+        tr.on 'click', {plN: plN, _this: @}, (event) ->
+          {plN, _this} = event.data
+          _this.view.nightMode.selected = -1
+          _this.model.treat(plN, solved)
+        undefined
+    undefined
+
+
+
   bindNight: ->
-    place = @view.elements.places[0]
-    for item, index in place.list
-      console.log item
-      item.this.click (view, index) ->
-        # вот эта гадость не хочет работать
-        console.log(1)
-        view.nightMode.selected = index
-        view.updateUI()
-      , [@view, index]
-      undefined
+    if not @isBindNight
+      @isBindNight = 1
+      place = @view.elements.places[0]
+      for item, index in place.list
+        item.this.on 'click', "td:not(.actions)", index, (event) ->
+          index = event.data
+          view.nightMode.selected =
+            if index == view.nightMode.selected then -1 else index
+          view.updateUI()
+        item.id.css('cursor','pointer')
+        item.name.css('cursor','pointer')
+        undefined
 
   unbindNight: ->
 

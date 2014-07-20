@@ -26,8 +26,8 @@ def generate_version():
     else:
         minor, typ = _t, ""
 
-    # +1 because script run _before_ commit
-    version = "%s.%s.%d%s" % (major, minor, int(version_raw[1]) + 1, typ)
+    # script run after commit and we see _current_ version
+    version = "%s.%s.%d%s" % (major, minor, version_raw[1], typ)
 
     proc = subprocess.Popen("git show -s --format='%ct'", shell=True, stdout=subprocess.PIPE)
     date = proc.stdout.readline()

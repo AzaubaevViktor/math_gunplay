@@ -139,8 +139,8 @@
     Model.prototype.treat = function(plN, solved) {
       var pl;
       pl = this.players[plN];
-      this.setHealth(pl, pl.health + this.getTreat(plN, solved));
-      if (this.getLevel(plN === "resuscitation")) {
+      this.setHealth(plN, pl.health + this.getTreat(plN, solved));
+      if ((this.getLevel(plN)) === "resuscitation") {
         pl.treatment = 0;
       } else {
         pl.treatment += 1;
@@ -245,7 +245,6 @@
     View.prototype.updateUI = function() {
       this.placeTest();
       this.snapshotButtons();
-      this.nightMode.is = 0;
       if (!this.model.isGame) {
         this.beforeGameUI();
       } else {
@@ -274,10 +273,16 @@
             health: listItem.find(".health"),
             attack: listItem.find(".attack"),
             tasks: listItem.find(".tasks"),
-            actions: listItem.find(".actions")
+            actions: {
+              "this": listItem.find(".actions"),
+              solve: listItem.find(".solve"),
+              unsolve: listItem.find(".unsolve"),
+              treat: [listItem.find(".treat0"), listItem.find(".treat1"), listItem.find(".treat2"), listItem.find(".treat3")]
+            }
           });
-          place.list.slice(-1)[0].actions.hide();
+          place.list.slice(-1)[0].actions["this"].hide();
         }
+        this.controller.bindActions();
       } else if (places[0].list.length > this.model.players.length) {
         if (places[0].list.length) {
           for (_j = 0, _len1 = places.length; _j < _len1; _j++) {
@@ -307,6 +312,7 @@
 
     View.prototype.beforeGameUI = function() {
       var listById;
+      this.nightMode.is = 0;
       listById = this.model.players;
       this.elements.carousel["this"].hideControls();
       this.elements.carousel["this"].go(0);
@@ -318,13 +324,14 @@
 
     View.prototype.dayUI = function() {
       var getSortF, listByHealth, listById, listBySolve, listByUnsolve;
+      this.nightMode.is = 0;
       this.elements.carousel["this"].showControls();
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].start();
       this.elements.blocks.newPlayer.hide(500);
-      getSortF = function(a, b, item) {
+      getSortF = function(item) {
         return function(a, b) {
-          return b['item'] - a['item'];
+          return b[item] - a[item];
         };
       };
       listById = this.model.players;
@@ -334,6 +341,7 @@
       listBySolve.sort(getSortF('solve'));
       listByUnsolve = deepCopy(listById);
       listByUnsolve.sort(getSortF('unsolve'));
+      console.log(listByUnsolve);
       return this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
     };
 
@@ -364,12 +372,12 @@
             listItem.health.hide();
             listItem.attack.hide();
             listItem.tasks.hide();
-            listItem.actions.show();
+            listItem.actions["this"].show();
           } else {
             listItem.health.show().text(player.health * 100);
-            listItem.attack.show().text((this.model.getAttack(player.id)) * 100);
+            listItem.attack.show().text(((this.model.getAttack(player.id)) * 100).toFixed(0));
             listItem.tasks.show().text("" + player.solve + "/" + player.unsolve);
-            listItem.actions.hide();
+            listItem.actions["this"].hide();
           }
           listItem["this"].removeClass().addClass(this.model.getLevel(player.id));
           listItem["this"].show(500);
@@ -387,16 +395,24 @@
       return this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
     };
 
-    View.prototype.hit = function(plN1, plN2) {};
+    View.prototype.hit = function(plN1, plN2) {
+      this.updateUI();
+      return void 0;
+    };
 
-    View.prototype.miss = function(plN) {};
+    View.prototype.miss = function(plN) {
+      this.updateUI();
+      return void 0;
+    };
 
     return View;
 
   })();
 
   Controller = (function() {
-    function Controller() {}
+    function Controller() {
+      this.isBindNight = 0;
+    }
 
     Controller.prototype.joinModel = function(model) {
       this.model = model;
@@ -425,27 +441,72 @@
       this.view.elements.buttons.forward.click(function() {
         return _this.model.forwardSnapshot();
       });
-      return this.view.elements.buttons.backward.click(function() {
+      this.view.elements.buttons.backward.click(function() {
         return _this.model.loadSnapshot();
       });
+      return void 0;
+    };
+
+    Controller.prototype.bindActions = function() {
+      var item, plN, solved, tr, _i, _len, _ref;
+      if (this.view.elements.places[0].list.length) {
+        item = this.view.elements.places[0].list.slice(-1)[0];
+        plN = this.view.elements.places[0].list.length - 1;
+        item.actions.unsolve.on('click', {
+          plN: plN,
+          _this: this
+        }, function(event) {
+          var _ref, _this;
+          _ref = event.data, plN = _ref.plN, _this = _ref._this;
+          _this.view.nightMode.selected = -1;
+          return _this.model.miss(plN);
+        });
+        item.actions.solve.on('click', {
+          plN: plN,
+          _this: this
+        }, function(event) {
+          var _ref, _this;
+          _ref = event.data, plN = _ref.plN, _this = _ref._this;
+          return _this.view.nightMode.selected = -1;
+        });
+        _ref = item.actions.treat;
+        for (solved = _i = 0, _len = _ref.length; _i < _len; solved = ++_i) {
+          tr = _ref[solved];
+          tr.on('click', {
+            plN: plN,
+            _this: this
+          }, function(event) {
+            var _ref1, _this;
+            _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this;
+            _this.view.nightMode.selected = -1;
+            return _this.model.treat(plN, solved);
+          });
+          void 0;
+        }
+      }
+      return void 0;
     };
 
     Controller.prototype.bindNight = function() {
       var index, item, place, _i, _len, _ref, _results;
-      place = this.view.elements.places[0];
-      _ref = place.list;
-      _results = [];
-      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-        item = _ref[index];
-        console.log(item);
-        item["this"].click(function(view, index) {
-          console.log(1);
-          view.nightMode.selected = index;
-          return view.updateUI();
-        }, [this.view, index]);
-        _results.push(void 0);
+      if (!this.isBindNight) {
+        this.isBindNight = 1;
+        place = this.view.elements.places[0];
+        _ref = place.list;
+        _results = [];
+        for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+          item = _ref[index];
+          item["this"].on('click', "td:not(.actions)", index, function(event) {
+            index = event.data;
+            view.nightMode.selected = index === view.nightMode.selected ? -1 : index;
+            return view.updateUI();
+          });
+          item.id.css('cursor', 'pointer');
+          item.name.css('cursor', 'pointer');
+          _results.push(void 0);
+        }
+        return _results;
       }
-      return _results;
     };
 
     Controller.prototype.unbindNight = function() {};

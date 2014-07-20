@@ -35,6 +35,10 @@ table {
 	clear: none !important;
 }
 
+.version:before {
+	clear: none !important;
+}
+
 .navbar-right {
 	float: right !important;
 }
@@ -70,6 +74,19 @@ tr.morgue>td {
 	background-color: #F5F5F5
 }
 
+.name {
+	white-space: nowrap
+}
+
+.health {
+	text-align: right
+}
+
+.actions {
+	text-align: right
+}
+
+
 /* new player */
 .form-group {
 	margin-bottom: 0px !important;
@@ -89,6 +106,10 @@ tr.morgue>td {
 .item {
 	padding-left: 40px;
 	padding-right: 40px;
+}
+
+.carousel-inner {
+	overflow: visible
 }
 
 .carousel-control {
