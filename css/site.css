@@ -97,6 +97,7 @@ tr.morgue:hover>td {
 .actions {
 	text-align: right;
 	white-space: nowrap;
+	padding-top: 6px !important;
 }
 
 .name {

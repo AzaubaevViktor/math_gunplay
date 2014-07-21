@@ -445,9 +445,13 @@ class Controller
         _this.model.miss(plN)
 
       item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
-        {plN, _this} = event.data
-        {view} = _this
-        view.nightMode.attack = if (-1 == view.nightMode.attack) then plN else -1
+        {plN, _this: {view}} = event.data
+        if (-1 == view.nightMode.attack)
+          view.nightMode.attack = plN
+        else
+          view.nightMode.attack = - 1
+          view.nightMode.selected = -1
+
         view.updateUI()
 
       for tr, solved in item.actions.treat

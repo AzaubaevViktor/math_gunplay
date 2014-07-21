@@ -473,10 +473,14 @@
           plN: plN,
           _this: this
         }, function(event) {
-          var view, _ref, _this;
-          _ref = event.data, plN = _ref.plN, _this = _ref._this;
-          view = _this.view;
-          view.nightMode.attack = -1 === view.nightMode.attack ? plN : -1;
+          var view, _ref, _ref1;
+          _ref = event.data, plN = _ref.plN, (_ref1 = _ref._this, view = _ref1.view);
+          if (-1 === view.nightMode.attack) {
+            view.nightMode.attack = plN;
+          } else {
+            view.nightMode.attack = -1;
+            view.nightMode.selected = -1;
+          }
           return view.updateUI();
         });
         _ref = item.actions.treat;
