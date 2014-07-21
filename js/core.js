@@ -78,6 +78,7 @@
 
     Model.prototype.setDayTimer = function() {
       this.time = this.stTime;
+      this.view.updateTime();
       return this.timer = setInterval(function(_this) {
         _this.time -= 1;
         if (_this.time <= 0) {
@@ -105,22 +106,23 @@
     };
 
     Model.prototype.setHealth = function(plN, health) {
-      var pl;
-      pl = this.players[plN];
-      pl.health = getValScope(health, [0, 1]);
+      this.players[plN].health = getValScope(health, [0, 1]);
       return void 0;
     };
 
     Model.prototype.getLevel = function(plN) {
       var h, level, scope, _ref;
-      h = this.players[plN].health;
-      _ref = this.levels;
-      for (level in _ref) {
-        scope = _ref[level];
-        if ((scope[0] < h && h <= scope[1])) {
-          return level;
+      if (plN !== -1) {
+        h = this.players[plN].health;
+        _ref = this.levels;
+        for (level in _ref) {
+          scope = _ref[level];
+          if ((scope[0] < h && h <= scope[1])) {
+            return level;
+          }
         }
       }
+      return void 0;
     };
 
     Model.prototype.getAttack = function(plN) {
@@ -160,15 +162,16 @@
       this.setHealth(plN2, pl2.health - this.getAttack(plN1));
       pl1.solve += 1;
       this.view.hit(plN1, plN2);
-      return this.addSnapshot();
+      this.addSnapshot();
+      return void 0;
     };
 
     Model.prototype.miss = function(plN1) {
       var pl1;
-      pl1 = this.players[plN1];
-      pl1.unsolve += 1;
+      pl1 = this.players[plN1].unsolve += 1;
       this.view.miss(plN1);
-      return this.addSnapshot();
+      this.addSnapshot();
+      return void 0;
     };
 
     Model.prototype.addPlayer = function(name) {
@@ -261,7 +264,7 @@
     };
 
     View.prototype.placeTest = function() {
-      var listItem, place, places, _i, _j, _len, _len1;
+      var listItem, place, places, _i, _len;
       places = this.elements.places;
       if (places[0].list.length < this.model.players.length) {
         for (_i = 0, _len = places.length; _i < _len; _i++) {
@@ -286,16 +289,6 @@
           place.list.slice(-1)[0].actions["this"].hide();
         }
         this.controller.bindActions();
-      } else if (places[0].list.length > this.model.players.length) {
-        if (places[0].list.length) {
-          for (_j = 0, _len1 = places.length; _j < _len1; _j++) {
-            place = places[_j];
-            place.list.slice(-1)[0]["this"].hide(500, function() {
-              return this.remove();
-            });
-            place.list.pop();
-          }
-        }
       }
       return void 0;
     };
@@ -328,6 +321,8 @@
     View.prototype.dayUI = function() {
       var getSortF, listByHealth, listById, listBySolve, listByUnsolve;
       this.nightMode.is = false;
+      this.nightMode.attack = -1;
+      this.nightMode.selected = -1;
       this.elements.carousel["this"].showControls();
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].start();
@@ -361,14 +356,15 @@
     };
 
     View.prototype.placePlayers = function(lists) {
-      var l, list, listItem, p, place, player, _i, _j, _len, _len1;
+      var attackLevel, l, list, listItem, p, place, player, _i, _j, _len, _len1;
       for (l = _i = 0, _len = lists.length; _i < _len; l = ++_i) {
         list = lists[l];
         place = this.elements.places[l];
+        attackLevel = this.model.getLevel(this.nightMode.attack);
         for (p = _j = 0, _len1 = list.length; _j < _len1; p = ++_j) {
           player = list[p];
           listItem = place.list[p];
-          listItem.id.text(player.id);
+          listItem.id.text(player.id + 1);
           listItem.name.text(player.name);
           if (this.nightMode.is && (p === this.nightMode.selected)) {
             listItem.health.hide();
@@ -382,6 +378,13 @@
             listItem.actions["this"].hide();
           }
           listItem["this"].removeClass().addClass(this.model.getLevel(player.id));
+          if ((this.nightMode.attack !== -1) && (attackLevel !== this.model.getLevel(p))) {
+            listItem["this"].addClass("not").prop({
+              "disabled": true
+            });
+          } else {
+            listItem["this"].removeClass("not");
+          }
           listItem["this"].show(500);
           void 0;
         }
@@ -463,16 +466,18 @@
           var _ref, _this;
           _ref = event.data, plN = _ref.plN, _this = _ref._this;
           _this.view.nightMode.selected = -1;
+          _this.view.nightMode.attack = -1;
           return _this.model.miss(plN);
         });
         item.actions.solve.on('click', {
           plN: plN,
           _this: this
         }, function(event) {
-          var _ref, _this;
+          var view, _ref, _this;
           _ref = event.data, plN = _ref.plN, _this = _ref._this;
-          _this.view.nightMode.attack = plN;
-          return _this.view.updateUI();
+          view = _this.view;
+          view.nightMode.attack = -1 === view.nightMode.attack ? plN : -1;
+          return view.updateUI();
         });
         _ref = item.actions.treat;
         for (solved = _i = 0, _len = _ref.length; _i < _len; solved = ++_i) {
@@ -484,6 +489,7 @@
           }, function(event) {
             var _ref1, _this;
             _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this, solved = _ref1.solved;
+            _this.view.nightMode.attack = -1;
             _this.view.nightMode.selected = -1;
             return _this.model.treat(plN, solved);
           });
@@ -506,14 +512,17 @@
             plN: plN,
             _this: this
           }, function(event) {
-            var model, plN1, view, _ref1, _this;
+            var attackLevel, model, plN1, view, _ref1, _this;
             _ref1 = event.data, plN = _ref1.plN, _this = _ref1._this;
             view = _this.view, model = _this.model;
             if (-1 !== view.nightMode.attack) {
-              view.nightMode.selected = -1;
-              plN1 = view.nightMode.attack;
-              view.nightMode.attack = -1;
-              return model.hit(plN1, plN);
+              attackLevel = model.getLevel(view.nightMode.attack);
+              if (attackLevel === model.getLevel(plN)) {
+                view.nightMode.selected = -1;
+                plN1 = view.nightMode.attack;
+                view.nightMode.attack = -1;
+                return model.hit(plN1, plN);
+              }
             } else {
               view.nightMode.selected = plN === view.nightMode.selected ? -1 : plN;
               return view.updateUI();
@@ -598,6 +607,9 @@
     ($(".with-tooltip")).tooltip();
     ($("#version")).text(__version__);
     view.updateUI();
+    model.addPlayer("Математики");
+    model.addPlayer("Лунатики");
+    model.addPlayer("Пузатики");
     return void 0;
   });
 

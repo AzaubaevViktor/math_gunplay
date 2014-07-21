@@ -47,6 +47,11 @@ table {
 
 .table, th {
 	text-align: center;
+	border-collapse: collapse;
+}
+
+tr.not>td {
+	background-color: #555555 !important
 }
 
 tr.square>td {
@@ -56,22 +61,29 @@ tr.square>td {
 tr.square:hover>td {
 	background-color: #80EDF7;
 }
-tr.square:hover {
-	box-shadow: 0px 0px 15px 2px rgba(119, 119, 119, 0.1);
-	-moz-box-shadow: 0px 0px 15px 2px rgba(119, 119, 119, 0.1);
-	-webkit-box-shadow: 0px 0px 15px 2px rgba(119, 119, 119, 0.1);
-}
 
 tr.hospital>td {
 	background-color: #DFF0D8
+}
+
+tr.hospital:hover>td {
+	background-color: #B0F0A0
 }
 
 tr.resuscitation>td {
 	background-color: #FCF8E3
 }
 
+tr.resuscitation:hover>td {
+	background-color: #FFF8A0
+}
+
 tr.morgue>td {
 	background-color: #F5F5F5
+}
+
+tr.morgue:hover>td {
+	background-color: #D6D6D6
 }
 
 .name {
@@ -83,9 +95,9 @@ tr.morgue>td {
 }
 
 .actions {
-	text-align: right
+	text-align: right;
+	white-space: nowrap;
 }
-
 
 .name {
 	text-align: left;

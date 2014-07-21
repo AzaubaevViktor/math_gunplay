@@ -72,6 +72,7 @@ class Model
 
   setDayTimer: () ->
     @time = @stTime
+    @view.updateTime()
     @timer = setInterval (_this) ->
       _this.time -= 1
       if _this.time <= 0
@@ -102,17 +103,18 @@ class Model
   # sets
 
   setHealth: (plN, health) ->
-    pl = @players[plN]
-    pl.health = getValScope health, [0, 1]
+    @players[plN].health = getValScope health, [0, 1]
     undefined
 
   # gets
 
   getLevel: (plN) ->
-    h = @players[plN].health
-    for level, scope of @levels
-      if scope[0] < h <= scope[1]
-        return level
+    if plN != -1
+      h = @players[plN].health
+      for level, scope of @levels
+        if scope[0] < h <= scope[1]
+          return level
+    undefined
 
   getAttack: (plN) ->
     pl = @players[plN]
@@ -154,13 +156,16 @@ class Model
 
     @addSnapshot()
 
+    undefined
+
   miss: (plN1) ->
-    pl1 = @players[plN1]
-    pl1.unsolve += 1
+    pl1 = @players[plN1].unsolve += 1
 
     @view.miss plN1
 
     @addSnapshot()
+
+    undefined
 
   addPlayer: (name) ->
     @players.push {
@@ -173,6 +178,7 @@ class Model
     }
 
     @view.updateUI()
+
     undefined
 
 
@@ -275,11 +281,6 @@ class View
         }
         place.list[-1..][0].actions.this.hide()
       @controller.bindActions()
-    else if places[0].list.length > @model.players.length
-      if places[0].list.length
-        for place in places
-          place.list[-1..][0].this.hide(500, -> @.remove())
-          place.list.pop()
 
     undefined
 
@@ -310,6 +311,8 @@ class View
 
   dayUI: ->
     @nightMode.is = false
+    @nightMode.attack = -1
+    @nightMode.selected = -1
     @elements.carousel.this.showControls()
     @elements.carousel.this.go 0
     @elements.carousel.this.start()
@@ -352,10 +355,13 @@ class View
   placePlayers: (lists) ->
     for list, l in lists
       place = @elements.places[l]
+
+      attackLevel = @model.getLevel @nightMode.attack
+
       for player, p in list
         listItem = place.list[p]
 
-        listItem.id.text player.id
+        listItem.id.text (player.id + 1)
         listItem.name.text player.name
         if @nightMode.is and (p == @nightMode.selected)
           listItem.health.hide()
@@ -368,6 +374,12 @@ class View
           listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
           listItem.actions.this.hide()
         listItem.this.removeClass().addClass @model.getLevel player.id
+
+        if (@nightMode.attack != -1) and (attackLevel != @model.getLevel p)
+          listItem.this.addClass("not").prop("disabled":true)
+        else
+          listItem.this.removeClass("not")
+
         listItem.this.show(500)
         undefined
       undefined
@@ -429,16 +441,19 @@ class Controller
       item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
         {plN, _this} = event.data
         _this.view.nightMode.selected = -1
+        _this.view.nightMode.attack = -1
         _this.model.miss(plN)
 
       item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
         {plN, _this} = event.data
-        _this.view.nightMode.attack = plN
-        _this.view.updateUI()
+        {view} = _this
+        view.nightMode.attack = if (-1 == view.nightMode.attack) then plN else -1
+        view.updateUI()
 
       for tr, solved in item.actions.treat
         tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
           {plN, _this, solved} = event.data
+          _this.view.nightMode.attack = -1
           _this.view.nightMode.selected = -1
           _this.model.treat(plN, solved)
         undefined
@@ -453,10 +468,12 @@ class Controller
           {plN, _this} = event.data
           {view, model} = _this
           if -1 != view.nightMode.attack
-            view.nightMode.selected = -1
-            plN1 = view.nightMode.attack
-            view.nightMode.attack = -1
-            model.hit plN1, plN
+            attackLevel = model.getLevel view.nightMode.attack
+            if attackLevel == model.getLevel plN
+              view.nightMode.selected = -1
+              plN1 = view.nightMode.attack
+              view.nightMode.attack = -1
+              model.hit plN1, plN
           else
             view.nightMode.selected =
               if plN == view.nightMode.selected then -1 else plN
@@ -530,8 +547,8 @@ class _Carousel
 
   # Test
   view.updateUI()
-  # model.addPlayer("Математики")
-  # model.addPlayer("Лунатики")
-  # model.addPlayer("Пузатики")
+  model.addPlayer("Математики")
+  model.addPlayer("Лунатики")
+  model.addPlayer("Пузатики")
 
   undefined
