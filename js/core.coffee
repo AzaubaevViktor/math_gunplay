@@ -3,12 +3,12 @@ getValScope = (val, scope) ->
     return scope[0]
   else if scope[1] < val
     return scope[1]
-  val
+  (val)
 
 deepCopy = (v) ->
-  $.extend true, [], v
+  ($.extend true, [], v)
 
-# TODO: Возможность переключаться только между одним режимом игры
+  
 
 class Model
 
@@ -34,7 +34,7 @@ class Model
 
     @addSnapshot()
 
-    undefined
+    (undefined)
 
   joinView: (@view) ->
 
@@ -49,7 +49,7 @@ class Model
     {@isGame, @isDay, @players} = @snapshots[@snapshotPoint]
 
     @view.updateUI()
-    undefined
+    (undefined)
 
   addSnapshot: () ->
     @snapshotPoint += 1
@@ -61,12 +61,13 @@ class Model
 
     if @view
       @view.snapshotButtons()
-    undefined
+    (undefined)
 
   clearSnapshots: ->
     @snapshotPoint = -1
     @snapshots = []
     @addSnapshot()
+    (undefined)
 
   # Day/Night
 
@@ -81,6 +82,7 @@ class Model
         _this.view.updateTime()
       undefined
     , 1000, @
+    (undefined)
 
   changeDayNight: ->
     clearInterval @timer
@@ -97,6 +99,7 @@ class Model
     @clearSnapshots()
 
     @view.updateUI()
+    (undefined)
 
   # Players
 
@@ -104,7 +107,7 @@ class Model
 
   setHealth: (plN, health) ->
     @players[plN].health = getValScope health, [0, 1]
-    undefined
+    (undefined)
 
   # gets
 
@@ -114,11 +117,17 @@ class Model
       for level, scope of @levels
         if scope[0] < h <= scope[1]
           return level
-    undefined
+    (undefined)
 
   getAttack: (plN) ->
     pl = @players[plN]
     (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, 20]) / 100
+
+  getAttackTo: (plN, plN2) ->
+    if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
+      return 0
+
+    (@getAttack plN)
 
   getTreat: (plN, solved) ->
     pl = @players[plN]
@@ -126,7 +135,7 @@ class Model
 
     if (@getLevel plN) == 'hospital'
       h += 10
-    (getValScope h, [-Infinity, Infinity]) / 100
+    ((getValScope h, [-Infinity, Infinity]) / 100)
 
   # actions
 
@@ -141,14 +150,14 @@ class Model
 
     @addSnapshot()
 
-    @view.updateUI()
-    undefined
+    @view.treat plN
+    (undefined)
 
   hit: (plN1, plN2) ->
     pl1 = @players[plN1]
     pl2 = @players[plN2]
 
-    @setHealth plN2, pl2.health - @getAttack plN1
+    @setHealth plN2, pl2.health - @getAttackTo plN1, plN2
 
     pl1.solve += 1
 
@@ -156,7 +165,7 @@ class Model
 
     @addSnapshot()
 
-    undefined
+    (undefined)
 
   miss: (plN1) ->
     pl1 = @players[plN1].unsolve += 1
@@ -165,7 +174,7 @@ class Model
 
     @addSnapshot()
 
-    undefined
+    (undefined)
 
   addPlayer: (name) ->
     @players.push {
@@ -179,7 +188,7 @@ class Model
 
     @view.updateUI()
 
-    undefined
+    (undefined)
 
 
 
@@ -280,7 +289,6 @@ class View
           }
         }
         place.list[-1..][0].actions.this.hide()
-      @controller.bindActions()
 
     undefined
 
@@ -392,13 +400,39 @@ class View
 
   hit: (plN1, plN2) ->
     console.log "BADABOOM #{plN1} ====> #{plN2}"
+    @nightMode.attack = -1
+    @nightMode.selected = -1
     @updateUI()
     undefined
 
   miss: (plN) ->
     console.log "PHAHAHA #{plN}"
+    @nightMode.selected = -1
+    @nightMode.attack = -1
     @updateUI()
     undefined
+
+  treat: (plN) ->
+    @nightMode.attack = -1
+    @nightMode.selected = -1
+    @updateUI()
+
+  attackMode: (plN) ->
+    if (-1 == @nightMode.attack)
+      @nightMode.attack = plN
+    else
+      @nightMode.attack = - 1
+      @nightMode.selected = -1
+
+    @updateUI()
+
+  selectMode: (plN) ->
+    if -1 != @nightMode.attack
+      @model.hit @nightMode.attack, plN
+    else
+      @nightMode.selected =
+        if plN == @nightMode.selected then -1 else plN
+      @updateUI()
 
 
 
@@ -433,62 +467,34 @@ class Controller
 
     undefined
 
-  bindActions: ->
-    if @view.elements.places[0].list.length
-      item = @view.elements.places[0].list[-1..][0]
-      plN = @view.elements.places[0].list.length - 1
-
-      item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
-        {plN, _this} = event.data
-        _this.view.nightMode.selected = -1
-        _this.view.nightMode.attack = -1
-        _this.model.miss(plN)
-
-      item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
-        {plN, _this: {view}} = event.data
-        if (-1 == view.nightMode.attack)
-          view.nightMode.attack = plN
-        else
-          view.nightMode.attack = - 1
-          view.nightMode.selected = -1
-
-        view.updateUI()
-
-      for tr, solved in item.actions.treat
-        tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
-          {plN, _this, solved} = event.data
-          _this.view.nightMode.attack = -1
-          _this.view.nightMode.selected = -1
-          _this.model.treat(plN, solved)
-        undefined
-    undefined
-
   bindNight: ->
     if not @isBindNight
       @isBindNight = 1
       place = @view.elements.places[0]
       for item, plN in place.list
+
+        item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
+          {plN, _this: {model}} = event.data
+          model.miss(plN)
+
+        item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
+          {plN, _this: {view}} = event.data
+          view.attackMode plN
+
+        for tr, solved in item.actions.treat
+          tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
+            {plN, _this: {model}, solved} = event.data
+            model.treat(plN, solved)
+          undefined
+
         item.this.on 'click', "td:not(.actions)", {plN: plN, _this: @}, (event) ->
-          {plN, _this} = event.data
-          {view, model} = _this
-          if -1 != view.nightMode.attack
-            attackLevel = model.getLevel view.nightMode.attack
-            if attackLevel == model.getLevel plN
-              view.nightMode.selected = -1
-              plN1 = view.nightMode.attack
-              view.nightMode.attack = -1
-              model.hit plN1, plN
-          else
-            view.nightMode.selected =
-              if plN == view.nightMode.selected then -1 else plN
-            view.updateUI()
+          {plN, _this: {view, model}} = event.data
+
+          view.selectMode plN
 
         item.id.css('cursor','pointer')
         item.name.css('cursor','pointer')
         undefined
-
-  unbindNight: ->
-
 
 
 class _Carousel
