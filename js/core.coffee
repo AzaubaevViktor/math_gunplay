@@ -8,7 +8,7 @@ getValScope = (val, scope) ->
 deepCopy = (v) ->
   ($.extend true, [], v)
 
-  
+
 
 class Model
 
@@ -250,7 +250,6 @@ class View
   joinController: (@controller) ->
 
   updateUI: ->
-    @placeTest()
     @snapshotButtons()
     if not @model.isGame
       @beforeGameUI()
@@ -315,6 +314,7 @@ class View
 
     @elements.buttons.daynight.text "Начать игру!"
 
+    @placeTest()
     @placePlayers [listById]
 
   dayUI: ->

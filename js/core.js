@@ -259,7 +259,6 @@
     };
 
     View.prototype.updateUI = function() {
-      this.placeTest();
       this.snapshotButtons();
       if (!this.model.isGame) {
         this.beforeGameUI();
@@ -324,6 +323,7 @@
       this.elements.carousel["this"].pause();
       this.elements.blocks.newPlayer.show(500);
       this.elements.buttons.daynight.text("Начать игру!");
+      this.placeTest();
       return this.placePlayers([listById]);
     };
 

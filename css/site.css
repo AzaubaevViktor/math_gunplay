@@ -125,8 +125,15 @@ tr.morgue:hover>td {
 	padding-right: 40px;
 }
 
+.carousel {
+	overflow: visible;
+	width: 80%;
+	float:left;
+	margin:10px;
+}
+
 .carousel-inner {
-	overflow: visible
+	overflow: hidden;
 }
 
 .carousel-control {
@@ -145,4 +152,10 @@ tr.morgue:hover>td {
 
 .carousel-indicators li {
 	border: 1px solid black;
+}
+
+/* description */
+.description {
+	width:0%;
+	margin: 10px;
 }
