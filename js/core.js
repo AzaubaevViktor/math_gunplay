@@ -152,26 +152,28 @@
     };
 
     Model.prototype.treat = function(plN, solved) {
-      var pl;
+      var inc, pl;
       pl = this.players[plN];
-      this.setHealth(plN, pl.health + this.getTreat(plN, solved));
+      inc = this.getTreat(plN, solved);
+      this.setHealth(plN, pl.health + inc);
       if ((this.getLevel(plN)) === "resuscitation") {
         pl.treatment = 0;
       } else {
         pl.treatment += 1;
       }
       this.addSnapshot();
-      this.view.treat(plN);
+      this.view.treat(plN, inc);
       return void 0;
     };
 
     Model.prototype.hit = function(plN1, plN2) {
-      var pl1, pl2;
+      var atk, pl1, pl2;
       pl1 = this.players[plN1];
       pl2 = this.players[plN2];
-      this.setHealth(plN2, pl2.health - this.getAttackTo(plN1, plN2));
+      atk = this.getAttackTo(plN1, plN2);
+      this.setHealth(plN2, pl2.health - atk);
       pl1.solve += 1;
-      this.view.hit(plN1, plN2);
+      this.view.hit(plN1, plN2, -atk);
       this.addSnapshot();
       return void 0;
     };
@@ -248,6 +250,7 @@
           list: []
         });
       }
+      void 0;
     }
 
     View.prototype.joinModel = function(model) {
@@ -308,10 +311,11 @@
         this.elements.buttons.backward.hide(500);
       }
       if (this.model.snapshotPoint !== (this.model.snapshots.length - 1)) {
-        return this.elements.buttons.forward.show(500);
+        this.elements.buttons.forward.show(500);
       } else {
-        return this.elements.buttons.forward.hide(500);
+        this.elements.buttons.forward.hide(500);
       }
+      return void 0;
     };
 
     View.prototype.beforeGameUI = function() {
@@ -324,7 +328,8 @@
       this.elements.blocks.newPlayer.show(500);
       this.elements.buttons.daynight.text("Начать игру!");
       this.placeTest();
-      return this.placePlayers([listById]);
+      this.placePlayers([listById]);
+      return void 0;
     };
 
     View.prototype.dayUI = function() {
@@ -348,7 +353,8 @@
       listBySolve.sort(getSortF('solve'));
       listByUnsolve = deepCopy(listById);
       listByUnsolve.sort(getSortF('unsolve'));
-      return this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
+      this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
+      return void 0;
     };
 
     View.prototype.nightUI = function() {
@@ -361,7 +367,8 @@
       this.elements.blocks.newPlayer.hide(500);
       listById = this.model.players;
       this.elements.buttons.daynight.text("Ночь");
-      return this.placePlayers([listById]);
+      this.placePlayers([listById]);
+      return void 0;
     };
 
     View.prototype.placePlayers = function(lists) {
@@ -406,14 +413,16 @@
       var minutes;
       minutes = this.model.time % 60;
       minutes = minutes < 10 ? "0" + minutes : minutes;
-      return this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
+      this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
+      return void 0;
     };
 
-    View.prototype.hit = function(plN1, plN2) {
+    View.prototype.hit = function(plN1, plN2, atk) {
       console.log("BADABOOM " + plN1 + " ====> " + plN2);
       this.nightMode.attack = -1;
       this.nightMode.selected = -1;
       this.updateUI();
+      this.popup(plN2, "health", atk * 100);
       return void 0;
     };
 
@@ -422,13 +431,45 @@
       this.nightMode.selected = -1;
       this.nightMode.attack = -1;
       this.updateUI();
+      this.popup(plN, "name", "Мазила");
       return void 0;
     };
 
-    View.prototype.treat = function(plN) {
+    View.prototype.treat = function(plN, inc) {
       this.nightMode.attack = -1;
       this.nightMode.selected = -1;
-      return this.updateUI();
+      this.updateUI();
+      this.popup(plN, "health", inc * 100);
+      return void 0;
+    };
+
+    View.prototype.popup = function(plN, selector, text) {
+      var el, left, popup, top, _this;
+      el = this.elements.places[0].list[plN][selector];
+      left = el.offset().left + el.width() / 2;
+      top = el.offset().top - el.height() / 2;
+      if ($.isNumeric(text)) {
+        text = text.toFixed(0);
+        if (text >= 0) {
+          text = "+" + text;
+        }
+      }
+      el.append("<div id='popup' class='" + (text >= 0 ? 'green' : 'red') + "' style='opacity:0'>" + text + "</div>");
+      popup = $("#popup");
+      popup.offset({
+        top: top,
+        left: left
+      });
+      _this = this;
+      return (popup.animate({
+        opacity: [1, "swing"],
+        top: ["-=20px", "linear"]
+      }, 1000)).animate({
+        opacity: [0, "swing"],
+        top: ["-=20px", "linear"]
+      }, 1000, "linear", function() {
+        return popup.remove();
+      });
     };
 
     View.prototype.attackMode = function(plN) {
@@ -438,16 +479,18 @@
         this.nightMode.attack = -1;
         this.nightMode.selected = -1;
       }
-      return this.updateUI();
+      this.updateUI();
+      return void 0;
     };
 
     View.prototype.selectMode = function(plN) {
       if (-1 !== this.nightMode.attack) {
-        return this.model.hit(this.nightMode.attack, plN);
+        this.model.hit(this.nightMode.attack, plN);
       } else {
         this.nightMode.selected = plN === this.nightMode.selected ? -1 : plN;
-        return this.updateUI();
+        this.updateUI();
       }
+      return void 0;
     };
 
     return View;

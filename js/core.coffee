@@ -141,7 +141,10 @@ class Model
 
   treat: (plN, solved) ->
     pl = @players[plN]
-    @setHealth plN, pl.health + @getTreat plN, solved
+
+    inc = @getTreat plN, solved
+
+    @setHealth plN, pl.health + inc
 
     if (@getLevel plN) == "resuscitation"
       pl.treatment = 0
@@ -150,18 +153,20 @@ class Model
 
     @addSnapshot()
 
-    @view.treat plN
+    @view.treat plN, inc
     (undefined)
 
   hit: (plN1, plN2) ->
     pl1 = @players[plN1]
     pl2 = @players[plN2]
 
-    @setHealth plN2, pl2.health - @getAttackTo plN1, plN2
+    atk = @getAttackTo plN1, plN2
+
+    @setHealth plN2, pl2.health - atk
 
     pl1.solve += 1
 
-    @view.hit plN1, plN2
+    @view.hit plN1, plN2, -atk
 
     @addSnapshot()
 
@@ -244,6 +249,7 @@ class View
         this: $ "#table#{ind+1} > .pl-list"
         list: []
         }
+    (undefined)
 
   joinModel: (@model) ->
 
@@ -258,7 +264,7 @@ class View
         @dayUI()
       else
         @nightUI()
-    undefined
+    (undefined)
 
   placeTest: ->
     # Проверяет, появились ли новые игроки и нужны ли для них новые места. Если так, создаёт эти места и биндит нужные действия
@@ -289,7 +295,7 @@ class View
         }
         place.list[-1..][0].actions.this.hide()
 
-    undefined
+    (undefined)
 
   snapshotButtons: ->
     if @model.snapshotPoint != 0
@@ -301,6 +307,8 @@ class View
       @elements.buttons.forward.show(500)
     else
       @elements.buttons.forward.hide(500)
+
+    (undefined)
 
   beforeGameUI: ->
     @nightMode.is = false
@@ -316,6 +324,7 @@ class View
 
     @placeTest()
     @placePlayers [listById]
+    (undefined)
 
   dayUI: ->
     @nightMode.is = false
@@ -343,6 +352,7 @@ class View
     listByUnsolve.sort(getSortF('unsolve'))
 
     @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
+    (undefined)
 
   nightUI: ->
     @nightMode.is = true
@@ -359,6 +369,7 @@ class View
     @elements.buttons.daynight.text "Ночь"
 
     @placePlayers [listById]
+    (undefined)
 
   placePlayers: (lists) ->
     for list, l in lists
@@ -389,33 +400,66 @@ class View
           listItem.this.removeClass("not")
 
         listItem.this.show(500)
-        undefined
-      undefined
-    undefined
+        (undefined)
+      (undefined)
+    (undefined)
 
   updateTime: ->
     minutes = @model.time % 60
     minutes = if minutes < 10 then "0" + minutes else minutes
     @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
+    (undefined)
 
-  hit: (plN1, plN2) ->
+  hit: (plN1, plN2, atk) ->
     console.log "BADABOOM #{plN1} ====> #{plN2}"
     @nightMode.attack = -1
     @nightMode.selected = -1
     @updateUI()
-    undefined
+    @popup plN2, "health", (atk * 100)
+    (undefined)
 
   miss: (plN) ->
     console.log "PHAHAHA #{plN}"
     @nightMode.selected = -1
     @nightMode.attack = -1
     @updateUI()
-    undefined
+    @popup plN, "name", "Мазила"
+    (undefined)
 
-  treat: (plN) ->
+  treat: (plN, inc) ->
     @nightMode.attack = -1
     @nightMode.selected = -1
     @updateUI()
+    @popup plN, "health", (inc * 100)
+    (undefined)
+
+  popup: (plN, selector, text) ->
+    el = @elements.places[0].list[plN][selector]
+    left = el.offset().left + el.width() / 2
+    top = el.offset().top - el.height() / 2
+
+    if $.isNumeric text
+      text = text.toFixed(0)
+      if text >= 0
+        text = "+" + text
+
+    el.append "<div id='popup'
+      class='#{if text >= 0 then 'green' else 'red'}'
+      style='opacity:0'>#{text}</div>"
+    popup = $ "#popup"
+    popup.offset {top: top, left: left}
+
+    # animation
+    _this = @
+    (popup.animate {
+      opacity: [1, "swing"]
+      top: ["-=20px", "linear"]
+    }, 1000).animate {
+        opacity: [0, "swing"]
+        top: ["-=20px", "linear"]
+      }, 1000, "linear", () ->
+        popup.remove()
+
 
   attackMode: (plN) ->
     if (-1 == @nightMode.attack)
@@ -425,6 +469,7 @@ class View
       @nightMode.selected = -1
 
     @updateUI()
+    (undefined)
 
   selectMode: (plN) ->
     if -1 != @nightMode.attack
@@ -433,6 +478,7 @@ class View
       @nightMode.selected =
         if plN == @nightMode.selected then -1 else plN
       @updateUI()
+    (undefined)
 
 
 
@@ -453,7 +499,7 @@ class Controller
         name = input.val()
         input.val ""
         _this.model.addPlayer name
-      undefined
+      (undefined)
 
     # Кнопка, сменяющая день/ночь вручную и начинающая игру
     @view.elements.buttons.daynight.click ->
@@ -465,7 +511,7 @@ class Controller
     @view.elements.buttons.backward.click ->
       _this.model.loadSnapshot()
 
-    undefined
+    (undefined)
 
   bindNight: ->
     if not @isBindNight
@@ -485,7 +531,7 @@ class Controller
           tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
             {plN, _this: {model}, solved} = event.data
             model.treat(plN, solved)
-          undefined
+          (undefined)
 
         item.this.on 'click', "td:not(.actions)", {plN: plN, _this: @}, (event) ->
           {plN, _this: {view, model}} = event.data
@@ -494,7 +540,7 @@ class Controller
 
         item.id.css('cursor','pointer')
         item.name.css('cursor','pointer')
-        undefined
+        (undefined)
 
 
 class _Carousel
