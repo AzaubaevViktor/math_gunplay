@@ -24,6 +24,11 @@
 			<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Текущий режим игры">
 				Начать игру!
 			</button>
+			<div class="btn-group">
+			  <button id="settings" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#settings-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Настройки игры (сохраняются автоматически)">
+			    <span class="glyphicon glyphicon-wrench"></span>
+			  </button>
+			</div>
 
 
 			<p id="version" class="navbar-text navbar-right"></p>
@@ -90,6 +95,79 @@
 			<tr class="morgue"><td>Морг</td></tr>
 		</table>
 	</div>
+
+	<!-- FEATURES -->
+	<!-- Button trigger modal -->
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#settings-modal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="settings-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Настройки игры</h4>
+      </div>
+      <div class="modal-body">
+
+				<div class="form-group">
+
+				</div>
+
+				<div class="row">
+					<div class="col-lg-10">
+				    <div class="input-group">
+				      <span class="input-group-btn">
+				        <button class="btn btn-default" type="button">Продолжительность дня</button>
+				      </span>
+				      <input type="text" class="form-control">
+							<span class="input-group-btn">
+				        <button class="btn btn-default" type="button">минут</button>
+				      </span>
+				    </div><!-- /input-group -->
+				  </div><!-- /.col-lg-7 -->
+				</div>
+
+				<div class="row">
+					<div class="col-lg-10">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox"> Уничтожение самого себя (Атака)
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-lg-10">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox"> Уничтожение самого себя (Лечение)
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-lg-10">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox"> Дополнительные +10 при лечении в реанимации
+							</label>
+						</div>
+					</div>
+				</div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Готово</button>
+        <button type="button" class="btn btn-danger">Сбросить</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 	<!-- TEMPLATES -->
 

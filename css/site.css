@@ -174,3 +174,9 @@ tr.morgue:hover>td {
 .green {
 	color: green;
 }
+
+/* Features */
+.features {
+	float: left;
+	font-size: 20px;
+}
