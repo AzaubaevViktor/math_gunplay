@@ -152,15 +152,17 @@
     Model.prototype.setDayTimer = function() {
       this.time = this.settings.stTime * 60;
       this.view.updateTime();
-      this.timer = setInterval(function(_this) {
-        _this.time -= 1;
-        if (_this.time <= 0) {
-          _this.changeDayNight();
-        } else {
-          _this.view.updateTime();
-        }
-        return void 0;
-      }, 1000, this);
+      this.timer = setInterval((function(_this) {
+        return function() {
+          _this.time -= 1;
+          if (_this.time <= 0) {
+            _this.changeDayNight();
+          } else {
+            _this.view.updateTime();
+          }
+          return void 0;
+        };
+      })(this), 1000);
       return void 0;
     };
 
@@ -227,6 +229,7 @@
       if (!this.settings.selfDestroyTreat) {
         h = getValScope(h, [0, Infinity]);
       }
+      h = getValScope(h, [-Infinity, 1 - pl.health]);
       return (getValScope(h, [-Infinity, Infinity])) / 100;
     };
 
@@ -621,20 +624,20 @@
     };
 
     Controller.prototype.bind = function() {
-      var els, input, model, _this;
+      var els, input;
       els = this.view.elements;
-      model = this.model;
-      _this = this;
-      input = this.view.elements.inputs.newPlayer;
-      input.keyup(function(e) {
-        var name;
-        if (13 === e.keyCode) {
-          name = input.val();
-          input.val("");
-          _this.model.addPlayer(name);
-        }
-        return void 0;
-      });
+      input = els.inputs.newPlayer;
+      input.keyup((function(_this) {
+        return function(e) {
+          var name;
+          if (13 === e.keyCode) {
+            name = input.val();
+            input.val("");
+            _this.model.addPlayer(name);
+          }
+          return void 0;
+        };
+      })(this));
       els.buttons.daynight.click((function(_this) {
         return function() {
           _this.model.changeDayNight();
@@ -701,44 +704,39 @@
         _results = [];
         for (plN = _i = 0, _len = _ref.length; _i < _len; plN = ++_i) {
           item = _ref[plN];
-          item.actions.unsolve.on('click', {
-            plN: plN,
-            _this: this
-          }, function(event) {
-            var model, _ref1, _ref2;
-            _ref1 = event.data, plN = _ref1.plN, (_ref2 = _ref1._this, model = _ref2.model);
-            return model.miss(plN);
-          });
-          item.actions.solve.on('click', {
-            plN: plN,
-            _this: this
-          }, function(event) {
-            var view, _ref1, _ref2;
-            _ref1 = event.data, plN = _ref1.plN, (_ref2 = _ref1._this, view = _ref2.view);
-            return view.attackMode(plN);
-          });
+          item.actions.unsolve.on('click', plN, (function(_this) {
+            return function(event) {
+              plN = event.data;
+              return _this.model.miss(plN);
+            };
+          })(this));
+          item.actions.solve.on('click', plN, (function(_this) {
+            return function(event) {
+              plN = event.data;
+              return _this.view.attackMode(plN);
+            };
+          })(this));
           _ref1 = item.actions.treat;
           for (solved = _j = 0, _len1 = _ref1.length; _j < _len1; solved = ++_j) {
             tr = _ref1[solved];
             tr.on('click', {
               plN: plN,
-              _this: this,
               solved: solved
-            }, function(event) {
-              var model, _ref2, _ref3;
-              _ref2 = event.data, plN = _ref2.plN, (_ref3 = _ref2._this, model = _ref3.model), solved = _ref2.solved;
-              return model.treat(plN, solved);
-            });
+            }, (function(_this) {
+              return function(event) {
+                var _ref2;
+                _ref2 = event.data, plN = _ref2.plN, solved = _ref2.solved;
+                return _this.model.treat(plN, solved);
+              };
+            })(this));
             void 0;
           }
-          item["this"].on('click', "td:not(.actions)", {
-            plN: plN,
-            _this: this
-          }, function(event) {
-            var model, view, _ref2, _ref3;
-            _ref2 = event.data, plN = _ref2.plN, (_ref3 = _ref2._this, view = _ref3.view, model = _ref3.model);
-            return view.selectMode(plN);
-          });
+          item["this"].on('click', "td:not(.actions)", plN, (function(_this) {
+            return function(event) {
+              plN = event.data;
+              return _this.view.selectMode(plN);
+            };
+          })(this));
           item.id.css('cursor', 'pointer');
           item.name.css('cursor', 'pointer');
           _results.push(void 0);

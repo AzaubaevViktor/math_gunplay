@@ -150,14 +150,14 @@ class Model
   setDayTimer: () ->
     @time = @settings.stTime * 60
     @view.updateTime()
-    @timer = setInterval (_this) ->
-      _this.time -= 1
-      if _this.time <= 0
-        _this.changeDayNight()
+    @timer = setInterval =>
+      @time -= 1
+      if @time <= 0
+        @changeDayNight()
       else
-        _this.view.updateTime()
+        @view.updateTime()
       undefined
-    , 1000, @
+    , 1000
     (undefined)
 
   changeDayNight: ->
@@ -218,6 +218,8 @@ class Model
 
     if (not @settings.selfDestroyTreat)
       h = getValScope h, [0, Infinity]
+
+    h = getValScope h, [-Infinity, 1 - pl.health]
 
     ((getValScope h, [-Infinity, Infinity]) / 100)
 
@@ -475,7 +477,8 @@ class View
 
     @elements.blocks.newPlayer.hide 500
 
-    getSortF = (item) ->
+    getSortF =
+    (item) ->
       (a, b) ->
         b[item] - a[item]
 
@@ -630,16 +633,13 @@ class Controller
 
   bind: ->
     els = @view.elements
-    model = @model
 
-    _this = @
-
-    input = @view.elements.inputs.newPlayer
-    input.keyup (e) ->
+    input = els.inputs.newPlayer
+    input.keyup (e) =>
       if 13 == e.keyCode
         name = input.val()
         input.val ""
-        _this.model.addPlayer name
+        @model.addPlayer name
       (undefined)
 
     # Кнопка, сменяющая день/ночь вручную и начинающая игру
@@ -654,8 +654,6 @@ class Controller
     els.buttons.backward.click =>
       @model.loadSnapshot()
       (undefined)
-
-
 
     (undefined)
 
@@ -691,24 +689,24 @@ class Controller
       place = @view.elements.places[0]
       for item, plN in place.list
 
-        item.actions.unsolve.on 'click', {plN: plN, _this: @}, (event) ->
-          {plN, _this: {model}} = event.data
-          model.miss(plN)
+        item.actions.unsolve.on 'click', plN, (event) =>
+          plN = event.data
+          @model.miss(plN)
 
-        item.actions.solve.on 'click', {plN: plN, _this: @}, (event) ->
-          {plN, _this: {view}} = event.data
-          view.attackMode plN
+        item.actions.solve.on 'click', plN, (event) =>
+          plN = event.data
+          @view.attackMode plN
 
         for tr, solved in item.actions.treat
-          tr.on 'click', {plN: plN, _this: @, solved: solved}, (event) ->
-            {plN, _this: {model}, solved} = event.data
-            model.treat(plN, solved)
+          tr.on 'click', {plN: plN, solved: solved}, (event) =>
+            {plN, solved} = event.data
+            @model.treat(plN, solved)
           (undefined)
 
-        item.this.on 'click', "td:not(.actions)", {plN: plN, _this: @}, (event) ->
-          {plN, _this: {view, model}} = event.data
+        item.this.on 'click', "td:not(.actions)", plN, (event) =>
+          plN = event.data
 
-          view.selectMode plN
+          @view.selectMode plN
 
         item.id.css('cursor','pointer')
         item.name.css('cursor','pointer')
