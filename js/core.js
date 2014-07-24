@@ -23,11 +23,12 @@
       this.time = 0;
       this.timer = void 0;
       this.players = [];
+      this.initSettings();
       this.snapshots = [];
       this.snapshotPoint = -1;
       this.levels = {
-        square: [0.8, 1],
-        hospital: [0.3, 0.8],
+        square: [0.6, 1],
+        hospital: [0.3, 0.6],
         resuscitation: [0, 0.3],
         morgue: [-10000, 0]
       };
@@ -36,13 +37,53 @@
       void 0;
     }
 
+    Model.prototype.initSettings = function() {
+      this.settings = JSON.parse(localStorage.getItem('settings'));
+      if (this.settings === null) {
+        this.settings = {
+          stTime: 15,
+          selfDestroy: {
+            attack: true,
+            treat: true
+          },
+          resusPlus10: true
+        };
+        localStorage.setItem('settings', JSON.stringify(this.settings));
+      }
+      return void 0;
+    };
+
+    Model.prototype.setSettings = function(name, val) {
+      var sett;
+      sett = this.settings;
+      switch (name) {
+        case "stTime":
+          sett.stTime = val;
+          break;
+        case "sdAttack":
+          sett.selfDestroy.attack = val;
+          break;
+        case "sdTreat":
+          sett.selfDestroy.treat = val;
+          break;
+        case "resusPlus10":
+          sett.resusPlus10 = val;
+          break;
+        default:
+          void 0;
+      }
+      localStorage.setItem('settings', JSON.stringify(sett));
+      return void 0;
+    };
+
     Model.prototype.joinView = function(view) {
       this.view = view;
     };
 
     Model.prototype.forwardSnapshot = function() {
       this.snapshotPoint += 1;
-      return this.loadSnapshot(this.snapshotPoint);
+      this.loadSnapshot(this.snapshotPoint);
+      return void 0;
     };
 
     Model.prototype.loadSnapshot = function(snapshotN) {
@@ -232,6 +273,15 @@
         templates: {
           players: ($("#players-template")).html(),
           place: ($("#place-template")).html()
+        },
+        settings: {
+          "this": $("#settings-modal .modal-body"),
+          stTime: $("#stTime"),
+          selfDestroy: {
+            attack: ($("#sdAttack"))[0],
+            treat: ($("#sdTreat"))[0]
+          },
+          resusPlus10: ($("#resusPlus10"))[0]
         }
       };
       this.nightMode = {
@@ -254,7 +304,13 @@
     }
 
     View.prototype.joinModel = function(model) {
+      var elSett;
       this.model = model;
+      elSett = this.elements.settings;
+      elSett.stTime.val(this.model.settings.stTime);
+      elSett.selfDestroy.attack.checked = this.model.settings.selfDestroy.attack;
+      elSett.selfDestroy.treat.checked = this.model.settings.selfDestroy.treat;
+      return elSett.resusPlus10.checked = this.model.settings.resusPlus10;
     };
 
     View.prototype.joinController = function(controller) {
@@ -511,7 +567,9 @@
     };
 
     Controller.prototype.bind = function() {
-      var input, _this;
+      var els, input, model, _this;
+      els = this.view.elements;
+      model = this.model;
       _this = this;
       input = this.view.elements.inputs.newPlayer;
       input.keyup(function(e) {
@@ -523,15 +581,48 @@
         }
         return void 0;
       });
-      this.view.elements.buttons.daynight.click(function() {
-        return _this.model.changeDayNight();
-      });
-      this.view.elements.buttons.forward.click(function() {
-        return _this.model.forwardSnapshot();
-      });
-      this.view.elements.buttons.backward.click(function() {
-        return _this.model.loadSnapshot();
-      });
+      els.buttons.daynight.click((function(_this) {
+        return function() {
+          _this.model.changeDayNight();
+          return void 0;
+        };
+      })(this));
+      els.buttons.forward.click((function(_this) {
+        return function() {
+          _this.model.forwardSnapshot();
+          return void 0;
+        };
+      })(this));
+      els.buttons.backward.click((function(_this) {
+        return function() {
+          _this.model.loadSnapshot();
+          return void 0;
+        };
+      })(this));
+      els.settings.stTime.keyup((function(_this) {
+        return function() {
+          _this.model.setSettings('stTime', _this.view.elements.settings.stTime.val());
+          return void 0;
+        };
+      })(this));
+      $(els.settings.selfDestroy.attack).on('click', (function(_this) {
+        return function() {
+          _this.model.setSettings('sdAttack', _this.view.elements.settings.selfDestroy.attack.checked);
+          return void 0;
+        };
+      })(this));
+      $(els.settings.selfDestroy.treat).on('click', (function(_this) {
+        return function() {
+          _this.model.setSettings('sdTreat', _this.view.elements.settings.selfDestroy.treat.checked);
+          return void 0;
+        };
+      })(this));
+      $(els.settings.resusPlus10).on('click', (function(_this) {
+        return function() {
+          _this.model.setSettings('resusPlus10', _this.view.elements.settings.resusPlus10.checked);
+          return void 0;
+        };
+      })(this));
       return void 0;
     };
 

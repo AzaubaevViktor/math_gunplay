@@ -20,12 +20,14 @@ class Model
     @timer = undefined
     @players = []
 
+    @initSettings()
+
     @snapshots = []
     @snapshotPoint = -1
 
     @levels = {
-      square: [0.8, 1]
-      hospital: [0.3, 0.8]
+      square: [0.6, 1]
+      hospital: [0.3, 0.6]
       resuscitation: [0, 0.3]
       morgue: [-10000, 0]
     }
@@ -36,6 +38,38 @@ class Model
 
     (undefined)
 
+  initSettings: () ->
+    @settings = JSON.parse localStorage.getItem 'settings'
+
+    if @settings == null
+      @settings = {
+        stTime: 15
+        selfDestroy: {
+          attack: true
+          treat: true
+        }
+        resusPlus10: true
+      }
+      localStorage.setItem 'settings', JSON.stringify @settings
+
+    (undefined)
+
+  setSettings: (name, val) ->
+    sett = @settings
+    switch name
+      when "stTime"
+        sett.stTime = val
+      when "sdAttack"
+        sett.selfDestroy.attack = val
+      when "sdTreat"
+        sett.selfDestroy.treat = val
+      when "resusPlus10"
+        sett.resusPlus10 = val
+      else
+        undefined
+    localStorage.setItem 'settings', JSON.stringify sett
+    (undefined)
+
   joinView: (@view) ->
 
   # Snapshots
@@ -43,6 +77,7 @@ class Model
   forwardSnapshot: () ->
     @snapshotPoint += 1
     @loadSnapshot @snapshotPoint
+    (undefined)
 
   loadSnapshot: (snapshotN = @snapshotPoint - 1) ->
     @snapshotPoint = snapshotN
@@ -230,6 +265,16 @@ class View
         players: ($ "#players-template").html()
         place: ($ "#place-template").html()
       }
+
+      settings: {
+        this: ($ "#settings-modal .modal-body")
+        stTime: ($ "#stTime")
+        selfDestroy: {
+          attack: ($ "#sdAttack")[0]
+          treat: ($ "#sdTreat")[0]
+        }
+        resusPlus10: ($ "#resusPlus10")[0]
+      }
     }
 
     @nightMode = {
@@ -252,6 +297,12 @@ class View
     (undefined)
 
   joinModel: (@model) ->
+    elSett = @elements.settings
+    elSett.stTime.val @model.settings.stTime
+    elSett.selfDestroy.attack.checked = @model.settings.selfDestroy.attack
+    elSett.selfDestroy.treat.checked = @model.settings.selfDestroy.treat
+    elSett.resusPlus10.checked = @model.settings.resusPlus10
+
 
   joinController: (@controller) ->
 
@@ -491,6 +542,9 @@ class Controller
   joinView: (@view) ->
 
   bind: ->
+    els = @view.elements
+    model = @model
+
     _this = @
 
     input = @view.elements.inputs.newPlayer
@@ -502,14 +556,35 @@ class Controller
       (undefined)
 
     # Кнопка, сменяющая день/ночь вручную и начинающая игру
-    @view.elements.buttons.daynight.click ->
-      _this.model.changeDayNight()
+    els.buttons.daynight.click =>
+      @model.changeDayNight()
+      (undefined)
 
-    @view.elements.buttons.forward.click ->
-      _this.model.forwardSnapshot()
+    els.buttons.forward.click =>
+      @model.forwardSnapshot()
+      (undefined)
 
-    @view.elements.buttons.backward.click ->
-      _this.model.loadSnapshot()
+    els.buttons.backward.click =>
+      @model.loadSnapshot()
+      (undefined)
+
+    els.settings.stTime.keyup =>
+      @model.setSettings 'stTime', @view.elements.settings.stTime.val()
+      (undefined)
+
+    $(els.settings.selfDestroy.attack).on 'click', =>
+      @model.setSettings 'sdAttack', @view.elements.settings.selfDestroy.attack.checked
+      (undefined)
+
+    $(els.settings.selfDestroy.treat).on 'click', =>
+      @model.setSettings 'sdTreat', @view.elements.settings.selfDestroy.treat.checked
+      (undefined)
+
+    $(els.settings.resusPlus10).on 'click', =>
+      @model.setSettings 'resusPlus10', @view.elements.settings.resusPlus10.checked
+      (undefined)
+
+
 
     (undefined)
 
