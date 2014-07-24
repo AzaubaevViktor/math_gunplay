@@ -8,17 +8,9 @@ body {
 
 table {
 	margin: 0px !important;
+	margin-top: 10px !important;
 	padding: 0px !important;
 	font-size: 25px;
-}
-
-.block {
-	margin: 10px 0 0 10px;
-	padding: 5px;
-	min-width: 320px;
-	border: 1px solid #DDD;
-	display: inline-block;
-	overflow: hidden;
 }
 
 .btn, .form-control {
@@ -37,10 +29,6 @@ table {
 
 .version:before {
 	clear: none !important;
-}
-
-.navbar-right {
-	float: right !important;
 }
 
 /* User card */
@@ -127,9 +115,6 @@ tr.morgue:hover>td {
 
 .carousel {
 	overflow: visible;
-	width: 80%;
-	float:left;
-	margin:10px;
 }
 
 .carousel-inner {
@@ -156,8 +141,8 @@ tr.morgue:hover>td {
 
 /* description */
 .description {
-	width:0%;
-	margin: 10px;
+	padding-left: 0px;
+	margin-left: -15px;
 }
 
 /* popup */
@@ -173,10 +158,4 @@ tr.morgue:hover>td {
 
 .green {
 	color: green;
-}
-
-/* Features */
-.features {
-	float: left;
-	font-size: 20px;
 }

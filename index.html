@@ -15,16 +15,16 @@
 			<div class="navbar-header">
 				<a class="navbar-brand">Математическая перестрелка</a>
 			</div>
-			<button id="backward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
-				<span class="glyphicon glyphicon-step-backward"></span>
-			</button>
-			<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Повторить ход">
-				<span class="glyphicon glyphicon-step-forward"></span>
-			</button>
-			<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Текущий режим игры">
-				Начать игру!
-			</button>
-			<div class="btn-group">
+			<div class="navbar-left">
+				<button id="backward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+					<span class="glyphicon glyphicon-step-backward"></span>
+				</button>
+				<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Повторить ход">
+					<span class="glyphicon glyphicon-step-forward"></span>
+				</button>
+				<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Текущий режим игры">
+					Начать игру!
+				</button>
 				<button id="settings" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#settings-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Настройки игры (сохраняются автоматически)">
 					<span class="glyphicon glyphicon-wrench"></span>
 				</button>
@@ -35,9 +35,11 @@
 		</div>
 	</nav>
 
+<div class="container-fluid">
+<div class="row">
 	<!-- CAROUSEL -->
 
-	<div id="carousel" class="carousel slide">
+	<div id="carousel" class="carousel slide col-md-10 col-sm-10">
 		<!-- Indicators -->
 		<ol class="carousel-indicators">
 			<li data-target="#carousel" data-slide-to="0" class="active"></li>
@@ -87,7 +89,7 @@
 
 	<!-- DESCRIPTION -->
 
-	<div class="description">
+	<div class="description col-md-2 col-sm-2">
 		<table class="table table-bordered">
 			<tr class="square with-tooltip" data-toggle="popover" data-placement="left" data-title="Тут будет описание площади (динамическое, ведь Салават хочет менять параметры)"><td>Площадь</td></tr>
 			<tr class="hospital"><td>Госпиталь</td></tr>
@@ -95,6 +97,9 @@
 			<tr class="morgue"><td>Морг</td></tr>
 		</table>
 	</div>
+
+</div>
+</div>
 
 	<!-- SETTINGS -->
 
