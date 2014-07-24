@@ -15,7 +15,6 @@ class Model
   constructor: () ->
     @isDay = false
     @isGame = false
-    @stTime = 15 * 60
     @time = 0
     @timer = undefined
     @players = []
@@ -44,30 +43,72 @@ class Model
     if @settings == null
       @settings = {
         stTime: 15
-        selfDestroy: {
-          attack: true
-          treat: true
-        }
-        resusPlus10: true
+        maxAttack: 20
+        selfDestroyAttack: true
+        selfDestroyTreat: true
+        hospitalPlus10: true
+        nullResus: true
       }
       localStorage.setItem 'settings', JSON.stringify @settings
+
+    @settingsDesc = {
+      info: {
+        type: "text"
+        before: "Помните: настройки обновляются <b>сразу</b>!"
+      }
+      stTime: {
+        type: "number"
+        before: "Продолжительность дня"
+        after: "мин"
+        def: "20"
+        help: "Если вы меняете это поле днём, то изменения вступят в силу только на <b>следующий</b> день"
+      }
+      maxAttack: {
+        type: "number"
+        before: "Максимальная атака"
+        after: "%"
+        def: "15"
+      }
+      selfDestroyAttack: {
+        type: "checkbox"
+        after: "Уничтожение самого себя (Атака)"
+      }
+      selfDestroyTreat: {
+        type: "checkbox"
+        after: "Уничтожение самого себя (Лечение)"
+      }
+      hospitalPlus10: {
+        type: "checkbox"
+        after: "Дополнительные +10 при лечении в госпитале"
+      }
+      nullResus: {
+        type: "checkbox"
+        after: "Обнуление количества решений при лечении в реанимации"
+      }
+      attackFormula: {
+        type: "text"
+        before: "Формула расчёта урона:<br>min (10 + Р - Н - 3 * Л, МАКСУРОН)"
+        help: "Р -- кол-во решённых задач<br>
+        Н -- кол-во нерешённых задач<br>
+        Л -- кол-во попыток лечения<br>
+        МАКСУРОН -- значение ниже"
+      }
+      treatFormula: {
+        type: "text"
+        before: "Формула расчёта лечения:<br>5 * У + Р - Н - 3 * Л - 5"
+        help: "У -- кол-во решённых задач из 3-х, остальное см. выше"
+      }
+      github: {
+        type: "text"
+        before: "<a href='https://github.com/ktulhy-kun/math_gunplay'>Исходный код</a>"
+      }
+    }
 
     (undefined)
 
   setSettings: (name, val) ->
-    sett = @settings
-    switch name
-      when "stTime"
-        sett.stTime = val
-      when "sdAttack"
-        sett.selfDestroy.attack = val
-      when "sdTreat"
-        sett.selfDestroy.treat = val
-      when "resusPlus10"
-        sett.resusPlus10 = val
-      else
-        undefined
-    localStorage.setItem 'settings', JSON.stringify sett
+    @settings[name] = val
+    localStorage.setItem 'settings', JSON.stringify @settings
     (undefined)
 
   joinView: (@view) ->
@@ -107,7 +148,7 @@ class Model
   # Day/Night
 
   setDayTimer: () ->
-    @time = @stTime
+    @time = @settings.stTime * 60
     @view.updateTime()
     @timer = setInterval (_this) ->
       _this.time -= 1
@@ -162,14 +203,22 @@ class Model
     if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
       return 0
 
+    if ((not @settings.selfDestroyAttack) and (plN == plN2))
+      return 0
+
     (@getAttack plN)
 
   getTreat: (plN, solved) ->
     pl = @players[plN]
     h = 5 * solved + pl.solve - pl.unsolve - 3 * pl.treatment - 5
 
-    if (@getLevel plN) == 'hospital'
+    if ((@settings.hospitalPlus10) and ((@getLevel plN) == 'hospital'))
+      console.log "+10!"
       h += 10
+
+    if (not @settings.selfDestroyTreat)
+      h = getValScope h, [0, Infinity]
+
     ((getValScope h, [-Infinity, Infinity]) / 100)
 
   # actions
@@ -181,7 +230,7 @@ class Model
 
     @setHealth plN, pl.health + inc
 
-    if (@getLevel plN) == "resuscitation"
+    if ((@settings.nullResus) and ((@getLevel plN) == "resuscitation"))
       pl.treatment = 0
     else
       pl.treatment += 1
@@ -266,15 +315,7 @@ class View
         place: ($ "#place-template").html()
       }
 
-      settings: {
-        this: ($ "#settings-modal .modal-body")
-        stTime: ($ "#stTime")
-        selfDestroy: {
-          attack: ($ "#sdAttack")[0]
-          treat: ($ "#sdTreat")[0]
-        }
-        resusPlus10: ($ "#resusPlus10")[0]
-      }
+      settings: $ "#settings-modal .modal-body"
     }
 
     @nightMode = {
@@ -297,14 +338,61 @@ class View
     (undefined)
 
   joinModel: (@model) ->
-    elSett = @elements.settings
-    elSett.stTime.val @model.settings.stTime
-    elSett.selfDestroy.attack.checked = @model.settings.selfDestroy.attack
-    elSett.selfDestroy.treat.checked = @model.settings.selfDestroy.treat
-    elSett.resusPlus10.checked = @model.settings.resusPlus10
-
 
   joinController: (@controller) ->
+    @generateSettings()
+
+  generateSettings: ->
+    sett = @model.settings
+    settDesc = @model.settingsDesc
+    body = @elements.settings
+
+    for name, desc of settDesc
+      help = if desc.help then "<p class='help-block'>#{desc.help}</p>" else ""
+
+      switch desc.type
+        when "text"
+          body.append "
+          <div class='row'>
+            <div class='col-lg-10'>
+              <p class='form-control-static' id='#{name}'>#{desc.before}</p>
+              #{help}
+            </div>
+          </div>"
+        when "number"
+          body.append "
+          <div class='row'>
+            <div class='col-lg-10'>
+              <div class='input-group'>
+                <span class='input-group-addon'>#{desc.before}</span>
+                <input id='#{name}' type='number' class='form-control' placeholder='#{if desc.def then desc.def else ''}'>
+                <span class='input-group-addon'>#{desc.after}</span>
+              </div>
+              #{help}
+            </div>
+          </div>"
+        when "checkbox"
+          body.append "
+          <div class='row'>
+            <div class='col-lg-10'>
+              <div class='checkbox'>
+                <label>
+                  <input id='#{name}' type='checkbox'>#{desc.after}
+                </label>
+                #{help}
+              </div>
+            </div>
+          </div>"
+        else
+
+      elem = ($ "##{name}")
+      @elements.settings[name] = elem[0]
+
+      def = @model.settings[name]
+
+      @controller.bindSettings(elem, name, desc.type, def)
+
+      (undefined)
 
   updateUI: ->
     @snapshotButtons()
@@ -511,7 +599,6 @@ class View
       }, 1000, "linear", () ->
         popup.remove()
 
-
   attackMode: (plN) ->
     if (-1 == @nightMode.attack)
       @nightMode.attack = plN
@@ -568,23 +655,33 @@ class Controller
       @model.loadSnapshot()
       (undefined)
 
-    els.settings.stTime.keyup =>
-      @model.setSettings 'stTime', @view.elements.settings.stTime.val()
-      (undefined)
-
-    $(els.settings.selfDestroy.attack).on 'click', =>
-      @model.setSettings 'sdAttack', @view.elements.settings.selfDestroy.attack.checked
-      (undefined)
-
-    $(els.settings.selfDestroy.treat).on 'click', =>
-      @model.setSettings 'sdTreat', @view.elements.settings.selfDestroy.treat.checked
-      (undefined)
-
-    $(els.settings.resusPlus10).on 'click', =>
-      @model.setSettings 'resusPlus10', @view.elements.settings.resusPlus10.checked
-      (undefined)
 
 
+    (undefined)
+
+  bindSettingsGenerate: (name, type) ->
+    switch type
+      when "number"
+        return =>
+          @model.setSettings name, @view.elements.settings[name].value
+      when "checkbox"
+        return  =>
+          @model.setSettings name, @view.elements.settings[name].checked
+      else
+        return =>
+
+
+  bindSettings: (elem, name, type, def) ->
+    elem = $("##{name}")
+
+    switch type
+      when "number"
+        elem.val(def)
+        elem.keyup @bindSettingsGenerate name, type
+      when "checkbox"
+        elem[0].checked = def
+        elem.on 'click', @bindSettingsGenerate name, type
+      else
 
     (undefined)
 
@@ -650,6 +747,8 @@ class _Carousel
 ($ document).ready ->
   console.log "I'm alive!"
   jQuery.fx.interval = 40
+
+  #$("#settings-modal").modal()
 
   model = new Model()
   view = new View()

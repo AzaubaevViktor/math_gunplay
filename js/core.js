@@ -19,7 +19,6 @@
     function Model() {
       this.isDay = false;
       this.isGame = false;
-      this.stTime = 15 * 60;
       this.time = 0;
       this.timer = void 0;
       this.players = [];
@@ -42,37 +41,69 @@
       if (this.settings === null) {
         this.settings = {
           stTime: 15,
-          selfDestroy: {
-            attack: true,
-            treat: true
-          },
-          resusPlus10: true
+          maxAttack: 20,
+          selfDestroyAttack: true,
+          selfDestroyTreat: true,
+          hospitalPlus10: true,
+          nullResus: true
         };
         localStorage.setItem('settings', JSON.stringify(this.settings));
       }
+      this.settingsDesc = {
+        info: {
+          type: "text",
+          before: "Помните: настройки обновляются <b>сразу</b>!"
+        },
+        stTime: {
+          type: "number",
+          before: "Продолжительность дня",
+          after: "мин",
+          def: "20",
+          help: "Если вы меняете это поле днём, то изменения вступят в силу только на <b>следующий</b> день"
+        },
+        maxAttack: {
+          type: "number",
+          before: "Максимальная атака",
+          after: "%",
+          def: "15"
+        },
+        selfDestroyAttack: {
+          type: "checkbox",
+          after: "Уничтожение самого себя (Атака)"
+        },
+        selfDestroyTreat: {
+          type: "checkbox",
+          after: "Уничтожение самого себя (Лечение)"
+        },
+        hospitalPlus10: {
+          type: "checkbox",
+          after: "Дополнительные +10 при лечении в госпитале"
+        },
+        nullResus: {
+          type: "checkbox",
+          after: "Обнуление количества решений при лечении в реанимации"
+        },
+        attackFormula: {
+          type: "text",
+          before: "Формула расчёта урона:<br>min (10 + Р - Н - 3 * Л, МАКСУРОН)",
+          help: "Р -- кол-во решённых задач<br> Н -- кол-во нерешённых задач<br> Л -- кол-во попыток лечения<br> МАКСУРОН -- значение ниже"
+        },
+        treatFormula: {
+          type: "text",
+          before: "Формула расчёта лечения:<br>5 * У + Р - Н - 3 * Л - 5",
+          help: "У -- кол-во решённых задач из 3-х, остальное см. выше"
+        },
+        github: {
+          type: "text",
+          before: "<a href='https://github.com/ktulhy-kun/math_gunplay'>Исходный код</a>"
+        }
+      };
       return void 0;
     };
 
     Model.prototype.setSettings = function(name, val) {
-      var sett;
-      sett = this.settings;
-      switch (name) {
-        case "stTime":
-          sett.stTime = val;
-          break;
-        case "sdAttack":
-          sett.selfDestroy.attack = val;
-          break;
-        case "sdTreat":
-          sett.selfDestroy.treat = val;
-          break;
-        case "resusPlus10":
-          sett.resusPlus10 = val;
-          break;
-        default:
-          void 0;
-      }
-      localStorage.setItem('settings', JSON.stringify(sett));
+      this.settings[name] = val;
+      localStorage.setItem('settings', JSON.stringify(this.settings));
       return void 0;
     };
 
@@ -119,7 +150,7 @@
     };
 
     Model.prototype.setDayTimer = function() {
-      this.time = this.stTime;
+      this.time = this.settings.stTime * 60;
       this.view.updateTime();
       this.timer = setInterval(function(_this) {
         _this.time -= 1;
@@ -179,6 +210,9 @@
       if ((0 === this.players[plN].health) || ((this.getLevel(plN)) !== (this.getLevel(plN2)))) {
         return 0;
       }
+      if ((!this.settings.selfDestroyAttack) && (plN === plN2)) {
+        return 0;
+      }
       return this.getAttack(plN);
     };
 
@@ -186,8 +220,12 @@
       var h, pl;
       pl = this.players[plN];
       h = 5 * solved + pl.solve - pl.unsolve - 3 * pl.treatment - 5;
-      if ((this.getLevel(plN)) === 'hospital') {
+      if (this.settings.hospitalPlus10 && ((this.getLevel(plN)) === 'hospital')) {
+        console.log("+10!");
         h += 10;
+      }
+      if (!this.settings.selfDestroyTreat) {
+        h = getValScope(h, [0, Infinity]);
       }
       return (getValScope(h, [-Infinity, Infinity])) / 100;
     };
@@ -197,7 +235,7 @@
       pl = this.players[plN];
       inc = this.getTreat(plN, solved);
       this.setHealth(plN, pl.health + inc);
-      if ((this.getLevel(plN)) === "resuscitation") {
+      if (this.settings.nullResus && ((this.getLevel(plN)) === "resuscitation")) {
         pl.treatment = 0;
       } else {
         pl.treatment += 1;
@@ -274,15 +312,7 @@
           players: ($("#players-template")).html(),
           place: ($("#place-template")).html()
         },
-        settings: {
-          "this": $("#settings-modal .modal-body"),
-          stTime: $("#stTime"),
-          selfDestroy: {
-            attack: ($("#sdAttack"))[0],
-            treat: ($("#sdTreat"))[0]
-          },
-          resusPlus10: ($("#resusPlus10"))[0]
-        }
+        settings: $("#settings-modal .modal-body")
       };
       this.nightMode = {
         is: false,
@@ -304,17 +334,41 @@
     }
 
     View.prototype.joinModel = function(model) {
-      var elSett;
       this.model = model;
-      elSett = this.elements.settings;
-      elSett.stTime.val(this.model.settings.stTime);
-      elSett.selfDestroy.attack.checked = this.model.settings.selfDestroy.attack;
-      elSett.selfDestroy.treat.checked = this.model.settings.selfDestroy.treat;
-      return elSett.resusPlus10.checked = this.model.settings.resusPlus10;
     };
 
     View.prototype.joinController = function(controller) {
       this.controller = controller;
+      return this.generateSettings();
+    };
+
+    View.prototype.generateSettings = function() {
+      var body, def, desc, elem, help, name, sett, settDesc, _results;
+      sett = this.model.settings;
+      settDesc = this.model.settingsDesc;
+      body = this.elements.settings;
+      _results = [];
+      for (name in settDesc) {
+        desc = settDesc[name];
+        help = desc.help ? "<p class='help-block'>" + desc.help + "</p>" : "";
+        switch (desc.type) {
+          case "text":
+            body.append("<div class='row'> <div class='col-lg-10'> <p class='form-control-static' id='" + name + "'>" + desc.before + "</p> " + help + " </div> </div>");
+            break;
+          case "number":
+            body.append("<div class='row'> <div class='col-lg-10'> <div class='input-group'> <span class='input-group-addon'>" + desc.before + "</span> <input id='" + name + "' type='number' class='form-control' placeholder='" + (desc.def ? desc.def : '') + "'> <span class='input-group-addon'>" + desc.after + "</span> </div> " + help + " </div> </div>");
+            break;
+          case "checkbox":
+            body.append("<div class='row'> <div class='col-lg-10'> <div class='checkbox'> <label> <input id='" + name + "' type='checkbox'>" + desc.after + " </label> " + help + " </div> </div> </div>");
+            break;
+        }
+        elem = $("#" + name);
+        this.elements.settings[name] = elem[0];
+        def = this.model.settings[name];
+        this.controller.bindSettings(elem, name, desc.type, def);
+        _results.push(void 0);
+      }
+      return _results;
     };
 
     View.prototype.updateUI = function() {
@@ -599,30 +653,42 @@
           return void 0;
         };
       })(this));
-      els.settings.stTime.keyup((function(_this) {
-        return function() {
-          _this.model.setSettings('stTime', _this.view.elements.settings.stTime.val());
-          return void 0;
-        };
-      })(this));
-      $(els.settings.selfDestroy.attack).on('click', (function(_this) {
-        return function() {
-          _this.model.setSettings('sdAttack', _this.view.elements.settings.selfDestroy.attack.checked);
-          return void 0;
-        };
-      })(this));
-      $(els.settings.selfDestroy.treat).on('click', (function(_this) {
-        return function() {
-          _this.model.setSettings('sdTreat', _this.view.elements.settings.selfDestroy.treat.checked);
-          return void 0;
-        };
-      })(this));
-      $(els.settings.resusPlus10).on('click', (function(_this) {
-        return function() {
-          _this.model.setSettings('resusPlus10', _this.view.elements.settings.resusPlus10.checked);
-          return void 0;
-        };
-      })(this));
+      return void 0;
+    };
+
+    Controller.prototype.bindSettingsGenerate = function(name, type) {
+      switch (type) {
+        case "number":
+          return (function(_this) {
+            return function() {
+              return _this.model.setSettings(name, _this.view.elements.settings[name].value);
+            };
+          })(this);
+        case "checkbox":
+          return (function(_this) {
+            return function() {
+              return _this.model.setSettings(name, _this.view.elements.settings[name].checked);
+            };
+          })(this);
+        default:
+          return (function(_this) {
+            return function() {};
+          })(this);
+      }
+    };
+
+    Controller.prototype.bindSettings = function(elem, name, type, def) {
+      elem = $("#" + name);
+      switch (type) {
+        case "number":
+          elem.val(def);
+          elem.keyup(this.bindSettingsGenerate(name, type));
+          break;
+        case "checkbox":
+          elem[0].checked = def;
+          elem.on('click', this.bindSettingsGenerate(name, type));
+          break;
+      }
       return void 0;
     };
 
