@@ -253,14 +253,14 @@
     Model.prototype.getAttack = function(plN) {
       var pl;
       pl = this.players[plN];
-      return (getValScope(10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, 20])) / 100;
+      return (getValScope(10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, this.settings.maxAttack])) / 100;
     };
 
     Model.prototype.getAttackTo = function(plN, plN2) {
       if ((0 === this.players[plN].health) || ((this.getLevel(plN)) !== (this.getLevel(plN2)))) {
         return 0;
       }
-      if ((!this.settings.selfDestroyAttack) && (plN === plN2)) {
+      if ((plN === plN2) && (((this.getLevel(plN)) === "resuscitation") || (!this.settings.selfDestroyAttack))) {
         return 0;
       }
       return this.getAttack(plN);
@@ -270,15 +270,16 @@
       var h, pl;
       pl = this.players[plN];
       h = 5 * solved + pl.solve - pl.unsolve - 3 * pl.treatment - 5;
+      h /= 100;
       if (this.settings.hospitalPlus10 && ((this.getLevel(plN)) === 'hospital')) {
         console.log("+10!");
-        h += 10;
+        h += 0.1;
       }
       if (!this.settings.selfDestroyTreat) {
         h = getValScope(h, [0, Infinity]);
       }
       h = getValScope(h, [-Infinity, 1 - pl.health]);
-      return (getValScope(h, [-Infinity, Infinity])) / 100;
+      return h;
     };
 
     Model.prototype.treat = function(plN, solved) {

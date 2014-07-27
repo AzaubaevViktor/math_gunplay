@@ -250,13 +250,13 @@ class Model
 
   getAttack: (plN) ->
     pl = @players[plN]
-    (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, 20]) / 100
+    (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, @settings.maxAttack]) / 100
 
   getAttackTo: (plN, plN2) ->
     if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
       return 0
 
-    if ((not @settings.selfDestroyAttack) and (plN == plN2))
+    if ((plN == plN2) and (((@getLevel plN) == "resuscitation") or (not @settings.selfDestroyAttack)))
       return 0
 
     (@getAttack plN)
@@ -264,17 +264,18 @@ class Model
   getTreat: (plN, solved) ->
     pl = @players[plN]
     h = 5 * solved + pl.solve - pl.unsolve - 3 * pl.treatment - 5
+    h /= 100
 
     if ((@settings.hospitalPlus10) and ((@getLevel plN) == 'hospital'))
       console.log "+10!"
-      h += 10
+      h += 0.1
 
     if (not @settings.selfDestroyTreat)
       h = getValScope h, [0, Infinity]
 
     h = getValScope h, [-Infinity, 1 - pl.health]
 
-    ((getValScope h, [-Infinity, Infinity]) / 100)
+    (h)
 
   # actions
 
