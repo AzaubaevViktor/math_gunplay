@@ -86,7 +86,7 @@
         attackFormula: {
           type: "text",
           before: "Формула расчёта урона:<br>min (10 + Р - Н - 3 * Л, МАКСУРОН)",
-          help: "Р -- кол-во решённых задач<br> Н -- кол-во нерешённых задач<br> Л -- кол-во попыток лечения<br> МАКСУРОН -- значение ниже"
+          help: "Р -- кол-во решённых задач<br> Н -- кол-во нерешённых задач<br> Л -- кол-во попыток лечения<br> МАКСУРОН -- максимальный урон, см. выше"
         },
         treatFormula: {
           type: "text",
@@ -439,7 +439,7 @@
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].pause();
       this.elements.blocks.newPlayer.show(500);
-      this.elements.buttons.daynight.text("Начать игру!");
+      this.elements.buttons.daynight.text("Добавление игроков");
       this.placeTest();
       this.placePlayers([listById]);
       return void 0;

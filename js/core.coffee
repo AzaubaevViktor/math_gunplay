@@ -91,7 +91,7 @@ class Model
         help: "Р -- кол-во решённых задач<br>
         Н -- кол-во нерешённых задач<br>
         Л -- кол-во попыток лечения<br>
-        МАКСУРОН -- значение ниже"
+        МАКСУРОН -- максимальный урон, см. выше"
       }
       treatFormula: {
         type: "text"
@@ -461,7 +461,7 @@ class View
 
     @elements.blocks.newPlayer.show 500
 
-    @elements.buttons.daynight.text "Начать игру!"
+    @elements.buttons.daynight.text "Добавление игроков"
 
     @placeTest()
     @placePlayers [listById]
