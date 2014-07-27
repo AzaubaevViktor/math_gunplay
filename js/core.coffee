@@ -472,6 +472,7 @@ class View
     @nightMode.attack = -1
     @nightMode.selected = -1
     @elements.carousel.this.showControls()
+    @elements.carousel.this.overflow "hidden"
     @elements.carousel.this.go 0
     @elements.carousel.this.start()
 
@@ -501,6 +502,7 @@ class View
     @controller.bindNight()
 
     @elements.carousel.this.hideControls()
+    @elements.carousel.this.overflow "visible"
     @elements.carousel.this.go 0
     @elements.carousel.this.pause()
 
@@ -550,6 +552,16 @@ class View
     minutes = @model.time % 60
     minutes = if minutes < 10 then "0" + minutes else minutes
     @elements.buttons.daynight.text "День (#{@model.time//60}:#{minutes})"
+
+    page_w = ($ "html").width();
+    all_time = @model.settings.stTime * 60
+
+    k = @model.time / all_time 
+
+    ($ ".sun").offset {
+      top: 100 * (1*k*k - 1*k + 1.5) - 50
+      left: (1-k)*(page_w+150) - 100
+      }
     (undefined)
 
   hit: (plN1, plN2, atk) ->
@@ -740,6 +752,12 @@ class _Carousel
     @elem.find(".carousel-control").fadeIn(500)
     @elem.find(".carousel-indicators").fadeIn(500)
     undefined
+
+  overflow: (st) ->
+    @elem.css {
+      "overflow": st
+    }
+
 
 
 ($ document).ready ->

@@ -451,6 +451,7 @@
       this.nightMode.attack = -1;
       this.nightMode.selected = -1;
       this.elements.carousel["this"].showControls();
+      this.elements.carousel["this"].overflow("hidden");
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].start();
       this.elements.blocks.newPlayer.hide(500);
@@ -475,6 +476,7 @@
       this.nightMode.is = true;
       this.controller.bindNight();
       this.elements.carousel["this"].hideControls();
+      this.elements.carousel["this"].overflow("visible");
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].pause();
       this.elements.blocks.newPlayer.hide(500);
@@ -523,10 +525,17 @@
     };
 
     View.prototype.updateTime = function() {
-      var minutes;
+      var all_time, k, minutes, page_w;
       minutes = this.model.time % 60;
       minutes = minutes < 10 ? "0" + minutes : minutes;
       this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
+      page_w = ($("html")).width();
+      all_time = this.model.settings.stTime * 60;
+      k = this.model.time / all_time;
+      ($(".sun")).offset({
+        top: 100 * (1 * k * k - 1 * k + 1.5) - 50,
+        left: (1 - k) * (page_w + 150) - 100
+      });
       return void 0;
     };
 
@@ -784,6 +793,12 @@
       this.elem.find(".carousel-control").fadeIn(500);
       this.elem.find(".carousel-indicators").fadeIn(500);
       return void 0;
+    };
+
+    _Carousel.prototype.overflow = function(st) {
+      return this.elem.css({
+        "overflow": st
+      });
     };
 
     return _Carousel;

@@ -36,6 +36,7 @@ table {
 .table, th {
 	text-align: center;
 	border-collapse: collapse;
+	opacity: 0.9;
 }
 
 tr.not>td {
@@ -116,6 +117,7 @@ tr.morgue:hover>td {
 
 .carousel {
 	overflow: visible;
+	position: static;
 }
 
 .carousel-inner {
@@ -157,4 +159,15 @@ tr.morgue:hover>td {
 
 .green {
 	color: green;
+}
+
+
+/* background */
+.sun {
+	position: absolute;
+	background-color: #FFF;
+	background-image: url("../pics/sun_min.png"); 
+	width: 100px;
+	height: 100px;
+	top:100px;
 }
