@@ -21,6 +21,11 @@ table {
 	display:none;
 }
 
+/* settings */
+.form-control-static {
+	padding-top: 0px;
+}
+
 /* saves */
 
 .modal-body .btn {

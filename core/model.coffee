@@ -109,6 +109,10 @@ class Model
         type: "text"
         before: "Помните: настройки обновляются <b>сразу</b>!"
       }
+      wiki: {
+        type: "text"
+        before: "<a href='https://github.com/ktulhy-kun/math_gunplay/wiki'>Как играть</a>"
+      }
       stTime: {
         type: "number"
         before: "Продолжительность дня"
