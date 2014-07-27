@@ -21,6 +21,13 @@ table {
 	display:none;
 }
 
+/* saves */
+
+.modal-body .btn {
+	margin-bottom: 3px;
+}
+
+
 /* navbar */
 
 .navbar-header:after {
