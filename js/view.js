@@ -215,6 +215,7 @@
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].start();
       this.elements.blocks.newPlayer.hide(500);
+      ($(".sun")).show();
       getSortF = function(item) {
         return function(a, b) {
           return b[item] - a[item];
@@ -238,6 +239,7 @@
       this.elements.carousel["this"].overflow("visible");
       this.elements.carousel["this"].go(0);
       this.elements.carousel["this"].pause();
+      ($(".sun")).hide();
       this.elements.blocks.newPlayer.hide(500);
       listById = this.model.players;
       this.elements.buttons.daynight.text("Ночь");
@@ -284,15 +286,20 @@
     };
 
     View.prototype.updateTime = function() {
-      var all_time, k, minutes, page_w;
+      var a, all_time, b, c, k, minutes, page_w, top_max, top_min;
       minutes = this.model.time % 60;
       minutes = minutes < 10 ? "0" + minutes : minutes;
       this.elements.buttons.daynight.text("День (" + (Math.floor(this.model.time / 60)) + ":" + minutes + ")");
       page_w = ($("html")).width();
       all_time = this.model.settings.stTime * 60;
       k = this.model.time / all_time;
+      top_max = 70;
+      top_min = 100;
+      b = (top_max - top_min) * 4;
+      a = -b;
+      c = top_min;
       ($(".sun")).offset({
-        top: 100 * (1 * k * k - 1 * k + 1.5) - 50,
+        top: a * k * k + b * k + c,
         left: (1 - k) * (page_w + 150) - 100
       });
       return void 0;

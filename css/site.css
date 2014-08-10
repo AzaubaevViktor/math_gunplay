@@ -178,8 +178,8 @@ tr.morgue:hover>td {
 .sun {
 	position: absolute;
 	background-color: #FFF;
-	background-image: url("../pics/sun_min.png"); 
+	background-image: url("../pics/sun_min.png");
 	width: 100px;
 	height: 100px;
-	top:100px;
+	top:-100px;
 }

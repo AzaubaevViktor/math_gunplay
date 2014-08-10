@@ -237,6 +237,8 @@ class View
 
     @elements.blocks.newPlayer.hide 500
 
+    ($ ".sun").show()
+
     getSortF =
     (item) ->
       (a, b) ->
@@ -263,6 +265,8 @@ class View
     @elements.carousel.this.overflow "visible"
     @elements.carousel.this.go 0
     @elements.carousel.this.pause()
+
+    ($ ".sun").hide()
 
     @elements.blocks.newPlayer.hide 500
 
@@ -314,10 +318,17 @@ class View
     page_w = ($ "html").width();
     all_time = @model.settings.stTime * 60
 
-    k = @model.time / all_time 
+    k = @model.time / all_time
+
+    top_max = 70
+    top_min = 100
+
+    b = (top_max - top_min) * 4
+    a = -b
+    c = top_min
 
     ($ ".sun").offset {
-      top: 100 * (1*k*k - 1*k + 1.5) - 50
+      top: a*k*k + b*k + c
       left: (1-k)*(page_w+150) - 100
       }
     (undefined)
