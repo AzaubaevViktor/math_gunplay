@@ -62,6 +62,7 @@ class Model
 
   deleteSave: (id) ->
     delete @saves.ids[id]
+    localStorage.setItem "saves", JSON.stringify @saves
     localStorage.setItem "save#{id}", ""
 
     @view.updateSaves()

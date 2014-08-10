@@ -9,11 +9,11 @@ class View
       }
 
       inputs: {
-        newPlayer: $ "#addplayer"
+
       }
 
       blocks: {
-        newPlayer: $ ".pl-addplayer"
+
       }
 
       carousel: {
@@ -21,16 +21,14 @@ class View
         items: [($ "#item0"), ($ "#item1"), ($ "#item2"), ($ "#item3")]
       }
 
-      tables: [($ "#table0")]
+      tables: []
 
-      places: [{
-        this: $ "#table0 > .pl-list"
-        list: []
-        }]
+      places: []
 
       templates: {
         players: ($ "#players-template").html()
         place: ($ "#place-template").html()
+        addplayer: ($ "#addplayer-template").html()
       }
 
       settings: $ "#settings-modal .modal-body"
@@ -45,15 +43,21 @@ class View
 
     items = @elements.carousel.items
 
-    for item, ind in items[1..]
-      item.html("<table id=\"table#{ind+1}\" class=\"table\">
+    for item, ind in items
+      item.html("<table id=\"table#{ind}\" class=\"table\">
           #{@elements.templates.players}
         </table>")
-      @elements.tables.push $ "#table#{ind+1}"
+      @elements.tables.push $ "#table#{ind}"
       @elements.places.push {
-        this: $ "#table#{ind+1} > .pl-list"
+        this: $ "#table#{ind} > .pl-list"
         list: []
         }
+
+    @elements.tables[0].append @elements.templates.addplayer
+    @elements.inputs.newPlayer = $ "#addplayer"
+    @elements.blocks.newPlayer = $ ($ ".pl-addplayer")[0]
+
+    console.log @elements.tables[0]
     (undefined)
 
   joinModel: (@model) ->
@@ -75,7 +79,6 @@ class View
     @elements.saves.append("
       <button type='button' act='new' class='btn btn-default'>Сохранить</button>
         ")
-
 
   generateSettings: ->
     sett = @model.settings
@@ -142,7 +145,7 @@ class View
     (undefined)
 
   placeTest: ->
-    # Проверяет, появились ли новые игроки и нужны ли для них новые места. Если так, создаёт эти места и биндит нужные действия
+    # Проверяет, появились ли новые игроки и нужны ли для них новые места.
     places = @elements.places
 
     while places[0].list.length < @model.players.length

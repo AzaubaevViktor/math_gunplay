@@ -55,31 +55,7 @@
 					</ol>
 					<!-- Slides -->
 					<div class="carousel-inner">
-						<div id="item0" class="item active">
-
-							<table id="table0" class="table">
-								<thead class="pl-head">
-									<tr>
-										<th style="width:1px">ID</th>
-										<th style="text-align:left; width:100%">Команда</th>
-										<th style="text-align:right"><span class="glyphicon glyphicon-heart with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Здоровье"></span></th>
-										<th style="width:1px"><span class="glyphicon glyphicon-screenshot with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Урон"></span></th>
-										<th style="width:1px; white-space: nowrap" class="with-tooltip" data-toggle="popover" data-placement="left" data-title="Количество решённых и нерешённых задач">Р/Н</th>
-									</tr>
-								</thead>
-								<tbody class="pl-list"></tbody>
-								<tbody class="pl-addplayer">
-									<tr>
-										<td colspan=5>
-											<div class="form-group">
-												<input type="text" class="form-control input-sm" id="addplayer" placeholder="Введите имя игрока и нажмите Enter">
-											</div>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-
-						</div>
+						<div id="item0" class="item active"></div>
 						<div id="item1" class="item"></div>
 						<div id="item2" class="item"></div>
 						<div id="item3" class="item"></div>
@@ -149,6 +125,8 @@
 
 	<!-- TEMPLATES -->
 
+	<!-- PLACE TEMPLATE -->
+
 	<table class="hidden">
 		<tbody id="place-template">
 			<tr class="square">
@@ -180,18 +158,36 @@
 		</tbody>
 	</table>
 
+	<!-- PLAYER TEMPLATE -->
+
 	<table id="players-template" class="table hidden">
 		<thead class="pl-head">
 			<tr>
 				<th style="width:1px">ID</th>
-				<th style="text-align:left">Команда</th>
-				<th style="width:1px"><span class="glyphicon glyphicon-heart"></span></th>
-				<th style="width:1px"><span class="glyphicon glyphicon-screenshot"></span></th>
-				<th style="width:1px; white-space:nowrap">Р/Н</th>
+				<th style="text-align:left; width:100%">Команда</th>
+				<th style="text-align:right"><span class="glyphicon glyphicon-heart with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Здоровье"></span></th>
+				<th style="width:1px"><span class="glyphicon glyphicon-screenshot with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Урон"></span></th>
+				<th style="width:1px; white-space: nowrap" class="with-tooltip" data-toggle="popover" data-placement="left" data-title="Количество решённых и нерешённых задач">Р/Н</th>
+
 			</tr>
 		</thead>
 		<tbody class="pl-list"></tbody>
 	</table>
+
+	<!-- ADD PLAYER TEMPLATE -->
+
+  <table id="addplayer-template" class="hidden">
+		<tbody class="pl-addplayer">
+			<tr>
+				<td colspan=5>
+					<div class="form-group">
+						<input type="text" class="form-control input-sm" id="addplayer" placeholder="Введите имя игрока и нажмите Enter">
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
 
 <!-- SCRIPTS -->
 

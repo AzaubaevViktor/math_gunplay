@@ -4,33 +4,25 @@
 
   View = (function() {
     function View() {
-      var ind, item, items, _i, _len, _ref;
+      var ind, item, items, _i, _len;
       this.elements = {
         buttons: {
           backward: $("#backward"),
           forward: $("#forward"),
           daynight: $("#daynight")
         },
-        inputs: {
-          newPlayer: $("#addplayer")
-        },
-        blocks: {
-          newPlayer: $(".pl-addplayer")
-        },
+        inputs: {},
+        blocks: {},
         carousel: {
           "this": new _Carousel($("#carousel")),
           items: [$("#item0"), $("#item1"), $("#item2"), $("#item3")]
         },
-        tables: [$("#table0")],
-        places: [
-          {
-            "this": $("#table0 > .pl-list"),
-            list: []
-          }
-        ],
+        tables: [],
+        places: [],
         templates: {
           players: ($("#players-template")).html(),
-          place: ($("#place-template")).html()
+          place: ($("#place-template")).html(),
+          addplayer: ($("#addplayer-template")).html()
         },
         settings: $("#settings-modal .modal-body"),
         saves: $("#saves-modal .modal-body")
@@ -41,16 +33,19 @@
         attack: -1
       };
       items = this.elements.carousel.items;
-      _ref = items.slice(1);
-      for (ind = _i = 0, _len = _ref.length; _i < _len; ind = ++_i) {
-        item = _ref[ind];
-        item.html("<table id=\"table" + (ind + 1) + "\" class=\"table\"> " + this.elements.templates.players + " </table>");
-        this.elements.tables.push($("#table" + (ind + 1)));
+      for (ind = _i = 0, _len = items.length; _i < _len; ind = ++_i) {
+        item = items[ind];
+        item.html("<table id=\"table" + ind + "\" class=\"table\"> " + this.elements.templates.players + " </table>");
+        this.elements.tables.push($("#table" + ind));
         this.elements.places.push({
-          "this": $("#table" + (ind + 1) + " > .pl-list"),
+          "this": $("#table" + ind + " > .pl-list"),
           list: []
         });
       }
+      this.elements.tables[0].append(this.elements.templates.addplayer);
+      this.elements.inputs.newPlayer = $("#addplayer");
+      this.elements.blocks.newPlayer = $(($(".pl-addplayer"))[0]);
+      console.log(this.elements.tables[0]);
       void 0;
     }
 

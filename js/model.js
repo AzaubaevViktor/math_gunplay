@@ -62,6 +62,7 @@
 
     Model.prototype.deleteSave = function(id) {
       delete this.saves.ids[id];
+      localStorage.setItem("saves", JSON.stringify(this.saves));
       localStorage.setItem("save" + id, "");
       return this.view.updateSaves();
     };
