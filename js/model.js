@@ -93,6 +93,7 @@
           maxAttack: 20,
           selfDestroyAttack: true,
           selfDestroyTreat: true,
+          selfDestroyResuscitation: false,
           hospitalPlus10: true,
           nullResus: true
         };
@@ -122,11 +123,15 @@
         },
         selfDestroyAttack: {
           type: "checkbox",
-          after: "Уничтожение самого себя (Атака)"
+          after: "Самоубийство (Атака)"
         },
         selfDestroyTreat: {
           type: "checkbox",
-          after: "Уничтожение самого себя (Лечение)"
+          after: "Самоубийство (Лечение)"
+        },
+        selfDestroyResuscitation: {
+          type: "checkbox",
+          after: "Самоубийство (Реанимация)"
         },
         hospitalPlus10: {
           type: "checkbox",
@@ -255,6 +260,12 @@
       return void 0;
     };
 
+    Model.prototype.getAttackWithoutTreat = function(plN) {
+      var pl;
+      pl = this.players[plN];
+      return (getValScope(10 + pl.solve - pl.unsolve, [0, this.settings.maxAttack])) / 100;
+    };
+
     Model.prototype.getAttack = function(plN) {
       var pl;
       pl = this.players[plN];
@@ -265,8 +276,15 @@
       if ((0 === this.players[plN].health) || ((this.getLevel(plN)) !== (this.getLevel(plN2)))) {
         return 0;
       }
-      if ((plN === plN2) && (((this.getLevel(plN)) === "resuscitation") || (!this.settings.selfDestroyAttack))) {
-        return 0;
+      if (plN === plN2) {
+        if ((this.getLevel(plN)) === "resuscitation") {
+          if (!this.settings.selfDestroyResuscitation) {
+            return 0;
+          }
+        }
+        if (!this.settings.selfDestroyAttack) {
+          return 0;
+        }
       }
       return this.getAttack(plN);
     };

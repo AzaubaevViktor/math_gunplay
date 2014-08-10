@@ -260,7 +260,7 @@
             listItem.actions["this"].show();
           } else {
             listItem.health.show().text((player.health * 100).toFixed(0));
-            listItem.attack.show().text(((this.model.getAttack(player.id)) * 100).toFixed(0));
+            listItem.attack.show().html(((this.model.getAttack(player.id)) * 100).toFixed(0) + "<lite>(" + ((this.model.getAttackWithoutTreat(player.id)) * 100).toFixed(0) + ")</lite>");
             listItem.tasks.show().text("" + player.solve + "/" + player.unsolve);
             listItem.actions["this"].hide();
           }

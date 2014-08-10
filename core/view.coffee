@@ -298,9 +298,10 @@ class View
           listItem.actions.this.show()
         else
           listItem.health.show().text (player.health * 100).toFixed(0)
-          listItem.attack.show().text ((@model.getAttack player.id) * 100).toFixed(0)
+          listItem.attack.show().html ((@model.getAttack player.id) * 100).toFixed(0) + "<lite>(" + ((@model.getAttackWithoutTreat player.id) * 100).toFixed(0) + ")</lite>"
           listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
           listItem.actions.this.hide()
+
         listItem.this.removeClass().addClass @model.getLevel player.id
 
         if (@nightMode.attack != -1) and (attackLevel != @model.getLevel p)

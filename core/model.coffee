@@ -100,6 +100,7 @@ class Model
         maxAttack: 20
         selfDestroyAttack: true
         selfDestroyTreat: true
+        selfDestroyResuscitation: false
         hospitalPlus10: true
         nullResus: true
       }
@@ -129,11 +130,15 @@ class Model
       }
       selfDestroyAttack: {
         type: "checkbox"
-        after: "Уничтожение самого себя (Атака)"
+        after: "Самоубийство (Атака)"
       }
       selfDestroyTreat: {
         type: "checkbox"
-        after: "Уничтожение самого себя (Лечение)"
+        after: "Самоубийство (Лечение)"
+      }
+      selfDestroyResuscitation: {
+        type: "checkbox"
+        after: "Самоубийство (Реанимация)"
       }
       hospitalPlus10: {
         type: "checkbox"
@@ -253,6 +258,10 @@ class Model
           return level
     (undefined)
 
+  getAttackWithoutTreat: (plN) ->
+    pl = @players[plN]
+    (getValScope 10 + pl.solve - pl.unsolve, [0, @settings.maxAttack]) / 100
+
   getAttack: (plN) ->
     pl = @players[plN]
     (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, @settings.maxAttack]) / 100
@@ -261,8 +270,13 @@ class Model
     if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
       return 0
 
-    if ((plN == plN2) and (((@getLevel plN) == "resuscitation") or (not @settings.selfDestroyAttack)))
-      return 0
+    if (plN == plN2)
+      if (@getLevel plN) == "resuscitation"
+        if not @settings.selfDestroyResuscitation
+          return 0
+
+      if (not @settings.selfDestroyAttack)
+        return 0
 
     (@getAttack plN)
 
