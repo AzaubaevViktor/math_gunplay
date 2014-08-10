@@ -20,9 +20,6 @@
     ($(".with-tooltip")).tooltip();
     ($("#version")).text(__version__);
     view.updateUI();
-    model.addPlayer("Математики");
-    model.addPlayer("Лунатики");
-    model.addPlayer("Пузатики");
     return void 0;
   });
 

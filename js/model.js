@@ -139,7 +139,7 @@
         },
         nullResus: {
           type: "checkbox",
-          after: "Обнуление количества решений при лечении в реанимации"
+          after: "Обнуление количества лечений при лечении в реанимации"
         },
         attackFormula: {
           type: "text",
@@ -176,24 +176,25 @@
     };
 
     Model.prototype.loadSnapshot = function(snapshotN) {
-      var _ref;
+      var players, _ref;
       if (snapshotN == null) {
         snapshotN = this.snapshotPoint - 1;
       }
       this.snapshotPoint = snapshotN;
-      _ref = this.snapshots[this.snapshotPoint], this.isGame = _ref.isGame, this.isDay = _ref.isDay, this.players = _ref.players;
+      _ref = this.snapshots[this.snapshotPoint], this.isGame = _ref.isGame, this.isDay = _ref.isDay, players = _ref.players;
+      this.players = deepCopy(players);
       this.view.updateUI();
       return void 0;
     };
 
     Model.prototype.addSnapshot = function() {
-      var _ref, _ref1;
-      this.snapshotPoint += 1;
-      [].splice.apply(this.snapshots, [(_ref = this.snapshotPoint), 9e9].concat(_ref1 = {
+      this.snapshots = this.snapshots.slice(0, this.snapshotPoint + 1);
+      this.snapshots = this.snapshots.concat({
         'isGame': this.isGame,
         'isDay': this.isDay,
         'players': deepCopy(this.players)
-      })), _ref1;
+      });
+      this.snapshotPoint += 1;
       if (this.view) {
         this.view.snapshotButtons();
       }
@@ -295,7 +296,6 @@
       h = 5 * solved + pl.solve - pl.unsolve - 3 * pl.treatment - 5;
       h /= 100;
       if (this.settings.hospitalPlus10 && ((this.getLevel(plN)) === 'hospital')) {
-        console.log("+10!");
         h += 0.1;
       }
       if (!this.settings.selfDestroyTreat) {
@@ -306,17 +306,19 @@
     };
 
     Model.prototype.treat = function(plN, solved) {
-      var inc, pl;
+      var inc, new_atk, old_atk, pl;
       pl = this.players[plN];
       inc = this.getTreat(plN, solved);
+      old_atk = this.getAttack(plN);
       this.setHealth(plN, pl.health + inc);
       if (this.settings.nullResus && ((this.getLevel(plN)) === "resuscitation")) {
         pl.treatment = 0;
       } else {
         pl.treatment += 1;
       }
+      new_atk = this.getAttack(plN);
       this.addSnapshot();
-      this.view.treat(plN, inc);
+      this.view.treat(plN, inc, new_atk - old_atk);
       return void 0;
     };
 

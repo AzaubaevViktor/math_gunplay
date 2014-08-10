@@ -146,7 +146,7 @@ class Model
       }
       nullResus: {
         type: "checkbox"
-        after: "Обнуление количества решений при лечении в реанимации"
+        after: "Обнуление количества лечений при лечении в реанимации"
       }
       attackFormula: {
         type: "text"
@@ -185,18 +185,23 @@ class Model
 
   loadSnapshot: (snapshotN = @snapshotPoint - 1) ->
     @snapshotPoint = snapshotN
-    {@isGame, @isDay, @players} = @snapshots[@snapshotPoint]
+    {@isGame, @isDay, players} = @snapshots[@snapshotPoint]
+    @players = deepCopy players
 
     @view.updateUI()
     (undefined)
 
   addSnapshot: () ->
-    @snapshotPoint += 1
-    @snapshots[@snapshotPoint..] = {
+
+    @snapshots = @snapshots.slice(0, @snapshotPoint+1)
+
+    @snapshots = @snapshots.concat({
       'isGame': @isGame
       'isDay': @isDay
       'players': deepCopy @players
-    }
+    })
+
+    @snapshotPoint += 1
 
     if @view
       @view.snapshotButtons()
@@ -286,7 +291,6 @@ class Model
     h /= 100
 
     if ((@settings.hospitalPlus10) and ((@getLevel plN) == 'hospital'))
-      console.log "+10!"
       h += 0.1
 
     if (not @settings.selfDestroyTreat)
@@ -303,6 +307,8 @@ class Model
 
     inc = @getTreat plN, solved
 
+    old_atk = @getAttack plN
+
     @setHealth plN, pl.health + inc
 
     if ((@settings.nullResus) and ((@getLevel plN) == "resuscitation"))
@@ -310,9 +316,11 @@ class Model
     else
       pl.treatment += 1
 
+    new_atk = @getAttack plN
+
     @addSnapshot()
 
-    @view.treat plN, inc
+    @view.treat plN, inc, new_atk - old_atk
     (undefined)
 
   hit: (plN1, plN2) ->

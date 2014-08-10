@@ -45,7 +45,6 @@
       this.elements.tables[0].append(this.elements.templates.addplayer);
       this.elements.inputs.newPlayer = $("#addplayer");
       this.elements.blocks.newPlayer = $(($(".pl-addplayer"))[0]);
-      console.log(this.elements.tables[0]);
       void 0;
     }
 
@@ -301,7 +300,6 @@
     };
 
     View.prototype.hit = function(plN1, plN2, atk) {
-      console.log("BADABOOM " + plN1 + " ====> " + plN2);
       this.nightMode.attack = -1;
       this.nightMode.selected = -1;
       this.updateUI();
@@ -310,7 +308,6 @@
     };
 
     View.prototype.miss = function(plN) {
-      console.log("PHAHAHA " + plN);
       this.nightMode.selected = -1;
       this.nightMode.attack = -1;
       this.updateUI();
@@ -318,7 +315,7 @@
       return void 0;
     };
 
-    View.prototype.treat = function(plN, inc) {
+    View.prototype.treat = function(plN, inc, diffTreat) {
       this.nightMode.attack = -1;
       this.nightMode.selected = -1;
       this.updateUI();

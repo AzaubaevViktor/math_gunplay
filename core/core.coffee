@@ -27,8 +27,8 @@
 
   # Test
   view.updateUI()
-  model.addPlayer("Математики")
-  model.addPlayer("Лунатики")
-  model.addPlayer("Пузатики")
+  # model.addPlayer("Математики")
+  # model.addPlayer("Лунатики")
+  # model.addPlayer("Пузатики")
 
   undefined

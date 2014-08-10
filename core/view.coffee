@@ -57,7 +57,6 @@ class View
     @elements.inputs.newPlayer = $ "#addplayer"
     @elements.blocks.newPlayer = $ ($ ".pl-addplayer")[0]
 
-    console.log @elements.tables[0]
     (undefined)
 
   joinModel: (@model) ->
@@ -338,7 +337,6 @@ class View
     (undefined)
 
   hit: (plN1, plN2, atk) ->
-    console.log "BADABOOM #{plN1} ====> #{plN2}"
     @nightMode.attack = -1
     @nightMode.selected = -1
     @updateUI()
@@ -346,21 +344,22 @@ class View
     (undefined)
 
   miss: (plN) ->
-    console.log "PHAHAHA #{plN}"
     @nightMode.selected = -1
     @nightMode.attack = -1
     @updateUI()
     @popup plN, "name", "Мазила"
     (undefined)
 
-  treat: (plN, inc) ->
+  treat: (plN, inc, diffTreat) ->
     @nightMode.attack = -1
     @nightMode.selected = -1
     @updateUI()
     @popup plN, "health", (inc * 100)
+    # @popup plN, "attack", diffTreat
     (undefined)
 
   popup: (plN, selector, text) ->
+    # TODO Сделать нормально
     el = @elements.places[0].list[plN][selector]
     left = el.offset().left + el.width() / 2
     top = el.offset().top - el.height() / 2
