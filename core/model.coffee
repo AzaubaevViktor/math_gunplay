@@ -23,14 +23,37 @@ class Model
       morgue: [-10000, 0]
     }
 
+    @penalties = [
+      {
+        "treat": 0
+        "attack": 0
+      },
+      {
+        "treat": 0.01
+        "attack": 2
+      },
+      {
+        "treat": 0.03
+        "attack": 4
+      },
+      {
+        "treat": 0.05
+        "attack": 8
+      },
+      {
+        "treat": 1
+        "attack": 10
+      }
+    ]
+
     @view = undefined
 
     @addSnapshot()
 
     (undefined)
 
-
   # Saves
+
   initSaves: () ->
     @saves = JSON.parse localStorage.getItem 'saves'
 
@@ -66,7 +89,6 @@ class Model
     localStorage.setItem "save#{id}", ""
 
     @view.updateSaves()
-
 
   loadSave: (id) ->
     _players = JSON.parse localStorage.getItem "save#{id}"
@@ -255,6 +277,10 @@ class Model
 
   # gets
 
+  getHealth: (plN) ->
+    pl = @players[plN]
+    (pl.health)
+
   getLevel: (plN) ->
     if plN != -1
       h = @players[plN].health
@@ -265,11 +291,13 @@ class Model
 
   getAttackWithoutTreat: (plN) ->
     pl = @players[plN]
-    (getValScope 10 + pl.solve - pl.unsolve, [0, @settings.maxAttack]) / 100
+    penalty = @penalties[pl.penalties].attack
+    (getValScope 10 + pl.solve - pl.unsolve - penalty, [0, @settings.maxAttack]) / 100
 
   getAttack: (plN) ->
     pl = @players[plN]
-    (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, @settings.maxAttack]) / 100
+    penalty = @penalties[pl.penalties].attack
+    (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment - penalty, [0, @settings.maxAttack]) / 100
 
   getAttackTo: (plN, plN2) ->
     if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
@@ -299,6 +327,9 @@ class Model
     h = getValScope h, [-Infinity, 1 - pl.health]
 
     (h)
+
+  getPenalties: (plN) ->
+    (@players[plN1].penalties)
 
   # actions
 
@@ -340,13 +371,22 @@ class Model
     (undefined)
 
   miss: (plN1) ->
-    pl1 = @players[plN1].unsolve += 1
+    @players[plN1].unsolve += 1
 
     @view.miss plN1
 
     @addSnapshot()
 
     (undefined)
+
+  penalty: (plN) ->
+    @players[plN].penalties += 1
+
+    @players[plN].penalties = getValScope(@players[plN].penalties, [0, @penalties.length-1])
+
+    @view.penalty plN
+
+    @addSnapshot()
 
   addPlayer: (name) ->
     @players.push {
@@ -356,6 +396,7 @@ class Model
       solve: 0
       unsolve: 0
       treatment: 0
+      penalties: 0
     }
 
     @view.updateUI()

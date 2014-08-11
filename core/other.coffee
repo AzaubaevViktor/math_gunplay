@@ -5,6 +5,14 @@ getValScope = (val, scope) ->
     return scope[1]
   (val)
 
+strCopy = (s, n) ->
+  res = ""
+  i = 0
+  while i < n
+    i += 1
+    res += s
+  (res)
+
 deepCopy = (v) ->
   ($.extend true, [], v)
 
@@ -42,5 +50,6 @@ class _Carousel
     }
 
 window.getValScope = getValScope
+window.strCopy = strCopy
 window.deepCopy = deepCopy
 window._Carousel = _Carousel

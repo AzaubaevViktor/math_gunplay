@@ -73,6 +73,8 @@
             return model.miss(plN);
           case "treat":
             return model.treat(plN, solved);
+          case "penalty":
+            return model.penalty(plN);
         }
       });
       return void 0;

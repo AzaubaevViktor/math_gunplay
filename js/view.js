@@ -135,7 +135,8 @@
               "this": listItem.find(".actions"),
               solve: listItem.find(".solve"),
               unsolve: listItem.find(".unsolve"),
-              treat: [listItem.find(".treat0"), listItem.find(".treat1"), listItem.find(".treat2"), listItem.find(".treat3")]
+              treat: [listItem.find(".treat0"), listItem.find(".treat1"), listItem.find(".treat2"), listItem.find(".treat3")],
+              penalty: listItem.find(".penalty")
             }
           });
           place.list.slice(-1)[0].actions["this"].hide();
@@ -160,6 +161,10 @@
             "solved": "" + ind
           });
         }
+        listItem.actions.penalty.attr({
+          "act": "penalty",
+          "plN": "" + plN
+        });
       }
       while (places[0].list.length > this.model.players.length) {
         for (_k = 0, _len2 = places.length; _k < _len2; _k++) {
@@ -195,7 +200,7 @@
       this.elements.blocks.newPlayer.show(500);
       this.elements.buttons.daynight.text("Добавление игроков");
       this.placeTest();
-      this.placePlayers([listById]);
+      this.renderPlayers([listById]);
       return void 0;
     };
 
@@ -222,7 +227,7 @@
       listBySolve.sort(getSortF('solve'));
       listByUnsolve = deepCopy(listById);
       listByUnsolve.sort(getSortF('unsolve'));
-      this.placePlayers([listById, listByHealth, listBySolve, listByUnsolve]);
+      this.renderPlayers([listById, listByHealth, listBySolve, listByUnsolve]);
       return void 0;
     };
 
@@ -237,11 +242,11 @@
       this.elements.blocks.newPlayer.hide(500);
       listById = this.model.players;
       this.elements.buttons.daynight.text("Ночь");
-      this.placePlayers([listById]);
+      this.renderPlayers([listById]);
       return void 0;
     };
 
-    View.prototype.placePlayers = function(lists) {
+    View.prototype.renderPlayers = function(lists) {
       var attackLevel, l, list, listItem, p, place, player, _i, _j, _len, _len1;
       for (l = _i = 0, _len = lists.length; _i < _len; l = ++_i) {
         list = lists[l];
@@ -251,14 +256,14 @@
           player = list[p];
           listItem = place.list[p];
           listItem.id.text(player.id + 1);
-          listItem.name.text(player.name);
+          listItem.name.html(player.name + strCopy("*", player.penalties).fontcolor("red"));
           if (this.nightMode.is && (p === this.nightMode.selected)) {
             listItem.health.hide();
             listItem.attack.hide();
             listItem.tasks.hide();
             listItem.actions["this"].show();
           } else {
-            listItem.health.show().text((player.health * 100).toFixed(0));
+            listItem.health.show().text(((this.model.getHealth(player.id)) * 100).toFixed(0));
             listItem.attack.show().html(((this.model.getAttack(player.id)) * 100).toFixed(0) + "<lite>(" + ((this.model.getAttackWithoutTreat(player.id)) * 100).toFixed(0) + ")</lite>");
             listItem.tasks.show().text("" + player.solve + "/" + player.unsolve);
             listItem.actions["this"].hide();
@@ -308,8 +313,8 @@
     };
 
     View.prototype.miss = function(plN) {
-      this.nightMode.selected = -1;
       this.nightMode.attack = -1;
+      this.nightMode.selected = -1;
       this.updateUI();
       this.popup(plN, "name", "Мазила");
       return void 0;
@@ -320,6 +325,13 @@
       this.nightMode.selected = -1;
       this.updateUI();
       this.popup(plN, "health", inc * 100);
+      return void 0;
+    };
+
+    View.prototype.penalty = function(plN) {
+      this.nightMode.selected = -1;
+      this.updateUI();
+      this.popup(plN, "name", "Не делай так");
       return void 0;
     };
 

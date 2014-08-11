@@ -23,6 +23,24 @@
         resuscitation: [0, 0.3],
         morgue: [-10000, 0]
       };
+      this.penalties = [
+        {
+          "treat": 0,
+          "attack": 0
+        }, {
+          "treat": 0.01,
+          "attack": 2
+        }, {
+          "treat": 0.03,
+          "attack": 4
+        }, {
+          "treat": 0.05,
+          "attack": 8
+        }, {
+          "treat": 1,
+          "attack": 10
+        }
+      ];
       this.view = void 0;
       this.addSnapshot();
       void 0;
@@ -246,6 +264,12 @@
       return void 0;
     };
 
+    Model.prototype.getHealth = function(plN) {
+      var pl;
+      pl = this.players[plN];
+      return pl.health;
+    };
+
     Model.prototype.getLevel = function(plN) {
       var h, level, scope, _ref;
       if (plN !== -1) {
@@ -262,15 +286,17 @@
     };
 
     Model.prototype.getAttackWithoutTreat = function(plN) {
-      var pl;
+      var penalty, pl;
       pl = this.players[plN];
-      return (getValScope(10 + pl.solve - pl.unsolve, [0, this.settings.maxAttack])) / 100;
+      penalty = this.penalties[pl.penalties].attack;
+      return (getValScope(10 + pl.solve - pl.unsolve - penalty, [0, this.settings.maxAttack])) / 100;
     };
 
     Model.prototype.getAttack = function(plN) {
-      var pl;
+      var penalty, pl;
       pl = this.players[plN];
-      return (getValScope(10 + pl.solve - pl.unsolve - 3 * pl.treatment, [0, this.settings.maxAttack])) / 100;
+      penalty = this.penalties[pl.penalties].attack;
+      return (getValScope(10 + pl.solve - pl.unsolve - 3 * pl.treatment - penalty, [0, this.settings.maxAttack])) / 100;
     };
 
     Model.prototype.getAttackTo = function(plN, plN2) {
@@ -305,6 +331,10 @@
       return h;
     };
 
+    Model.prototype.getPenalties = function(plN) {
+      return this.players[plN1].penalties;
+    };
+
     Model.prototype.treat = function(plN, solved) {
       var inc, new_atk, old_atk, pl;
       pl = this.players[plN];
@@ -335,11 +365,17 @@
     };
 
     Model.prototype.miss = function(plN1) {
-      var pl1;
-      pl1 = this.players[plN1].unsolve += 1;
+      this.players[plN1].unsolve += 1;
       this.view.miss(plN1);
       this.addSnapshot();
       return void 0;
+    };
+
+    Model.prototype.penalty = function(plN) {
+      this.players[plN].penalties += 1;
+      this.players[plN].penalties = getValScope(this.players[plN].penalties, [0, this.penalties.length - 1]);
+      this.view.penalty(plN);
+      return this.addSnapshot();
     };
 
     Model.prototype.addPlayer = function(name) {
@@ -349,7 +385,8 @@
         health: 1,
         solve: 0,
         unsolve: 0,
-        treatment: 0
+        treatment: 0,
+        penalties: 0
       });
       this.view.updateUI();
       return void 0;

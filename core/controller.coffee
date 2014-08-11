@@ -52,7 +52,8 @@ class Controller
           model.miss plN
         when "treat"
           model.treat plN, solved
-          
+        when "penalty"
+          model.penalty plN
     (undefined)
 
   bindNight: ->

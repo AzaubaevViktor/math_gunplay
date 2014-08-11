@@ -8,13 +8,9 @@ class View
         daynight: $ "#daynight"
       }
 
-      inputs: {
+      inputs: {}
 
-      }
-
-      blocks: {
-
-      }
+      blocks: {}
 
       carousel: {
         this: new _Carousel($ "#carousel")
@@ -169,6 +165,7 @@ class View
               listItem.find ".treat2"
               listItem.find ".treat3"
             ]
+            penalty: listItem.find ".penalty"
           }
         }
         place.list[-1..][0].actions.this.hide()
@@ -177,19 +174,23 @@ class View
       plN = places[0].list.length - 1
       listItem.this.attr "plN", "#{plN}"
       listItem.actions.solve.attr {
-        "act":"solve"
-        "plN":"#{plN}"
+        "act": "solve"
+        "plN": "#{plN}"
       }
       listItem.actions.unsolve.attr {
-        "act":"unsolve"
-        "plN":"#{plN}"
+        "act": "unsolve"
+        "plN": "#{plN}"
       }
       for tr, ind in listItem.actions.treat
         tr.attr {
           "plN": "#{plN}"
-          "act":"treat"
+          "act": "treat"
           "solved": "#{ind}"
         }
+      listItem.actions.penalty.attr {
+        "act": "penalty"
+        "plN": "#{plN}"
+      }
 
 
     while places[0].list.length > @model.players.length
@@ -225,7 +226,7 @@ class View
     @elements.buttons.daynight.text "Добавление игроков"
 
     @placeTest()
-    @placePlayers [listById]
+    @renderPlayers [listById]
     (undefined)
 
   dayUI: ->
@@ -257,7 +258,7 @@ class View
     listByUnsolve = deepCopy(listById)
     listByUnsolve.sort(getSortF('unsolve'))
 
-    @placePlayers [listById, listByHealth, listBySolve, listByUnsolve]
+    @renderPlayers [listById, listByHealth, listBySolve, listByUnsolve]
     (undefined)
 
   nightUI: ->
@@ -276,10 +277,10 @@ class View
 
     @elements.buttons.daynight.text "Ночь"
 
-    @placePlayers [listById]
+    @renderPlayers [listById]
     (undefined)
 
-  placePlayers: (lists) ->
+  renderPlayers: (lists) ->
     for list, l in lists
       place = @elements.places[l]
 
@@ -289,14 +290,14 @@ class View
         listItem = place.list[p]
 
         listItem.id.text (player.id + 1)
-        listItem.name.text player.name
+        listItem.name.html player.name + strCopy("*", player.penalties).fontcolor("red")
         if @nightMode.is and (p == @nightMode.selected)
           listItem.health.hide()
           listItem.attack.hide()
           listItem.tasks.hide()
           listItem.actions.this.show()
         else
-          listItem.health.show().text (player.health * 100).toFixed(0)
+          listItem.health.show().text ((@model.getHealth player.id) * 100).toFixed(0)
           listItem.attack.show().html ((@model.getAttack player.id) * 100).toFixed(0) + "<lite>(" + ((@model.getAttackWithoutTreat player.id) * 100).toFixed(0) + ")</lite>"
           listItem.tasks.show().text "#{player.solve}/#{player.unsolve}"
           listItem.actions.this.hide()
@@ -344,8 +345,8 @@ class View
     (undefined)
 
   miss: (plN) ->
-    @nightMode.selected = -1
     @nightMode.attack = -1
+    @nightMode.selected = -1
     @updateUI()
     @popup plN, "name", "Мазила"
     (undefined)
@@ -356,6 +357,12 @@ class View
     @updateUI()
     @popup plN, "health", (inc * 100)
     # @popup plN, "attack", diffTreat
+    (undefined)
+
+  penalty: (plN) ->
+    @nightMode.selected = -1
+    @updateUI()
+    @popup plN, "name", "Не делай так"
     (undefined)
 
   popup: (plN, selector, text) ->
