@@ -52,11 +52,11 @@ table {
 }
 
 tr.not>td {
-	background-color: #555555 !important
+	background-color: #555555 !important;
 }
 
 tr.square>td {
-	background-color: #D9EDF7
+	background-color: #56BFF3;
 }
 
 tr.square:hover>td {
@@ -64,27 +64,27 @@ tr.square:hover>td {
 }
 
 tr.hospital>td {
-	background-color: #DFF0D8
+	background-color: #7FF14F;
 }
 
 tr.hospital:hover>td {
-	background-color: #B0F0A0
+	background-color: #B0F0A0;
 }
 
 tr.resuscitation>td {
-	background-color: #FCF8E3
+	background-color: #EED345;
 }
 
 tr.resuscitation:hover>td {
-	background-color: #FFF8A0
+	background-color: #FFF8A0;
 }
 
 tr.morgue>td {
-	background-color: #F5F5F5
+	background-color: #A5A5A5;
 }
 
 tr.morgue:hover>td {
-	background-color: #D6D6D6
+	background-color: #D6D6D6;
 }
 
 .name {
