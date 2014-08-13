@@ -46,6 +46,25 @@ class Model
       }
     ]
 
+    @stats = {
+      "all_damage": {
+        "title": "Урона нанесено: "
+        "value": 0
+      }
+      "all_tasks": {
+        "title": "Сыгранные задачи: "
+        "value": 0
+      }
+      "all_treat": {
+        "title": "Вылеченно здоровья: "
+        "value": 0
+      }
+      "solve_percent": {
+        "title": "Решённые/все задачи: "
+        "value": 0
+      }
+    }
+
     @view = undefined
 
     @addSnapshot()
@@ -79,7 +98,10 @@ class Model
 
     @saves.ids[id] = "#{now}"
     localStorage.setItem "saves", JSON.stringify @saves
-    localStorage.setItem "save#{id}", JSON.stringify @players
+    localStorage.setItem "save#{id}", JSON.stringify {
+      "players": @players
+      "stats": @stats
+    }
 
     @view.updateSaves()
 
@@ -91,7 +113,9 @@ class Model
     @view.updateSaves()
 
   loadSave: (id) ->
-    _players = JSON.parse localStorage.getItem "save#{id}"
+    save = JSON.parse localStorage.getItem "save#{id}"
+    _players = save.players
+    @stats = save.stats
 
     if (not @isGame) or (not @isDay)
       @changeDayNight()
@@ -352,6 +376,12 @@ class Model
     @addSnapshot()
 
     @view.treat plN, inc, new_atk - old_atk
+
+    # --Stats--
+    @stats.all_treat.value += inc * 100
+    @stats.all_tasks.value += 3
+    @stats.solve_percent.value = (@stats.solve_percent.value * @stats.all_tasks.value + solved) / (@stats.all_tasks.value + 3)
+
     (undefined)
 
   hit: (plN1, plN2) ->
@@ -368,6 +398,11 @@ class Model
 
     @addSnapshot()
 
+    # --Stats--
+    @stats.all_damage.value += atk * 100
+    @stats.solve_percent.value = (@stats.solve_percent.value * @stats.all_tasks.value + 1) / (@stats.all_tasks.value + 1)
+    @stats.all_tasks.value += 1
+
     (undefined)
 
   miss: (plN1) ->
@@ -376,6 +411,10 @@ class Model
     @view.miss plN1
 
     @addSnapshot()
+
+    # --Stats--
+    @stats.solve_percent.value = (@stats.solve_percent.value * @stats.all_tasks.value) / (@stats.all_tasks.value + 1)
+    @stats.all_tasks.value += 1
 
     (undefined)
 
@@ -398,6 +437,13 @@ class Model
       treatment: 0
       penalties: 0
     }
+
+    @view.updateUI()
+
+    (undefined)
+
+  changeName: (plN, newname) ->
+    @players[plN].name = newname
 
     @view.updateUI()
 

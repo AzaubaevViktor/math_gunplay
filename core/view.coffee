@@ -6,6 +6,7 @@ class View
         backward: $ "#backward"
         forward: $ "#forward"
         daynight: $ "#daynight"
+        stats: $ "#stats"
       }
 
       inputs: {}
@@ -29,6 +30,7 @@ class View
 
       settings: $ "#settings-modal .modal-body"
       saves: $ "#saves-modal .modal-body"
+      stats: $ "#stats-modal .modal-body"
     }
 
     @nightMode = {
@@ -57,6 +59,7 @@ class View
 
   joinModel: (@model) ->
     @updateSaves()
+    @initStats()
     (undefined)
 
   joinController: (@controller) ->
@@ -411,6 +414,23 @@ class View
         if plN == @nightMode.selected then -1 else plN
       @updateUI()
     (undefined)
+
+  initStats: ->
+    body = @elements.stats
+    stats = @model.stats
+    for name, st of stats
+      body.append """
+      <div class='row'>
+        <div class='col-lg-10'>
+          <p class='form-control-static'>#{st.title}<number id='#{name}'>#{st.value}</number></p>
+        </div>
+      </div>"""
+
+
+  renderStats: ->
+    stats = @model.stats
+    for name, st of stats
+      ($ "##{name}").text "#{st.value.toLocaleString()}"
 
 
 window.View = View

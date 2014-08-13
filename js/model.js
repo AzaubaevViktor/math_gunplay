@@ -41,6 +41,24 @@
           "attack": 10
         }
       ];
+      this.stats = {
+        "all_damage": {
+          "title": "Урона нанесено: ",
+          "value": 0
+        },
+        "all_tasks": {
+          "title": "Сыгранные задачи: ",
+          "value": 0
+        },
+        "all_treat": {
+          "title": "Вылеченно здоровья: ",
+          "value": 0
+        },
+        "solve_percent": {
+          "title": "Решённые/все задачи: ",
+          "value": 0
+        }
+      };
       this.view = void 0;
       this.addSnapshot();
       void 0;
@@ -74,7 +92,10 @@
       now = new Date;
       this.saves.ids[id] = "" + now;
       localStorage.setItem("saves", JSON.stringify(this.saves));
-      localStorage.setItem("save" + id, JSON.stringify(this.players));
+      localStorage.setItem("save" + id, JSON.stringify({
+        "players": this.players,
+        "stats": this.stats
+      }));
       return this.view.updateSaves();
     };
 
@@ -86,8 +107,10 @@
     };
 
     Model.prototype.loadSave = function(id) {
-      var i, _i, _players, _ref;
-      _players = JSON.parse(localStorage.getItem("save" + id));
+      var i, save, _i, _players, _ref;
+      save = JSON.parse(localStorage.getItem("save" + id));
+      _players = save.players;
+      this.stats = save.stats;
       if ((!this.isGame) || (!this.isDay)) {
         this.changeDayNight();
       }
@@ -349,6 +372,9 @@
       new_atk = this.getAttack(plN);
       this.addSnapshot();
       this.view.treat(plN, inc, new_atk - old_atk);
+      this.stats.all_treat.value += inc * 100;
+      this.stats.all_tasks.value += 3;
+      this.stats.solve_percent.value = (this.stats.solve_percent.value * this.stats.all_tasks.value + solved) / (this.stats.all_tasks.value + 3);
       return void 0;
     };
 
@@ -361,6 +387,9 @@
       pl1.solve += 1;
       this.view.hit(plN1, plN2, -atk);
       this.addSnapshot();
+      this.stats.all_damage.value += atk * 100;
+      this.stats.solve_percent.value = (this.stats.solve_percent.value * this.stats.all_tasks.value + 1) / (this.stats.all_tasks.value + 1);
+      this.stats.all_tasks.value += 1;
       return void 0;
     };
 
@@ -368,6 +397,8 @@
       this.players[plN1].unsolve += 1;
       this.view.miss(plN1);
       this.addSnapshot();
+      this.stats.solve_percent.value = (this.stats.solve_percent.value * this.stats.all_tasks.value) / (this.stats.all_tasks.value + 1);
+      this.stats.all_tasks.value += 1;
       return void 0;
     };
 
@@ -388,6 +419,12 @@
         treatment: 0,
         penalties: 0
       });
+      this.view.updateUI();
+      return void 0;
+    };
+
+    Model.prototype.changeName = function(plN, newname) {
+      this.players[plN].name = newname;
       this.view.updateUI();
       return void 0;
     };

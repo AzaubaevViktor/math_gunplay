@@ -18,7 +18,10 @@ class Controller
         @model.addPlayer name
       (undefined)
 
-    # Кнопка, сменяющая день/ночь вручную и начинающая игру
+    els.buttons.stats.click =>
+      @view.renderStats()
+      (undefined)
+
     els.buttons.daynight.click =>
       @model.changeDayNight()
       (undefined)

@@ -32,6 +32,10 @@ table {
 	margin-bottom: 3px;
 }
 
+/* stats */
+number {
+	font-weight: bold;
+}
 
 /* navbar */
 

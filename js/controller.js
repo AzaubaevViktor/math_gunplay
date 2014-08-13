@@ -31,6 +31,12 @@
           return void 0;
         };
       })(this));
+      els.buttons.stats.click((function(_this) {
+        return function() {
+          _this.view.renderStats();
+          return void 0;
+        };
+      })(this));
       els.buttons.daynight.click((function(_this) {
         return function() {
           _this.model.changeDayNight();

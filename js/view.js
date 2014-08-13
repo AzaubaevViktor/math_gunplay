@@ -9,7 +9,8 @@
         buttons: {
           backward: $("#backward"),
           forward: $("#forward"),
-          daynight: $("#daynight")
+          daynight: $("#daynight"),
+          stats: $("#stats")
         },
         inputs: {},
         blocks: {},
@@ -25,7 +26,8 @@
           addplayer: ($("#addplayer-template")).html()
         },
         settings: $("#settings-modal .modal-body"),
-        saves: $("#saves-modal .modal-body")
+        saves: $("#saves-modal .modal-body"),
+        stats: $("#stats-modal .modal-body")
       };
       this.nightMode = {
         is: false,
@@ -51,6 +53,7 @@
     View.prototype.joinModel = function(model) {
       this.model = model;
       this.updateSaves();
+      this.initStats();
       return void 0;
     };
 
@@ -383,6 +386,29 @@
         this.updateUI();
       }
       return void 0;
+    };
+
+    View.prototype.initStats = function() {
+      var body, name, st, stats, _results;
+      body = this.elements.stats;
+      stats = this.model.stats;
+      _results = [];
+      for (name in stats) {
+        st = stats[name];
+        _results.push(body.append("<div class='row'>\n  <div class='col-lg-10'>\n    <p class='form-control-static'>" + st.title + "<number id='" + name + "'>" + st.value + "</number></p>\n  </div>\n</div>"));
+      }
+      return _results;
+    };
+
+    View.prototype.renderStats = function() {
+      var name, st, stats, _results;
+      stats = this.model.stats;
+      _results = [];
+      for (name in stats) {
+        st = stats[name];
+        _results.push(($("#" + name)).text("" + (st.value.toLocaleString())));
+      }
+      return _results;
     };
 
     return View;

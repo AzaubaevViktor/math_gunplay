@@ -33,6 +33,9 @@
 				<button id="settings" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#saves-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Сохранения">
 					<span class="glyphicon glyphicon-floppy-disk"></span>
 				</button>
+				<button id="stats" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#stats-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Статистика">
+					<span class="glyphicon glyphicon-stats"></span>
+				</button>
 			</div>
 
 
@@ -45,7 +48,7 @@
 			<!-- CAROUSEL -->
 
 			<div class="col-md-9 col-sm-9">
-				<div id="carousel" class="carousel slide">
+				<div id="carousel" class="carousel slide" data-interval="10000">
 					<!-- Indicators -->
 					<ol class="carousel-indicators">
 						<li data-target="#carousel" data-slide-to="0" class="active"></li>
@@ -104,7 +107,6 @@
 		</div>
 	</div>
 
-
 	<!-- SAVES -->
 	<!-- Modal -->
 	<div class="modal fade" id="saves-modal" tabindex="-1" role="dialog" aria-labelledby="saves-modal-label" aria-hidden="true">
@@ -122,6 +124,22 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- STATS -->
+	<!-- Modal -->
+	<div class="modal fade" id="stats-modal" tabindex="-1" role="dialog" aria-labelledby="stats-modal-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="#stats-modal-label">Статистика</h4>
+				</div>
+				<div class="modal-body">
+				</div>
+			</div>
+		</div>
+	</div>
+
 
 	<!-- TEMPLATES -->
 
