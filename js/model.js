@@ -29,16 +29,16 @@
           "attack": 0
         }, {
           "treat": 0.01,
-          "attack": 2
+          "attack": 3
         }, {
           "treat": 0.03,
-          "attack": 4
+          "attack": 6
         }, {
           "treat": 0.05,
-          "attack": 8
+          "attack": 9
         }, {
-          "treat": 1,
-          "attack": 10
+          "treat": 0.1,
+          "attack": 12
         }
       ];
       this.stats = {
