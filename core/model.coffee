@@ -366,6 +366,9 @@ class Model
 
     @setHealth plN, pl.health + inc
 
+    pl.solve += solved
+    pl.unsolve += 3 - solved
+
     if ((@settings.nullResus) and ((@getLevel plN) == "resuscitation"))
       pl.treatment = 0
     else

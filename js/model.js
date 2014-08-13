@@ -364,6 +364,8 @@
       inc = this.getTreat(plN, solved);
       old_atk = this.getAttack(plN);
       this.setHealth(plN, pl.health + inc);
+      pl.solve += solved;
+      pl.unsolve += 3 - solved;
       if (this.settings.nullResus && ((this.getLevel(plN)) === "resuscitation")) {
         pl.treatment = 0;
       } else {
