@@ -217,13 +217,14 @@
     };
 
     Model.prototype.loadSnapshot = function(snapshotN) {
-      var players, _ref;
+      var players, stats, _ref;
       if (snapshotN == null) {
         snapshotN = this.snapshotPoint - 1;
       }
       this.snapshotPoint = snapshotN;
-      _ref = this.snapshots[this.snapshotPoint], this.isGame = _ref.isGame, this.isDay = _ref.isDay, players = _ref.players;
+      _ref = this.snapshots[this.snapshotPoint], this.isGame = _ref.isGame, this.isDay = _ref.isDay, players = _ref.players, stats = _ref.stats;
       this.players = deepCopy(players);
+      this.stats = deepCopy(stats);
       this.view.updateUI();
       return void 0;
     };
@@ -233,7 +234,8 @@
       this.snapshots = this.snapshots.concat({
         'isGame': this.isGame,
         'isDay': this.isDay,
-        'players': deepCopy(this.players)
+        'players': deepCopy(this.players),
+        'stats': deepCopy(this.stats)
       });
       this.snapshotPoint += 1;
       if (this.view) {
@@ -319,7 +321,7 @@
       var penalty, pl;
       pl = this.players[plN];
       penalty = this.penalties[pl.penalties].attack;
-      return (getValScope(10 + pl.solve - pl.unsolve - 3 * pl.treatment - penalty, [0, this.settings.maxAttack])) / 100;
+      return (getValScope(10 + pl.solve - pl.unsolve - penalty - 3 * pl.treatment, [0, this.settings.maxAttack])) / 100;
     };
 
     Model.prototype.getAttackTo = function(plN, plN2) {
@@ -359,14 +361,15 @@
     };
 
     Model.prototype.treat = function(plN, solved) {
-      var inc, new_atk, old_atk, pl;
+      var inc, new_atk, old_atk, old_level, pl;
       pl = this.players[plN];
       inc = this.getTreat(plN, solved);
       old_atk = this.getAttack(plN);
+      old_level = this.getLevel(plN);
       this.setHealth(plN, pl.health + inc);
       pl.solve += solved;
       pl.unsolve += 3 - solved;
-      if (this.settings.nullResus && ((this.getLevel(plN)) === "resuscitation")) {
+      if (this.settings.nullResus && (old_level === "resuscitation")) {
         pl.treatment = 0;
       } else {
         pl.treatment += 1;

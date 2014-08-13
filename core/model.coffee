@@ -231,8 +231,9 @@ class Model
 
   loadSnapshot: (snapshotN = @snapshotPoint - 1) ->
     @snapshotPoint = snapshotN
-    {@isGame, @isDay, players} = @snapshots[@snapshotPoint]
+    {@isGame, @isDay, players, stats} = @snapshots[@snapshotPoint]
     @players = deepCopy players
+    @stats = deepCopy stats
 
     @view.updateUI()
     (undefined)
@@ -245,6 +246,7 @@ class Model
       'isGame': @isGame
       'isDay': @isDay
       'players': deepCopy @players
+      'stats': deepCopy @stats
     })
 
     @snapshotPoint += 1
@@ -321,7 +323,7 @@ class Model
   getAttack: (plN) ->
     pl = @players[plN]
     penalty = @penalties[pl.penalties].attack
-    (getValScope 10 + pl.solve - pl.unsolve - 3 * pl.treatment - penalty, [0, @settings.maxAttack]) / 100
+    (getValScope 10 + pl.solve - pl.unsolve - penalty - 3 * pl.treatment, [0, @settings.maxAttack]) / 100
 
   getAttackTo: (plN, plN2) ->
     if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
@@ -364,12 +366,14 @@ class Model
 
     old_atk = @getAttack plN
 
+    old_level = @getLevel plN
+
     @setHealth plN, pl.health + inc
 
     pl.solve += solved
     pl.unsolve += 3 - solved
 
-    if ((@settings.nullResus) and ((@getLevel plN) == "resuscitation"))
+    if ((@settings.nullResus) and (old_level == "resuscitation"))
       pl.treatment = 0
     else
       pl.treatment += 1
