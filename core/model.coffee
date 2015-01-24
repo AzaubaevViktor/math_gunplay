@@ -354,9 +354,6 @@ class Model
 
     (h)
 
-  getPenalties: (plN) ->
-    (@players[plN1].penalties)
-
   # actions
 
   treat: (plN, solved) ->
