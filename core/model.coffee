@@ -92,6 +92,12 @@ settingsDesc =
     type: "text"
     before: "<a href='https://github.com/ktulhy-kun/math_gunplay'>Исходный код</a>"
 
+observe = (obj, property, callback) ->
+  Object.observe(obj, (changes) ->
+    for change of changes
+      callback(change.type, change.oldValue, obj[property]) if property is change.name
+    undefined
+  )
 
 storage =
   save: (key, val) ->
@@ -287,7 +293,34 @@ class Player
     @penalty = getValScope @penalties += 1, [0, penalties_list.lenght() - 1]
 
 
+class Statistic
+  constructor: (@players) ->
+    @stats =
+      "all_damage":
+        "title": "Урона нанесено: "
+        "value": 0
 
+      "all_tasks":
+        "title": "Сыгранные задачи: "
+        "value": 0
+
+      "all_treat":
+        "title": "Вылеченно здоровья: "
+        "value": 0
+
+      "solve_percent":
+        "title": "Решённые/все задачи: "
+        "value": 0
+
+  binds: ->
+    @_bind_damage()
+
+  _bind_damage: ->
+    for player of @players
+      observe(player, "health", (type, oldValue, newValue) =>
+        dmg = getValScope oldValue - newValue, [0, +Infinity]
+        @stats.all_damage.value += dmg
+      )
 
 class Model
 
@@ -297,33 +330,6 @@ class Model
     @time = 0
     @timer = undefined
     @players = []
-
-    @initSettings()
-    @initSaves()
-
-    @snapshots = []
-    @snapshotPoint = -1
-
-    @stats = {
-      "all_damage": {
-        "title": "Урона нанесено: "
-        "value": 0
-      }
-      "all_tasks": {
-        "title": "Сыгранные задачи: "
-        "value": 0
-      }
-      "all_treat": {
-        "title": "Вылеченно здоровья: "
-        "value": 0
-      }
-      "solve_percent": {
-        "title": "Решённые/все задачи: "
-        "value": 0
-      }
-    }
-
-    @view = undefined
 
     @addSnapshot()
 
