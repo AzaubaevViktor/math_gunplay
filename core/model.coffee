@@ -1,6 +1,113 @@
 __settingsVer__ = 0
 __savesVer__ = 0
 
+levels =
+  square: [0.6, 1]
+  hospital: [0.3, 0.6]
+  resuscitation: [0, 0.3]
+  morgue: [-10000, 0]
+
+penalties = [
+  {
+    "treat": 0
+    "attack": 0
+  },
+  {
+    "treat": 0.01
+    "attack": 3
+  },
+  {
+    "treat": 0.03
+    "attack": 6
+  },
+  {
+    "treat": 0.05
+    "attack": 9
+  },
+  {
+    "treat": 0.1
+    "attack": 12
+  }
+]
+
+
+class Player
+  constructor: (@id, @name, @settings, @statistic) ->
+    @health = 1
+    @solved = @unsolved = @treatment = penalties = 0
+
+  setHealth: (health) ->
+    @health = getValScope health [0, 1]
+
+  incTreatment: () ->
+    if ((@settings.get nullResus) and (@getLevel == "resuscitation"))
+      @treatment = 0
+    else
+      @treatment += 1
+
+  getHealth: () ->
+    @health
+
+  getLevel: () ->
+    for level, scope of levels
+      if scope[0] < @health <= scope[1]
+        return level
+    undefined
+
+  _rawAttack: () ->
+    # Функция подсчёта урона
+    penalty = penalties[pl.penalties].attack
+    10 + @solved - @unsolved - penalty - 3 * @treatment
+
+  getAttackWithoutTreat: () ->
+    #TODO: разобраться зачем мне эта функция
+    (getValScope @_rawAttack + 3 * @treatment, [0, @settings.get maxAttack]) / 100
+
+  getAttack: () ->
+    (getValScope @_rawAttack, [0, @settings.get maxAttack]) / 100
+
+  getAttackTo: (player) ->
+    switch
+      when 0 == @health then 0
+      when @getLevel != player.getLevel then 0
+      when (@id == player.id) and (@getlevel == "resuscitation") and not @settings.selfDestroyResuscitation then 0
+      when (@id == player.id) and not @settings.selfDestroyAttack then 0
+      else @getAttack
+
+  _rawTreat: (solved) ->
+    # Функция подсчёта жизней
+    5 * solved + @solved - @unsolved - 3 * @treatment - 5
+
+  getTreat: (solved) ->
+    h = _rawTreat solved
+    h += ("hospital" == @getLevel) * (@settings.get hospitalPlus10) * 10
+    h = getValScope h, [(if @settings.selfDestroyTreat then -Infinity else 0),
+                        1 - @health]
+
+  treat: (solved) ->
+    inc = getTreat solved
+    @setHealth @health + inc
+    @incTreatment()
+
+    #TODO: Statistic
+
+  hit: (player) ->
+    dmg = @getAttackTo player
+    player.setHealth player.health - dmg
+    @solved += 1
+
+    #TODO: Statistic
+
+  miss: () ->
+    @unsolved += 1
+    #TODO: Statistic
+
+  penalty: () ->
+    @penalty = getValScope @penalties += 1, [0, penalties.lenght - 1]
+
+
+
+
 class Model
 
   constructor: () ->
@@ -15,36 +122,6 @@ class Model
 
     @snapshots = []
     @snapshotPoint = -1
-
-    @levels = {
-      square: [0.6, 1]
-      hospital: [0.3, 0.6]
-      resuscitation: [0, 0.3]
-      morgue: [-10000, 0]
-    }
-
-    @penalties = [
-      {
-        "treat": 0
-        "attack": 0
-      },
-      {
-        "treat": 0.01
-        "attack": 3
-      },
-      {
-        "treat": 0.03
-        "attack": 6
-      },
-      {
-        "treat": 0.05
-        "attack": 9
-      },
-      {
-        "treat": 0.1
-        "attack": 12
-      }
-    ]
 
     @stats = {
       "all_damage": {
@@ -293,143 +370,6 @@ class Model
     @view.updateUI()
     (undefined)
 
-  # Players
-
-  # sets
-
-  setHealth: (plN, health) ->
-    @players[plN].health = getValScope health, [0, 1]
-    (undefined)
-
-  # gets
-
-  getHealth: (plN) ->
-    pl = @players[plN]
-    (pl.health)
-
-  getLevel: (plN) ->
-    if plN != -1
-      h = @players[plN].health
-      for level, scope of @levels
-        if scope[0] < h <= scope[1]
-          return level
-    (undefined)
-
-  getAttackWithoutTreat: (plN) ->
-    pl = @players[plN]
-    penalty = @penalties[pl.penalties].attack
-    (getValScope 10 + pl.solve - pl.unsolve - penalty, [0, @settings.maxAttack]) / 100
-
-  getAttack: (plN) ->
-    pl = @players[plN]
-    penalty = @penalties[pl.penalties].attack
-    (getValScope 10 + pl.solve - pl.unsolve - penalty - 3 * pl.treatment, [0, @settings.maxAttack]) / 100
-
-  getAttackTo: (plN, plN2) ->
-    if (0 == @players[plN].health) or ((@getLevel plN) != (@getLevel plN2))
-      return 0
-
-    if (plN == plN2)
-      if (@getLevel plN) == "resuscitation"
-        if not @settings.selfDestroyResuscitation
-          return 0
-
-      if (not @settings.selfDestroyAttack)
-        return 0
-
-    (@getAttack plN)
-
-  getTreat: (plN, solved) ->
-    pl = @players[plN]
-    h = 5 * solved + pl.solve - pl.unsolve - 3 * pl.treatment - 5
-    h /= 100
-
-    if ((@settings.hospitalPlus10) and ((@getLevel plN) == 'hospital'))
-      h += 0.1
-
-    if (not @settings.selfDestroyTreat)
-      h = getValScope h, [0, Infinity]
-
-    h = getValScope h, [-Infinity, 1 - pl.health]
-
-    (h)
-
-  # actions
-
-  treat: (plN, solved) ->
-    pl = @players[plN]
-
-    inc = @getTreat plN, solved
-
-    old_atk = @getAttack plN
-
-    old_level = @getLevel plN
-
-    @setHealth plN, pl.health + inc
-
-    pl.solve += solved
-    pl.unsolve += 3 - solved
-
-    if ((@settings.nullResus) and (old_level == "resuscitation"))
-      pl.treatment = 0
-    else
-      pl.treatment += 1
-
-    new_atk = @getAttack plN
-
-    @addSnapshot()
-
-    @view.treat plN, inc, new_atk - old_atk
-
-    # --Stats--
-    @stats.all_treat.value += inc * 100
-    @stats.all_tasks.value += 3
-    @stats.solve_percent.value = (@stats.solve_percent.value * @stats.all_tasks.value + solved) / (@stats.all_tasks.value + 3)
-
-    (undefined)
-
-  hit: (plN1, plN2) ->
-    pl1 = @players[plN1]
-    pl2 = @players[plN2]
-
-    atk = @getAttackTo plN1, plN2
-
-    @setHealth plN2, pl2.health - atk
-
-    pl1.solve += 1
-
-    @view.hit plN1, plN2, -atk
-
-    @addSnapshot()
-
-    # --Stats--
-    @stats.all_damage.value += atk * 100
-    @stats.solve_percent.value = (@stats.solve_percent.value * @stats.all_tasks.value + 1) / (@stats.all_tasks.value + 1)
-    @stats.all_tasks.value += 1
-
-    (undefined)
-
-  miss: (plN1) ->
-    @players[plN1].unsolve += 1
-
-    @view.miss plN1
-
-    @addSnapshot()
-
-    # --Stats--
-    @stats.solve_percent.value = (@stats.solve_percent.value * @stats.all_tasks.value) / (@stats.all_tasks.value + 1)
-    @stats.all_tasks.value += 1
-
-    (undefined)
-
-  penalty: (plN) ->
-    @players[plN].penalties += 1
-
-    @players[plN].penalties = getValScope(@players[plN].penalties, [0, @penalties.length-1])
-
-    @view.penalty plN
-
-    @addSnapshot()
 
   addPlayer: (name) ->
     @players.push {

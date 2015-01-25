@@ -3,12 +3,14 @@
   var deepCopy, getValScope, strCopy, _Carousel;
 
   getValScope = function(val, scope) {
-    if (scope[0] > val) {
-      return scope[0];
-    } else if (scope[1] < val) {
-      return scope[1];
+    switch (false) {
+      case !(scope[0] > val):
+        return scope[0];
+      case !(scope[1] < val):
+        return scope[1];
+      default:
+        return val;
     }
-    return val;
   };
 
   strCopy = function(s, n) {

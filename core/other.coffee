@@ -1,9 +1,8 @@
 getValScope = (val, scope) ->
-  if scope[0] > val
-    return scope[0]
-  else if scope[1] < val
-    return scope[1]
-  (val)
+  switch
+    when scope[0] > val then scope[0]
+    when scope[1] < val then scope[1]
+    else val
 
 strCopy = (s, n) ->
   res = ""
