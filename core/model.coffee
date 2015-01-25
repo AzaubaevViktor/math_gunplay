@@ -40,7 +40,7 @@ class Player
     @health = getValScope health [0, 1]
 
   incTreatment: () ->
-    if ((@settings.get nullResus) and (@getLevel == "resuscitation"))
+    if ((@settings.get "nullResus") and (@getLevel == "resuscitation"))
       @treatment = 0
     else
       @treatment += 1
@@ -56,21 +56,21 @@ class Player
 
   _rawAttack: () ->
     # Функция подсчёта урона
-    penalty = penalties[pl.penalties].attack
+    penalty = penalties[@penalties].attack
     10 + @solved - @unsolved - penalty - 3 * @treatment
 
   getAttackWithoutTreat: () ->
     #TODO: разобраться зачем мне эта функция
-    (getValScope @_rawAttack + 3 * @treatment, [0, @settings.get maxAttack]) / 100
+    (getValScope @_rawAttack + 3 * @treatment, [0, @settings.get "maxAttack"]) / 100
 
   getAttack: () ->
-    (getValScope @_rawAttack, [0, @settings.get maxAttack]) / 100
+    (getValScope @_rawAttack, [0, @settings.get "maxAttack"]) / 100
 
   getAttackTo: (player) ->
     switch
       when 0 == @health then 0
       when @getLevel != player.getLevel then 0
-      when (@id == player.id) and (@getlevel == "resuscitation") and not @settings.selfDestroyResuscitation then 0
+      when (@id == player.id) and (@getLevel == "resuscitation") and not @settings.selfDestroyResuscitation then 0
       when (@id == player.id) and not @settings.selfDestroyAttack then 0
       else @getAttack
 
@@ -80,7 +80,7 @@ class Player
 
   getTreat: (solved) ->
     h = _rawTreat solved
-    h += ("hospital" == @getLevel) * (@settings.get hospitalPlus10) * 10
+    h += ("hospital" == @getLevel) * (@settings.get "hospitalPlus10") * 10
     h = getValScope h, [(if @settings.selfDestroyTreat then -Infinity else 0),
                         1 - @health]
 
@@ -103,7 +103,7 @@ class Player
     #TODO: Statistic
 
   penalty: () ->
-    @penalty = getValScope @penalties += 1, [0, penalties.lenght - 1]
+    @penalty = getValScope @penalties += 1, [0, penalties.lenght() - 1]
 
 
 

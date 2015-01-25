@@ -47,7 +47,7 @@
     };
 
     Player.prototype.incTreatment = function() {
-      if ((this.settings.get(nullResus)) && (this.getLevel === "resuscitation")) {
+      if ((this.settings.get("nullResus")) && (this.getLevel === "resuscitation")) {
         return this.treatment = 0;
       } else {
         return this.treatment += 1;
@@ -71,16 +71,16 @@
 
     Player.prototype._rawAttack = function() {
       var penalty;
-      penalty = penalties[pl.penalties].attack;
+      penalty = penalties[this.penalties].attack;
       return 10 + this.solved - this.unsolved - penalty - 3 * this.treatment;
     };
 
     Player.prototype.getAttackWithoutTreat = function() {
-      return (getValScope(this._rawAttack + 3 * this.treatment, [0, this.settings.get(maxAttack)])) / 100;
+      return (getValScope(this._rawAttack + 3 * this.treatment, [0, this.settings.get("maxAttack")])) / 100;
     };
 
     Player.prototype.getAttack = function() {
-      return (getValScope(this._rawAttack, [0, this.settings.get(maxAttack)])) / 100;
+      return (getValScope(this._rawAttack, [0, this.settings.get("maxAttack")])) / 100;
     };
 
     Player.prototype.getAttackTo = function(player) {
@@ -89,7 +89,7 @@
           return 0;
         case this.getLevel === player.getLevel:
           return 0;
-        case !((this.id === player.id) && (this.getlevel === "resuscitation") && !this.settings.selfDestroyResuscitation):
+        case !((this.id === player.id) && (this.getLevel === "resuscitation") && !this.settings.selfDestroyResuscitation):
           return 0;
         case !((this.id === player.id) && !this.settings.selfDestroyAttack):
           return 0;
@@ -105,7 +105,7 @@
     Player.prototype.getTreat = function(solved) {
       var h;
       h = _rawTreat(solved);
-      h += ("hospital" === this.getLevel) * (this.settings.get(hospitalPlus10)) * 10;
+      h += ("hospital" === this.getLevel) * (this.settings.get("hospitalPlus10")) * 10;
       return h = getValScope(h, [(this.settings.selfDestroyTreat ? -Infinity : 0), 1 - this.health]);
     };
 
@@ -128,7 +128,7 @@
     };
 
     Player.prototype.penalty = function() {
-      return this.penalty = getValScope(this.penalties += 1, [0, penalties.lenght - 1]);
+      return this.penalty = getValScope(this.penalties += 1, [0, penalties.lenght() - 1]);
     };
 
     return Player;
