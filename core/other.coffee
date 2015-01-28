@@ -15,6 +15,12 @@ strCopy = (s, n) ->
 deepCopy = (v) ->
   ($.extend true, [], v)
 
+max = (a,b) ->
+  if a > b then a else b
+
+min = (a,b) ->
+  if a < b then a else b
+
 class _Carousel
   constructor: (@elem) ->
 
@@ -52,3 +58,5 @@ window.getValScope = getValScope
 window.strCopy = strCopy
 window.deepCopy = deepCopy
 window._Carousel = _Carousel
+window.max = max
+window.min = min

@@ -27,7 +27,6 @@ penalties_list = [
   }
 ]
 
-settingsFields = ["number", "checkbox"]
 settingsDesc =
   info:
     type: "text"
@@ -79,9 +78,9 @@ settingsDesc =
     type: "text"
     before: "Формула расчёта урона:<br>min (10 + Р - Н - 3 * Л, МАКСУРОН)"
     help: "Р -- кол-во решённых задач<br>
-        Н -- кол-во нерешённых задач<br>
-        Л -- кол-во попыток лечения<br>
-        МАКСУРОН -- максимальный урон, см. выше"
+          Н -- кол-во нерешённых задач<br>
+          Л -- кол-во попыток лечения<br>
+          МАКСУРОН -- максимальный урон, см. выше"
 
   treatFormula:
     type: "text"
@@ -91,7 +90,6 @@ settingsDesc =
   github:
     type: "text"
     before: "<a href='https://github.com/ktulhy-kun/math_gunplay'>Исходный код</a>"
-
 
 observer = new Object
 observer._observeHandlers = {}
@@ -107,9 +105,13 @@ observer.observe = (object, property, callback) ->
     Object.observe(object, handler)
 
 observer.unobserve = (object, property) ->
+  if @_observeHandlers[property]?
     for [_object, _handler] in @_observeHandlers[property]
       Object.unobserve(_object, _handler) if object is _object
     delete @_observeHandlers[property] if @_observeHandlers[property].lenght is 0
+  undefined
+
+
 
 window._Test_Observer = observer
 
@@ -119,11 +121,11 @@ storage =
     key
   load: (key) ->
     JSON.parse localStorage.getItem key
-    key
   delete: (key) ->
-    localStorage.clear(key)
+    localStorage.removeItem(key)
+    key
 
-saveByStructure = (structure, isdeepcopy = false) ->
+saveByStructure = (structure, isDeepCopy = false) ->
   # сюда нужно передавать массив структур, для нормального будущего копирования
 #    {
 #    object1:
@@ -135,14 +137,14 @@ saveByStructure = (structure, isdeepcopy = false) ->
 #    }
   backup = {}
 
-  for objectName, element of structures
+  for objectName, element of structure
     for objectField in element.fields
-      backup[objectName][objectField] = if isdeepcopy then deepCopy element.obj[objectField] else element.obj[objectField]
+      backup[objectName][objectField] = if isDeepCopy then deepCopy element.obj[objectField] else element.obj[objectField]
 
   backup
 
 loadByStructure = (structure, savedData) ->
-  for objectName, element of structures
+  for objectName, element of structure
     for objectField in element.fields
       element.obj[objectField] = savedData[objectName][objectField]
 
@@ -193,7 +195,7 @@ class Save
     storage.delete("save#{id}")
 
   load: (id) ->
-    loadByStructure(@structure)
+    loadByStructure(@structure, storage.load "save#{id}")
 
   _save: (id = -1, data = undefined ) ->
     switch id
@@ -201,7 +203,8 @@ class Save
       else storage.save "save#{id}", data
 
   _setDefault: ->
-    @saves = null
+    delete @saves
+    @saves = {}
     @saves =
       version: @protocolVersion
       ids: {}
@@ -212,17 +215,22 @@ class Save
 
 class Settings
   @protocolVersion = 1
-  constructor: ->
+  constructor: (@_settingsDesc) ->
     @datas = storage.load 'settings'
     @datas = @_setDefault() if @datas and @datas.version isnt @protocolVersion
+
+    for k,v of @_settingsDesc
+      console.log(k,v.def)
+      (this[k] = () => @_settingsDesc[k].def) if @_settingsDesc[k].def?
 
   _save: ->
     storage.save 'settings', @datas
 
   _setDefault: ->
-    @datas = null
-    for k,v of settingsDesc
-      @datas[k] = v.def if k in settingsFields
+    delete @datas
+    @datas = {}
+    for k,v of @_settingsDesc
+      @datas[k] = v.def if @_settingsDesc[k].def?
     @_save()
 
   set: (name, value) ->
@@ -231,25 +239,25 @@ class Settings
 
 
 class Player
-  constructor: (@id, @name, @settings, @statistic) ->
+  constructor: (@id, @name, @settings) ->
     @setHealth 1
-    @solved = @unsolved = @treatment = penalties_list = 0
+    @solved = @unsolved = @treatment = @penalties = 0
 
   setHealth: (health) ->
-    @health = getValScope health [0, 1]
+    @health = getValScope health, [0, 1]
 
   getHealth: () ->
     @health
 
   incTreatment: () ->
-    if ((@settings.get "nullTreatIfTreatResuscitation") and (@getLevel == "resuscitation"))
+    if ((@settings.nullTreatIfTreatResuscitation()) and (@getLevel() == "resuscitation"))
       @treatment = 0
     else
       @treatment += 1
 
   getLevel: () ->
     for level, scope of levels
-      return level if scope[0] < @getHealth <= scope[1]
+      return level if scope[0] < @getHealth() <= scope[1]
     undefined
 
   _rawAttack: () ->
@@ -263,23 +271,24 @@ class Player
 
   getAttackWithoutTreat: () ->
     #TODO: разобраться зачем мне эта функция
-    (getValScope @_rawAttack + 3 * @treatment, [0, @settings.get "maxAttack"]) / 100
+    (getValScope @_rawAttack() + 3 * @treatment, [0, @settings.maxAttack()]) / 100
 
   getAttack: () ->
-    (getValScope @_rawAttack, [0, @settings.get "maxAttack"]) / 100
+    (getValScope @_rawAttack(), [0, @settings.maxAttack()]) / 100
 
   getAttackTo: (player) ->
+    console.log(player)
     switch
       when 0 == @getHealth() then 0
-      when @getLevel != player.getLevel then 0
-      when (@id == player.id) and (@getLevel == "resuscitation") and not @settings.selfDestroyResuscitation then 0
-      when (@id == player.id) and not @settings.selfDestroyAttack then 0
-      else @getAttack
+      when @getLevel() != player.getLevel() then 0
+      when (@id == player.id) and (@getLevel() == "resuscitation") and not @settings.selfDestroyResuscitation() then 0
+      when (@id == player.id) and not @settings.selfDestroyAttack() then 0
+      else @getAttack()
 
   getTreat: (solved) ->
     h = _rawTreat solved
-    h += ("hospital" == @getLevel) * (@settings.get "hospitalPlus10") * 10
-    h = getValScope h, [(if @settings.selfDestroyTreat then -Infinity else 0),
+    h += ("hospital" == @getLevel()) * (@settings.hospitalPlus10()) * 10
+    h = getValScope h, [(if @settings.selfDestroyTreat() then -Infinity else 0),
                         1 - @getHealth()]
 
   treat: (solved) ->
@@ -289,7 +298,7 @@ class Player
 
   hit: (player) ->
     dmg = @getAttackTo player
-    player.setHealth player.getHealth - dmg
+    player.setHealth player.getHealth() - dmg
     @solved += 1
 
   miss: () ->
@@ -298,10 +307,12 @@ class Player
   penalty: () ->
     @penalty = getValScope @penalties += 1, [0, penalties_list.lenght() - 1]
 
+  toString: () ->
+    "Player##{@id}♥#{@getHealth()}/#{@solved}:#{@unsolved}"
+
 
 class Statistic
   constructor: (@players) ->
-    @observer = Observer(@players)
     @stats =
       "all_damage":
         "title": "Урона нанесено: "
@@ -323,12 +334,14 @@ class Statistic
     @_bind_damage()
 
   _bind_damage: ->
-    player_update = () =>
-      for player of @players
-        @observer.unobserve(player, "health")
-        @observer.observe(player, "health", (type, oldValue, newValue) =>
+    for id, player of @players
+      console.log("-> Reobserve: #{player}")
+      if "length" != id
+
+        observer.observe(player, "health", (type, oldValue, newValue) =>
           dmg = getValScope oldValue - newValue, [0, +Infinity]
           @stats.all_damage.value += dmg
+          console.log("#{player} Нанесли #{dmg} урона")
         )
 
 
@@ -339,9 +352,26 @@ class Model
     @isGame = false
     @time = 0
     @timer = undefined
-    @players = []
+    @players = "length": 0
+
+    @settings = new Settings(settingsDesc)
+
+    @statistic = new Statistic(@players)
 
     (undefined)
+
+  addPlayer: (name) ->
+    id = @players.length
+
+    @players[id] = new Player(id, name, @settings)
+    @players.length += 1
+
+    (undefined)
+
+  startGame: ->
+    @statistic.binds()
+
+
 
   # Day/Night
 

@@ -77,7 +77,7 @@
     View.prototype.generateSettings = function() {
       var body, def, desc, elem, help, name, sett, settDesc, _results;
       sett = this.model.settings;
-      settDesc = this.model.settingsDesc;
+      settDesc = this.model._settingsDesc;
       body = this.elements.settings;
       _results = [];
       for (name in settDesc) {

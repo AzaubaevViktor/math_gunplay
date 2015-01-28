@@ -80,7 +80,7 @@ class View
 
   generateSettings: ->
     sett = @model.settings
-    settDesc = @model.settingsDesc
+    settDesc = @model._settingsDesc
     body = @elements.settings
 
     for name, desc of settDesc
