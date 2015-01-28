@@ -92,12 +92,26 @@ settingsDesc =
     type: "text"
     before: "<a href='https://github.com/ktulhy-kun/math_gunplay'>Исходный код</a>"
 
-observe = (obj, property, callback) ->
-  Object.observe(obj, (changes) ->
-    for change of changes
-      callback(change.type, change.oldValue, obj[property]) if property is change.name
-    undefined
-  )
+
+observer = new Object
+observer._observeHandlers = {}
+observer.observe = (object, property, callback) ->
+    handler = (changes) =>
+      for change in changes
+        callback(change.type, change.oldValue, object[property]) if property is change.name
+      undefined
+
+    @_observeHandlers[property] = [] if not @_observeHandlers[property]?
+    @_observeHandlers[property].push([object, handler])
+
+    Object.observe(object, handler)
+
+observer.unobserve = (object, property) ->
+    for [_object, _handler] in @_observeHandlers[property]
+      Object.unobserve(_object, _handler) if object is _object
+    delete @_observeHandlers[property] if @_observeHandlers[property].lenght is 0
+
+window._Test_Observer = observer
 
 storage =
   save: (key, val) ->
@@ -139,11 +153,10 @@ class Snapshot
     @current = -1
     @add()
 
-
   add: ->
     @datas = @datas.slice(0, @current + 1)
 
-    snapshot = saveByStructure(@structure, true)
+    saveByStructure(@structure, true)
 
     @current += 1
 
@@ -182,8 +195,6 @@ class Save
   load: (id) ->
     loadByStructure(@structure)
 
-
-
   _save: (id = -1, data = undefined ) ->
     switch id
       when -1 then storage.save 'saves', @saves
@@ -221,11 +232,14 @@ class Settings
 
 class Player
   constructor: (@id, @name, @settings, @statistic) ->
-    @health = 1
+    @setHealth 1
     @solved = @unsolved = @treatment = penalties_list = 0
 
   setHealth: (health) ->
     @health = getValScope health [0, 1]
+
+  getHealth: () ->
+    @health
 
   incTreatment: () ->
     if ((@settings.get "nullTreatIfTreatResuscitation") and (@getLevel == "resuscitation"))
@@ -233,18 +247,19 @@ class Player
     else
       @treatment += 1
 
-  getHealth: () ->
-    @health
-
   getLevel: () ->
     for level, scope of levels
-      return level if scope[0] < @health <= scope[1]
+      return level if scope[0] < @getHealth <= scope[1]
     undefined
 
   _rawAttack: () ->
     # Функция подсчёта урона
     penalty = penalties_list[@penalties].attack
     10 + @solved - @unsolved - penalty - 3 * @treatment
+
+  _rawTreat: (solved) ->
+    # Функция подсчёта жизней
+    5 * solved + @solved - @unsolved - 3 * @treatment - 5
 
   getAttackWithoutTreat: () ->
     #TODO: разобраться зачем мне эта функция
@@ -255,39 +270,30 @@ class Player
 
   getAttackTo: (player) ->
     switch
-      when 0 == @health then 0
+      when 0 == @getHealth() then 0
       when @getLevel != player.getLevel then 0
       when (@id == player.id) and (@getLevel == "resuscitation") and not @settings.selfDestroyResuscitation then 0
       when (@id == player.id) and not @settings.selfDestroyAttack then 0
       else @getAttack
 
-  _rawTreat: (solved) ->
-    # Функция подсчёта жизней
-    5 * solved + @solved - @unsolved - 3 * @treatment - 5
-
   getTreat: (solved) ->
     h = _rawTreat solved
     h += ("hospital" == @getLevel) * (@settings.get "hospitalPlus10") * 10
     h = getValScope h, [(if @settings.selfDestroyTreat then -Infinity else 0),
-                        1 - @health]
+                        1 - @getHealth()]
 
   treat: (solved) ->
     inc = getTreat solved
-    @setHealth @health + inc
+    @setHealth @getHealth() + inc
     @incTreatment()
-
-    #TODO: Statistic
 
   hit: (player) ->
     dmg = @getAttackTo player
-    player.setHealth player.health - dmg
+    player.setHealth player.getHealth - dmg
     @solved += 1
-
-    #TODO: Statistic
 
   miss: () ->
     @unsolved += 1
-    #TODO: Statistic
 
   penalty: () ->
     @penalty = getValScope @penalties += 1, [0, penalties_list.lenght() - 1]
@@ -295,6 +301,7 @@ class Player
 
 class Statistic
   constructor: (@players) ->
+    @observer = Observer(@players)
     @stats =
       "all_damage":
         "title": "Урона нанесено: "
@@ -316,11 +323,14 @@ class Statistic
     @_bind_damage()
 
   _bind_damage: ->
-    for player of @players
-      observe(player, "health", (type, oldValue, newValue) =>
-        dmg = getValScope oldValue - newValue, [0, +Infinity]
-        @stats.all_damage.value += dmg
-      )
+    player_update = () =>
+      for player of @players
+        @observer.unobserve(player, "health")
+        @observer.observe(player, "health", (type, oldValue, newValue) =>
+          dmg = getValScope oldValue - newValue, [0, +Infinity]
+          @stats.all_damage.value += dmg
+        )
+
 
 class Model
 
@@ -330,8 +340,6 @@ class Model
     @time = 0
     @timer = undefined
     @players = []
-
-    @addSnapshot()
 
     (undefined)
 
