@@ -88,7 +88,17 @@ setTimeout f, 100
 
 console.group "Snapshot Test"
 
+model.players[0].hit(model.players[1])
+h1o = model.players[1].getHealth()
+[_, sid1] = model.save()
+model.players[0].hit(model.players[1])
+h1n = model.players[1].getHealth()
+[_, sid2] = model.save()
 
+model.load(sid1)
+TEST_EQ(model.players[1].getHealth(), h1o)
+model.load(sid2)
+TEST_EQ(model.players[1].getHealth(), h1n)
 
 console.groupEnd()
 

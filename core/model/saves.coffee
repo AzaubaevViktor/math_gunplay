@@ -17,12 +17,11 @@ class Saves
     id = 1488
     while @saves.ids[id]?
       id = Math.floor(Math.random() * 100000000000000000)
-      console.log(id)
 
     @saves.ids[id] = "#{now}"
     @_save()
-    @_save(id, saveByStructure(@structure))
-    "#{now}"
+    @_save(id, saveByStructure(@structure, true))
+    ["#{now}", id]
 
   delete: (id) ->
     delete @saves.ids[id]
@@ -30,7 +29,8 @@ class Saves
     storage.delete("save#{id}")
 
   load: (id) ->
-    loadByStructure(@structure, storage.load "save#{id}")
+    data =  storage.load "save#{id}"
+    loadByStructure(@structure, data)
 
   getList: ->
     @saves.ids

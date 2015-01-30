@@ -6,8 +6,8 @@ Saves = Model.Saves
 class _Model
 
   constructor: (@settings) ->
-    @isDay = false
-    @isGame = false
+    @isDay = 0
+    @isGame = 0
     @time = 0
     @timer = undefined
     @players = "length": 0
@@ -80,8 +80,8 @@ class _Model
     clearInterval @timer
 
     if not @isGame
-      @isGame = true
-      @isDay = true
+      @isGame = 1
+      @isDay = 1
     else
       @isDay = not @isDay
 

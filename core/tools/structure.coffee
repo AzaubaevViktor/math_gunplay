@@ -17,7 +17,9 @@ saveByStructure = (structure, isDeepCopy = false) ->
   for objectName, element of structure
     for objectField in element.fields
       backup[objectName] = {} if not backup[objectName]?
-      backup[objectName][objectField] = if isDeepCopy then deepCopy element.obj[objectField] else element.obj[objectField]
+      backup[objectName][objectField] = if isDeepCopy
+      then deepCopy element.obj[objectField]
+      else element.obj[objectField]
 
   backup
 

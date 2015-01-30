@@ -25,7 +25,19 @@
   };
 
   deepCopy = function(v) {
-    return $.extend(true, [], v);
+    var property, result, value;
+    result = new Object;
+    for (property in v) {
+      value = v[property];
+      if (property[0] !== "_") {
+        if (typeof value === "object") {
+          result[property] = deepCopy(value);
+        } else {
+          result[property] = value;
+        }
+      }
+    }
+    return result;
   };
 
   max = function(a, b) {

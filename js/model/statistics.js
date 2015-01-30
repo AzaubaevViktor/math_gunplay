@@ -7,25 +7,19 @@
   getValScope = Tools.getValScope;
 
   Statistic = (function() {
-    function Statistic(_at_players) {
-      this.players = _at_players;
+    function Statistic(_at__players) {
+      this._players = _at__players;
+      this._statsText = {
+        "all_damage": "Урона нанесено: ",
+        "all_tasks": "Сыгранные задачи: ",
+        "all_treat": "Вылеченно здоровья: ",
+        "solve_percent": "Решённые/все задачи: "
+      };
       this.stats = {
-        "all_damage": {
-          "title": "Урона нанесено: ",
-          "value": 0
-        },
-        "all_tasks": {
-          "title": "Сыгранные задачи: ",
-          "value": 0
-        },
-        "all_treat": {
-          "title": "Вылеченно здоровья: ",
-          "value": 0
-        },
-        "solve_percent": {
-          "title": "Решённые/все задачи: ",
-          "value": 0
-        }
+        "all_damage": 0,
+        "all_tasks": 0,
+        "all_treat": 0,
+        "solve_percent": 0
       };
       this.solved = 0;
       this.unsolved = 0;
@@ -36,13 +30,13 @@
     };
 
     Statistic.prototype._solved_update = function() {
-      this.stats.all_tasks.value = this.solved + this.unsolved;
-      return this.stats.solve_percent.value = this.solved / (this.solved + this.unsolved);
+      this.stats.all_tasks = this.solved + this.unsolved;
+      return this.stats.solve_percent = this.solved / (this.solved + this.unsolved);
     };
 
     Statistic.prototype._bind_damage = function() {
       var id, player, _ref, _results;
-      _ref = this.players;
+      _ref = this._players;
       _results = [];
       for (id in _ref) {
         player = _ref[id];
@@ -51,10 +45,9 @@
             return function(type, oldValue, newValue) {
               var dmg, treat;
               dmg = getValScope(oldValue - newValue, [0, +Infinity]);
-              _this.stats.all_damage.value += dmg;
+              _this.stats.all_damage += dmg;
               treat = getValScope(newValue - oldValue, [0, +Infinity]);
-              _this.stats.all_treat.value += treat;
-              return console.log(dmg, treat);
+              return _this.stats.all_treat += treat;
             };
           })(this));
           player.setWatcher("solved", (function(_this) {

@@ -29,12 +29,11 @@
       id = 1488;
       while (this.saves.ids[id] != null) {
         id = Math.floor(Math.random() * 100000000000000000);
-        console.log(id);
       }
       this.saves.ids[id] = "" + now;
       this._save();
-      this._save(id, saveByStructure(this.structure));
-      return "" + now;
+      this._save(id, saveByStructure(this.structure, true));
+      return ["" + now, id];
     };
 
     Saves.prototype["delete"] = function(id) {
@@ -44,7 +43,9 @@
     };
 
     Saves.prototype.load = function(id) {
-      return loadByStructure(this.structure, storage.load("save" + id));
+      var data;
+      data = storage.load("save" + id);
+      return loadByStructure(this.structure, data);
     };
 
     Saves.prototype.getList = function() {

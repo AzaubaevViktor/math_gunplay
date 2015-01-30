@@ -14,8 +14,8 @@
     function _Model(_at_settings) {
       var structure_save, structure_snapshot;
       this.settings = _at_settings;
-      this.isDay = false;
-      this.isGame = false;
+      this.isDay = 0;
+      this.isGame = 0;
       this.time = 0;
       this.timer = void 0;
       this.players = {
@@ -102,8 +102,8 @@
     _Model.prototype.changeDayNight = function() {
       clearInterval(this.timer);
       if (!this.isGame) {
-        this.isGame = true;
-        this.isDay = true;
+        this.isGame = 1;
+        this.isDay = 1;
       } else {
         this.isDay = !this.isDay;
       }

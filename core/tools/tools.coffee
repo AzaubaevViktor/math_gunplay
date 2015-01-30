@@ -13,7 +13,14 @@ strCopy = (s, n) ->
   (res)
 
 deepCopy = (v) ->
-  $.extend true, [], v
+  result = new Object
+  for property, value of v
+    if property[0] != "_"
+      if typeof value == "object"
+        result[property] = deepCopy(value)
+      else
+        result[property] = value
+  result
 
 max = (a,b) ->
   if a > b then a else b
