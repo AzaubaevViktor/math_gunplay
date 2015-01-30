@@ -1,5 +1,6 @@
 Player = Model.Player
 Statistic = Model.Statistic
+Snapshot = Model.Snapshot
 
 class _Model
 
@@ -12,6 +13,14 @@ class _Model
 
     @statistic = new Statistic(@players)
 
+    structure_snapshot =
+      model:
+        obj: this
+        fields: ['players', 'statistic']
+
+    @snapshots = new Snapshot(structure_snapshot)
+
+
     (undefined)
 
   addPlayer: (name) ->
@@ -23,19 +32,30 @@ class _Model
     (undefined)
 
   startGame: ->
+#   Запускаем сбор сттистики
     @statistic.binds()
+#   Запускаем снапшоты
+    for player in @players
+      player.setWatcher "_all", (t, o, n) =>
+        @snapshots.add()
+
+  undo: ->
+    @snapshots.undo()
+
+  redo: ->
+    @snapshots.redo()
 
   # Day/Night
 
   setDayTimer: () ->
     @time = @settings.stTime * 60
-    @view.updateTime()
+
     @timer = setInterval =>
       @time -= 1
       if @time <= 0
         @changeDayNight()
       else
-        @view.updateTime()
+        undefined
       undefined
     , 1000
     (undefined)
@@ -52,9 +72,7 @@ class _Model
     if @isDay
       @setDayTimer()
 
-    @clearSnapshots()
-
-    @view.updateUI()
+    @snapshots.clear()
     (undefined)
 
 

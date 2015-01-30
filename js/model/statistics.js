@@ -47,7 +47,7 @@
       for (id in _ref) {
         player = _ref[id];
         if ("length" !== id) {
-          observer.observe(player, "health", (function(_this) {
+          player.setWatcher("health", (function(_this) {
             return function(type, oldValue, newValue) {
               var dmg, treat;
               dmg = getValScope(oldValue - newValue, [0, +Infinity]);
@@ -57,13 +57,13 @@
               return console.log(dmg, treat);
             };
           })(this));
-          observer.observe(player, "solved", (function(_this) {
+          player.setWatcher("solved", (function(_this) {
             return function(t, o, n) {
               _this.solved += n - o;
               return _this._solved_update();
             };
           })(this));
-          _results.push(observer.observe(player, "unsolved", (function(_this) {
+          _results.push(player.setWatcher("unsolved", (function(_this) {
             return function(t, o, n) {
               _this.unsolved += n - o;
               return _this._solved_update();

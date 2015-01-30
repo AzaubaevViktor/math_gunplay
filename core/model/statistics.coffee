@@ -36,22 +36,22 @@ class Statistic
     for id, player of @players
       if "length" != id
 
-        observer.observe(player, "health", (type, oldValue, newValue) =>
+        player.setWatcher "health", (type, oldValue, newValue) =>
           dmg = getValScope oldValue - newValue, [0, +Infinity]
           @stats.all_damage.value += dmg
           treat = getValScope newValue - oldValue, [0, +Infinity]
           @stats.all_treat.value += treat
           console.log(dmg, treat)
-        )
 
-        observer.observe(player, "solved", (t, o, n) =>
+
+        player.setWatcher "solved", (t, o, n) =>
           @solved += n - o
           @_solved_update()
-        )
 
-        observer.observe(player, "unsolved", (t, o ,n) =>
+
+        player.setWatcher "unsolved", (t, o ,n) =>
           @unsolved += n - o
           @_solved_update()
-        )
+
 
 window.Model.Statistic = Statistic

@@ -134,6 +134,10 @@
 
   setTimeout(f, 100);
 
+  console.group("Snapshot Test");
+
+  console.groupEnd();
+
 }).call(this);
 
 //# sourceMappingURL=tests.js.map

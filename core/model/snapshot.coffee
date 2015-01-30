@@ -1,5 +1,9 @@
 # Работает с историей изменений
 
+saveByStructure = Tools.saveByStructure
+loadByStructure = Tools.loadByStructure
+getValScope = Tools.getValScope
+
 class Snapshot
   constructor: (@structure) ->
     @datas = []
@@ -11,7 +15,7 @@ class Snapshot
   add: ->
     @datas = @datas.slice(0, @current + 1)
 
-    saveByStructure(@structure, true)
+    @datas.push saveByStructure(@structure, true)
 
     @current += 1
 
@@ -22,11 +26,18 @@ class Snapshot
 
     undefined
 
-  load: (id = @current - 1) ->
+  _load: (id = @current - 1) ->
     @current = getValScope id, [0, @data.length]
     loadByStructure(@structure, @datas[@current])
 
     undefined
+
+  undo: ->
+    @_load()
+
+  redo: ->
+    @current = getValScope @current + 1, [0, @data.length]
+    loadByStructure(@structure, @datas[@current])
 
 
 window.Model.Snapshot = Snapshot

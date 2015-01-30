@@ -1,5 +1,6 @@
 # Игрок
 getValScope = Tools.getValScope
+observer = Tools.observer
 
 levels =
   square: [0.6, 1]
@@ -100,6 +101,14 @@ class Player
 
   toString: () ->
     "Player##{@id}♥#{@getHealth()}/#{@solved}:#{@unsolved}"
+
+  setWatcher: (property, callback) ->
+    if "_all" == property
+      for prop in ["solved", "unsolved", "penalties", "treatment"]
+#        health убрал отсюда из-за того, что когда 1 стреляет в 2, у 1 меняется solved, у 2 меняется health
+        @setWatcher prop, callback
+    else
+      observer.observe this, property, callback
 
 
 window.Model.Player = Player

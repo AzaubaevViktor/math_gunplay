@@ -9,11 +9,14 @@
 #    }
 # каждое поле должно быть сложным объектом, дабы была возможность отслеживать его изменения
 
+deepCopy = Tools.deepCopy
+
 saveByStructure = (structure, isDeepCopy = false) ->
   backup = {}
 
   for objectName, element of structure
     for objectField in element.fields
+      backup[objectName] = {} if not backup[objectName]?
       backup[objectName][objectField] = if isDeepCopy then deepCopy element.obj[objectField] else element.obj[objectField]
 
   backup
@@ -25,5 +28,5 @@ loadByStructure = (structure, savedData) ->
   undefined
 
 
-window.Model.saveByStructure = saveByStructure
-window.Model.loadByStructure = loadByStructure
+window.Tools.saveByStructure = saveByStructure
+window.Tools.loadByStructure = loadByStructure
