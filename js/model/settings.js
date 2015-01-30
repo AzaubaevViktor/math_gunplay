@@ -71,7 +71,7 @@
     Settings.protocolVersion = 1;
 
     function Settings(_at__settingsDesc) {
-      var k, v, _ref;
+      var k, v, _f, _ref;
       this._settingsDesc = _at__settingsDesc != null ? _at__settingsDesc : settingsDesc;
       this.datas = storage.load('settings');
       if (this.datas && this.datas.version !== this.protocolVersion) {
@@ -80,13 +80,18 @@
       _ref = this._settingsDesc;
       for (k in _ref) {
         v = _ref[k];
-        if (this._settingsDesc[k].def != null) {
-          this[k] = (function(_this) {
-            return function() {
-              return _this._settingsDesc[k].def;
-            };
-          })(this);
-        }
+        _f = (function(_this) {
+          return function() {
+            var _closure;
+            _closure = v;
+            if (_closure.def != null) {
+              return _this[k] = function() {
+                return _closure.def;
+              };
+            }
+          };
+        })(this);
+        _f();
       }
     }
 

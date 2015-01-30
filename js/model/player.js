@@ -101,14 +101,14 @@
 
     Player.prototype.getTreat = function(solved) {
       var h;
-      h = _rawTreat(solved);
+      h = this._rawTreat(solved);
       h += ("hospital" === this.getLevel()) * (this.settings.hospitalPlus10()) * 10;
       return h = getValScope(h, [(this.settings.selfDestroyTreat() ? -Infinity : 0), 1 - this.getHealth()]);
     };
 
     Player.prototype.treat = function(solved) {
       var inc;
-      inc = getTreat(solved);
+      inc = this.getTreat(solved);
       this.setHealth(this.getHealth() + inc);
       return this.incTreatment();
     };

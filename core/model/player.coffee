@@ -77,13 +77,13 @@ class Player
       else @getAttack()
 
   getTreat: (solved) ->
-    h = _rawTreat solved
+    h = @_rawTreat solved
     h += ("hospital" == @getLevel()) * (@settings.hospitalPlus10()) * 10
     h = getValScope h, [(if @settings.selfDestroyTreat() then -Infinity else 0),
                         1 - @getHealth()]
 
   treat: (solved) ->
-    inc = getTreat solved
+    inc = @getTreat solved
     @setHealth @getHealth() + inc
     @incTreatment()
 

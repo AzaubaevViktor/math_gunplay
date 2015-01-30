@@ -73,7 +73,11 @@ class Settings
     @datas = @_setDefault() if @datas and @datas.version isnt @protocolVersion
 
     for k,v of @_settingsDesc
-      (this[k] = () => @_settingsDesc[k].def) if @_settingsDesc[k].def?
+      _f = =>
+        _closure = v
+        (this[k] = () ->
+          _closure.def) if _closure.def?
+      _f()
 
   _save: ->
     storage.save 'settings', @datas

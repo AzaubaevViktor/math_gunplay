@@ -11,7 +11,7 @@ _TEST = (variables, values, func) ->
   if typeof variables == "object"
   then for v, i in variables
     _TEST_ONCE(v, values[i], i, func)
-  else _TEST_ONCE(variables, values, "", func)
+  else _TEST_ONCE(variables, values, variables, func)
 
 TEST_EQ = (a,b) -> _TEST(a, b, _EQ)
 TEST_NEQ = (a,b) -> _TEST(a, b, _NEQ)
@@ -63,13 +63,47 @@ console.groupEnd()
 
 model.startGame()
 
+# ============================================
+
+console.group "Hit & Treat"
+
 model.players[0].hit(model.players[1])
+ho = model.players[1].health
+model.players[1].treat(3)
+hn = model.players[1].health
+TEST_NEQ(ho - hn, 0)
+
+console.groupEnd()
+
+# ============================================
 
 f = ->
   console.group "Statistic Test"
-  TEST_NEQ(model.statistic.stats.all_damage.value, 0)
+  TEST_NEQ(model.statistic.stats.all_treat.value, 0)
   console.groupEnd()
 
 setTimeout f, 100
 
-console.groupEnd()
+# ============================================
+
+
+
+
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+# ============================================
+

@@ -27,10 +27,17 @@
           "value": 0
         }
       };
+      this.solved = 0;
+      this.unsolved = 0;
     }
 
     Statistic.prototype.binds = function() {
       return this._bind_damage();
+    };
+
+    Statistic.prototype._solved_update = function() {
+      this.stats.all_tasks.value = this.solved + this.unsolved;
+      return this.stats.solve_percent.value = this.solved / (this.solved + this.unsolved);
     };
 
     Statistic.prototype._bind_damage = function() {
@@ -40,11 +47,26 @@
       for (id in _ref) {
         player = _ref[id];
         if ("length" !== id) {
-          _results.push(observer.observe(player, "health", (function(_this) {
+          observer.observe(player, "health", (function(_this) {
             return function(type, oldValue, newValue) {
-              var dmg;
+              var dmg, treat;
               dmg = getValScope(oldValue - newValue, [0, +Infinity]);
-              return _this.stats.all_damage.value += dmg;
+              _this.stats.all_damage.value += dmg;
+              treat = getValScope(newValue - oldValue, [0, +Infinity]);
+              _this.stats.all_treat.value += treat;
+              return console.log(dmg, treat);
+            };
+          })(this));
+          observer.observe(player, "solved", (function(_this) {
+            return function(t, o, n) {
+              _this.solved += n - o;
+              return _this._solved_update();
+            };
+          })(this));
+          _results.push(observer.observe(player, "unsolved", (function(_this) {
+            return function(t, o, n) {
+              _this.unsolved += n - o;
+              return _this._solved_update();
             };
           })(this)));
         } else {
