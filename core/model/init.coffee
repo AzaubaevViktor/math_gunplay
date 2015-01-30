@@ -1,0 +1,1 @@
+window.Model = new Object
