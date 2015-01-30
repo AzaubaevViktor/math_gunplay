@@ -1,7 +1,6 @@
 _EQ = (a, b) -> a == b
 _NEQ = (a,b) -> a != b
 
-
 _TEST_ONCE = (variable, values, info, func) ->
   if func(variable, values)
   then console.info("OK:#{info}")
@@ -24,6 +23,57 @@ TEST_EQ(1,1)
 TEST_NEQ([1,1,2,3],[2,3,2,3])
 console.groupEnd()
 
+# ===========================================
+
+JSONify = Tools.JSONify
+
+class JA extends JSONify
+  constructor: ->
+    @a = [1,2,3]
+    @b = {a:2, b:4}
+    @className = "JA"
+    @JSONProperties = ["b"]
+    @register JA
+  test: ->
+    @b.a
+
+class JB extends JSONify
+  constructor: ->
+    @x = [1,2,3]
+    @y = new JA()
+    @z = true
+    @a =
+      1:'a',
+      12:
+        b:
+          1:22
+
+    @className = "JB"
+    @JSONProperties = ["y", "a"]
+    @register JB
+
+ja1 = new JA()
+ja1.a = [2,3,1]
+ja1.b.c = 123334
+serialized = ja1.serialize()
+ja2 = new JA()
+ja2.deserialize serialized
+TEST_EQ ja2.b.c, 123334
+TEST_EQ ja2.b.a, ja2.test()
+
+jb1 = new JB
+jb1.y.b.c = -1234
+jb1.a[12].b.c = -4321
+serialized = jb1.serialize()
+jb2 = new JB()
+jb2.deserialize serialized
+console.log serialized, jb2
+TEST_EQ jb2.y.b.c, -1234
+TEST_EQ jb2.a[12].b.c, -4321
+TEST_EQ jb2.y.test(), jb2.y.b.a
+
+
+# ===========================================
 
 settings = new Model.Settings()
 
