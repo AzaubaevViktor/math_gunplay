@@ -130,8 +130,6 @@
 
   jb2.deserialize(serialized);
 
-  console.log(serialized, jb2);
-
   TEST_EQ(jb2.y.b.c, -1234);
 
   TEST_EQ(jb2.a[12].b.c, -4321);

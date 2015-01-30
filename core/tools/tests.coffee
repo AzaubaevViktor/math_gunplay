@@ -67,7 +67,6 @@ jb1.a[12].b.c = -4321
 serialized = jb1.serialize()
 jb2 = new JB()
 jb2.deserialize serialized
-console.log serialized, jb2
 TEST_EQ jb2.y.b.c, -1234
 TEST_EQ jb2.a[12].b.c, -4321
 TEST_EQ jb2.y.test(), jb2.y.b.a
@@ -135,6 +134,7 @@ f = ->
 setTimeout f, 100
 
 # ============================================
+
 
 console.group "Snapshot Test"
 

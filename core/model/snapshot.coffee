@@ -13,9 +13,9 @@ class Snapshot
     undefined
 
   add: ->
-    @datas = @datas.slice(0, @current + 1)
+    @datas = @datas.slice 0, @current + 1
 
-    @datas.push saveByStructure(@structure, true)
+    @datas.push saveByStructure @structure
 
     @current += 1
 
@@ -28,7 +28,7 @@ class Snapshot
 
   _load: (id = @current - 1) ->
     @current = getValScope id, [0, @data.length]
-    loadByStructure(@structure, @datas[@current])
+    loadByStructure @structure, @datas[@current]
 
     undefined
 
@@ -37,7 +37,7 @@ class Snapshot
 
   redo: ->
     @current = getValScope @current + 1, [0, @data.length]
-    loadByStructure(@structure, @datas[@current])
+    loadByStructure @structure, @datas[@current]
 
 
 window.Model.Snapshot = Snapshot

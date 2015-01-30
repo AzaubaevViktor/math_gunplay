@@ -43,9 +43,9 @@
     };
 
     Saves.prototype.load = function(id) {
-      var data;
-      data = storage.load("save" + id);
-      return loadByStructure(this.structure, data);
+      var rawData;
+      rawData = storage.load("save" + id);
+      return loadByStructure(this.structure, rawData);
     };
 
     Saves.prototype.getList = function() {

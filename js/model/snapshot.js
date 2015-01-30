@@ -19,7 +19,7 @@
 
     Snapshot.prototype.add = function() {
       this.datas = this.datas.slice(0, this.current + 1);
-      this.datas.push(saveByStructure(this.structure, true));
+      this.datas.push(saveByStructure(this.structure));
       return this.current += 1;
     };
 

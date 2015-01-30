@@ -10,23 +10,23 @@
 # каждое поле должно быть сложным объектом, дабы была возможность отслеживать его изменения
 
 deepCopy = Tools.deepCopy
+serialize2object = Tools.serialize2object
+deserializeFromObject = Tools.deserializeFromObject
 
-saveByStructure = (structure, isDeepCopy = false) ->
+saveByStructure = (structure) ->
   backup = {}
 
   for objectName, element of structure
     for objectField in element.fields
       backup[objectName] = {} if not backup[objectName]?
-      backup[objectName][objectField] = if isDeepCopy
-      then deepCopy element.obj[objectField]
-      else element.obj[objectField]
+      backup[objectName][objectField] = serialize2object element.obj[objectField]
 
   backup
 
-loadByStructure = (structure, savedData) ->
+loadByStructure = (structure, rawData) ->
   for objectName, element of structure
     for objectField in element.fields
-      element.obj[objectField] = savedData[objectName][objectField]
+      element.obj[objectField] = deserializeFromObject rawData[objectName][objectField]
   undefined
 
 

@@ -29,8 +29,8 @@ class Saves
     storage.delete("save#{id}")
 
   load: (id) ->
-    data =  storage.load "save#{id}"
-    loadByStructure(@structure, data)
+    rawData =  storage.load "save#{id}"
+    loadByStructure(@structure, rawData)
 
   getList: ->
     @saves.ids

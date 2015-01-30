@@ -2,8 +2,9 @@
 
 observer = Tools.observer
 getValScope = Tools.getValScope
+JSONify = Tools.JSONify
 
-class Statistic
+class Statistic extends JSONify
   constructor: (@_players) ->
     @_statsText =
       "all_damage": "Урона нанесено: "
@@ -19,6 +20,10 @@ class Statistic
 
     @solved = 0
     @unsolved = 0
+
+    @className = "Statistic"
+    @JSONProperties = ["stats", "solved", "unsolved"]
+    @register(Statistic)
 
   binds: ->
     @_bind_damage()

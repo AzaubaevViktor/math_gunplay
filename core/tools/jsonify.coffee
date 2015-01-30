@@ -8,7 +8,7 @@ window.Tools._JSONify_classes = {}
 isSerializable = (obj) ->
   obj.serialize?
 
-serialize = (obj) ->
+serialize2object = (obj) ->
   if isSerializable(obj)
     obj._serialize()
   else if typeof obj == "object"
@@ -16,12 +16,16 @@ serialize = (obj) ->
     for k, v of obj
       res[k] = switch isSerializable(v)
         when true  then v._serialize()
-        when false then serialize(v)
+        when false then serialize2object(v)
     res
   else
     obj
 
-deserialize = (datas) ->
+serialize = (obj) ->
+  console.info(obj)
+  JSON.stringify serialize2object obj
+
+deserializeFromObject = (datas) ->
   obj = null
   if datas._className? and datas._data?
     obj = new window.Tools._JSONify_classes[datas._className]
@@ -29,11 +33,15 @@ deserialize = (datas) ->
   else if typeof datas == "object"
     obj = new Object()
     for k, v of datas
-      obj[k] = deserialize(v)
+      obj[k] = deserializeFromObject(v)
   else
     obj = datas
 
   obj
+
+deserialize = (jsonString) ->
+  deserializeFromObject JSON.parse jsonString
+
 
 class JSONify
   constructor: ->
@@ -48,7 +56,7 @@ class JSONify
     res._className = @className
     res._data = {}
     for prop in @JSONProperties
-      res._data[prop] = serialize(this[prop])
+      res._data[prop] = serialize2object(this[prop])
 
     res
 
@@ -58,7 +66,7 @@ class JSONify
   _deserialize: (datas) ->
     if datas._className? and datas._data?
       for prop in @JSONProperties
-        this[prop] = deserialize(datas._data[prop])
+        this[prop] = deserializeFromObject(datas._data[prop])
     else
       throw "#{datas} is not serialized #{@className}"
     undefined
@@ -66,5 +74,8 @@ class JSONify
   deserialize: (jsonString) ->
     @_deserialize JSON.parse jsonString
 
-
+window.Tools.serialize2object = serialize2object
+window.Tools.deserializeFromObject = deserializeFromObject
+window.Tools.serialize = serialize
+window.Tools.deserialize = deserialize
 window.Tools.JSONify = JSONify
