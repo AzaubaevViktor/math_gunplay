@@ -10,8 +10,6 @@ class _Model
     @timer = undefined
     @players = "length": 0
 
-    console.log(Model)
-
     @statistic = new Statistic(@players)
 
     (undefined)

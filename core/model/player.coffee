@@ -69,7 +69,6 @@ class Player
     (getValScope @_rawAttack(), [0, @settings.maxAttack()]) / 100
 
   getAttackTo: (player) ->
-    console.log(player)
     switch
       when 0 == @getHealth() then 0
       when @getLevel() != player.getLevel() then 0

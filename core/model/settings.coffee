@@ -73,7 +73,6 @@ class Settings
     @datas = @_setDefault() if @datas and @datas.version isnt @protocolVersion
 
     for k,v of @_settingsDesc
-      console.log(k,v.def)
       (this[k] = () => @_settingsDesc[k].def) if @_settingsDesc[k].def?
 
   _save: ->

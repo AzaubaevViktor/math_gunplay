@@ -26,13 +26,12 @@ class Statistic
 
   _bind_damage: ->
     for id, player of @players
-      console.log("-> Reobserve: #{player}")
       if "length" != id
 
         observer.observe(player, "health", (type, oldValue, newValue) =>
           dmg = getValScope oldValue - newValue, [0, +Infinity]
           @stats.all_damage.value += dmg
-          console.log("#{player} Нанесли #{dmg} урона")
+#          console.log("#{player} Нанесли #{dmg} урона")
         )
 
 window.Model.Statistic = Statistic
