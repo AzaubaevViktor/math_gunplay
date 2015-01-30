@@ -1,6 +1,7 @@
 # Статистика
 
 observer = Tools.observer
+getValScope = Tools.getValScope
 
 class Statistic
   constructor: (@players) ->
@@ -31,7 +32,6 @@ class Statistic
         observer.observe(player, "health", (type, oldValue, newValue) =>
           dmg = getValScope oldValue - newValue, [0, +Infinity]
           @stats.all_damage.value += dmg
-#          console.log("#{player} Нанесли #{dmg} урона")
         )
 
 window.Model.Statistic = Statistic
