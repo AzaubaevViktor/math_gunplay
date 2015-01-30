@@ -1,0 +1,1 @@
+window.Tools = new Object

@@ -1,4 +1,5 @@
 # Игрок
+getValScope = Tools.getValScope
 
 levels =
   square: [0.6, 1]

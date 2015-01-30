@@ -10,4 +10,4 @@ storage =
     localStorage.removeItem(key)
     key
 
-window.Model.storage = storage
+window.Tools.storage = storage

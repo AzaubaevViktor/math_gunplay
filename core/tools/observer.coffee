@@ -20,4 +20,4 @@ observer.unobserve = (object, property) ->
     delete @_observeHandlers[property] if @_observeHandlers[property].lenght is 0
   undefined
 
-window.Model.observer = observer
+window.Tools.observer = observer

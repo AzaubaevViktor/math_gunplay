@@ -54,9 +54,9 @@ class _Carousel
       "overflow": st
     }
 
-window.getValScope = getValScope
-window.strCopy = strCopy
-window.deepCopy = deepCopy
+window.Tools.getValScope = getValScope
+window.Tools.strCopy = strCopy
+window.Tools.deepCopy = deepCopy
 window._Carousel = _Carousel
-window.max = max
-window.min = min
+window.Tools.max = max
+window.Tools.min = min

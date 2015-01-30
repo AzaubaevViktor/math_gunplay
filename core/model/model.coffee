@@ -1,13 +1,16 @@
-class Model
+Player = Model.Player
+Statistic = Model.Statistic
 
-  constructor: (@settings, @statistic) ->
+class _Model
+
+  constructor: (@settings) ->
     @isDay = false
     @isGame = false
     @time = 0
     @timer = undefined
     @players = "length": 0
 
-    @settings = new Settings(settingsDesc)
+    console.log(Model)
 
     @statistic = new Statistic(@players)
 
@@ -58,4 +61,4 @@ class Model
 
 
 
-window.Model.Model = Model
+window.Model.Model = _Model

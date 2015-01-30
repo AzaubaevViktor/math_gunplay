@@ -1,2 +1,2 @@
-var __version__ = "0.4.11b";
-var __date__ = "29.01.2015";
+var __version__ = "0.4.12b";
+var __date__ = "30.01.2015";
