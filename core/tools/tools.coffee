@@ -13,7 +13,7 @@ strCopy = (s, n) ->
   (res)
 
 deepCopy = (v) ->
-  ($.extend true, [], v)
+  $.extend true, [], v
 
 max = (a,b) ->
   if a > b then a else b

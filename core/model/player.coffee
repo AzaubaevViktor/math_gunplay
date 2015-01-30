@@ -32,7 +32,7 @@ penalties_list = [
 ]
 
 class Player
-  constructor: (@id, @name, @settings) ->
+  constructor: (@id, @name, @_settings) ->
     @setHealth 1
     @solved = @unsolved = @treatment = @penalties = 0
 
@@ -43,7 +43,7 @@ class Player
     @health
 
   incTreatment: () ->
-    if ((@settings.nullTreatIfTreatResuscitation()) and (@getLevel() == "resuscitation"))
+    if ((@_settings.nullTreatIfTreatResuscitation()) and (@getLevel() == "resuscitation"))
       @treatment = 0
     else
       @treatment += 1
@@ -64,23 +64,23 @@ class Player
 
   getAttackWithoutTreat: () ->
     #TODO: разобраться зачем мне эта функция
-    (getValScope @_rawAttack() + 3 * @treatment, [0, @settings.maxAttack()]) / 100
+    (getValScope @_rawAttack() + 3 * @treatment, [0, @_settings.maxAttack()]) / 100
 
   getAttack: () ->
-    (getValScope @_rawAttack(), [0, @settings.maxAttack()]) / 100
+    (getValScope @_rawAttack(), [0, @_settings.maxAttack()]) / 100
 
   getAttackTo: (player) ->
     switch
       when 0 == @getHealth() then 0
       when @getLevel() != player.getLevel() then 0
-      when (@id == player.id) and (@getLevel() == "resuscitation") and not @settings.selfDestroyResuscitation() then 0
-      when (@id == player.id) and not @settings.selfDestroyAttack() then 0
+      when (@id == player.id) and (@getLevel() == "resuscitation") and not @_settings.selfDestroyResuscitation() then 0
+      when (@id == player.id) and not @_settings.selfDestroyAttack() then 0
       else @getAttack()
 
   getTreat: (solved) ->
     h = @_rawTreat solved
-    h += ("hospital" == @getLevel()) * (@settings.hospitalPlus10()) * 10
-    h = getValScope h, [(if @settings.selfDestroyTreat() then -Infinity else 0),
+    h += ("hospital" == @getLevel()) * (@_settings.hospitalPlus10()) * 10
+    h = getValScope h, [(if @_settings.selfDestroyTreat() then -Infinity else 0),
                         1 - @getHealth()]
 
   treat: (solved) ->

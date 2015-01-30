@@ -33,10 +33,10 @@
   ];
 
   Player = (function() {
-    function Player(_at_id, _at_name, _at_settings) {
+    function Player(_at_id, _at_name, _at__settings) {
       this.id = _at_id;
       this.name = _at_name;
-      this.settings = _at_settings;
+      this._settings = _at__settings;
       this.setHealth(1);
       this.solved = this.unsolved = this.treatment = this.penalties = 0;
     }
@@ -50,7 +50,7 @@
     };
 
     Player.prototype.incTreatment = function() {
-      if ((this.settings.nullTreatIfTreatResuscitation()) && (this.getLevel() === "resuscitation")) {
+      if ((this._settings.nullTreatIfTreatResuscitation()) && (this.getLevel() === "resuscitation")) {
         return this.treatment = 0;
       } else {
         return this.treatment += 1;
@@ -79,11 +79,11 @@
     };
 
     Player.prototype.getAttackWithoutTreat = function() {
-      return (getValScope(this._rawAttack() + 3 * this.treatment, [0, this.settings.maxAttack()])) / 100;
+      return (getValScope(this._rawAttack() + 3 * this.treatment, [0, this._settings.maxAttack()])) / 100;
     };
 
     Player.prototype.getAttack = function() {
-      return (getValScope(this._rawAttack(), [0, this.settings.maxAttack()])) / 100;
+      return (getValScope(this._rawAttack(), [0, this._settings.maxAttack()])) / 100;
     };
 
     Player.prototype.getAttackTo = function(player) {
@@ -92,9 +92,9 @@
           return 0;
         case this.getLevel() === player.getLevel():
           return 0;
-        case !((this.id === player.id) && (this.getLevel() === "resuscitation") && !this.settings.selfDestroyResuscitation()):
+        case !((this.id === player.id) && (this.getLevel() === "resuscitation") && !this._settings.selfDestroyResuscitation()):
           return 0;
-        case !((this.id === player.id) && !this.settings.selfDestroyAttack()):
+        case !((this.id === player.id) && !this._settings.selfDestroyAttack()):
           return 0;
         default:
           return this.getAttack();
@@ -104,8 +104,8 @@
     Player.prototype.getTreat = function(solved) {
       var h;
       h = this._rawTreat(solved);
-      h += ("hospital" === this.getLevel()) * (this.settings.hospitalPlus10()) * 10;
-      return h = getValScope(h, [(this.settings.selfDestroyTreat() ? -Infinity : 0), 1 - this.getHealth()]);
+      h += ("hospital" === this.getLevel()) * (this._settings.hospitalPlus10()) * 10;
+      return h = getValScope(h, [(this._settings.selfDestroyTreat() ? -Infinity : 0), 1 - this.getHealth()]);
     };
 
     Player.prototype.treat = function(solved) {

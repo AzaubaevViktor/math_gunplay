@@ -1,6 +1,7 @@
 Player = Model.Player
 Statistic = Model.Statistic
 Snapshot = Model.Snapshot
+Saves = Model.Saves
 
 class _Model
 
@@ -20,6 +21,12 @@ class _Model
 
     @snapshots = new Snapshot(structure_snapshot)
 
+    structure_save =
+      model:
+        obj: this
+        fields: ['players', 'statistic', 'isGame']
+
+    @saves = new Saves(structure_save)
 
     (undefined)
 
@@ -30,6 +37,15 @@ class _Model
     @players.length += 1
 
     (undefined)
+
+  save: () ->
+    @saves.new()
+
+  load: (id) ->
+    @saves.load(id)
+
+  savesList: ->
+    @saves.getList()
 
   startGame: ->
 #   Запускаем сбор сттистики
