@@ -1,11 +1,17 @@
+storage = Tools.storage
+JSONify = Tools.JSONify
 Player = Model.Player
 Statistic = Model.Statistic
 Snapshot = Model.Snapshot
 Saves = Model.Saves
 
-class _Model
+class _Model extends JSONify
 
   constructor: (@settings) ->
+    @className = "_Model"
+    @JSONProperties = ["players", "statistic", "isGame"]
+    @register _Model
+
     @isDay = 0
     @isGame = 0
     @time = 0
@@ -13,24 +19,15 @@ class _Model
     @players = "length": 0
 
     @statistic = new Statistic(@players)
-
-    structure_snapshot =
-      model:
-        obj: this
-        fields: ['players', 'statistic']
-
-    @snapshots = new Snapshot(structure_snapshot)
-
-    structure_save =
-      model:
-        obj: this
-        fields: ['players', 'statistic', 'isGame']
-
-    @saves = new Saves(structure_save)
+    @snapshots = new Snapshot(this)
+    @saves = new Saves(this)
 
     (undefined)
 
   addPlayer: (name) ->
+#    Добавляет игрока в игру
+    if @isGame then throw "Нельзя добавлять игроков во время игры"
+
     id = @players.length
 
     @players[id] = new Player(id, name, @settings)
@@ -38,13 +35,18 @@ class _Model
 
     (undefined)
 
-  save: () ->
+  save: ->
+#    Создаёт сохранение
     @saves.new()
 
+
   load: (id) ->
-    @saves.load(id)
+#    Загружает сохранение
+    @saves.load id
+
 
   savesList: ->
+#    Список сохранений
     @saves.getList()
 
   startGame: ->
@@ -56,9 +58,11 @@ class _Model
         @snapshots.add()
 
   undo: ->
+#    На шаг назад
     @snapshots.undo()
 
   redo: ->
+#    На шаг вперёд
     @snapshots.redo()
 
   # Day/Night

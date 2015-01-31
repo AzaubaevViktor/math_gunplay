@@ -8,39 +8,39 @@ window.Tools._JSONify_classes = {}
 isSerializable = (obj) ->
   obj.serialize?
 
-serialize2object = (obj) ->
+_serializeToObject = (obj) ->
   if isSerializable(obj)
-    obj._serialize()
+    obj.serializeToObject()
   else if typeof obj == "object"
     res = new Object()
     for k, v of obj
-      res[k] = switch isSerializable(v)
-        when true  then v._serialize()
-        when false then serialize2object(v)
+      res[k] = switch isSerializable v
+        when true  then v.serializeToObject()
+        when false then _serializeToObject v
     res
   else
     obj
 
 serialize = (obj) ->
-  console.info(obj)
-  JSON.stringify serialize2object obj
+  console.info obj
+  JSON.stringify _serializeToObject obj
 
-deserializeFromObject = (datas) ->
-  obj = null
-  if datas._className? and datas._data?
-    obj = new window.Tools._JSONify_classes[datas._className]
-    obj._deserialize(datas)
-  else if typeof datas == "object"
-    obj = new Object()
-    for k, v of datas
-      obj[k] = deserializeFromObject(v)
+_deserializeFromObject = (obj) ->
+  res = null
+  if obj._className? and obj._data?
+    res = new window.Tools._JSONify_classes[obj._className]
+    res.deserializeFromObject obj
+  else if typeof obj == "object"
+    res = new Object()
+    for k, v of obj
+      res[k] = _deserializeFromObject v
   else
-    obj = datas
+    res = obj
 
-  obj
+  res
 
 deserialize = (jsonString) ->
-  deserializeFromObject JSON.parse jsonString
+  _deserializeFromObject JSON.parse jsonString
 
 
 class JSONify
@@ -51,31 +51,34 @@ class JSONify
   register: (_class) ->
     window.Tools._JSONify_classes[@className] = _class
 
-  _serialize: ->
-    res = new Object()
-    res._className = @className
-    res._data = {}
+  serializeToObject: ->
+    obj = new Object()
+    obj._className = @className
+    obj._data = {}
     for prop in @JSONProperties
-      res._data[prop] = serialize2object(this[prop])
+      obj._data[prop] = _serializeToObject this[prop]
 
-    res
+    obj
 
   serialize: ->
-    JSON.stringify @_serialize()
+    JSON.stringify @serializeToObject()
 
-  _deserialize: (datas) ->
-    if datas._className? and datas._data?
+  deserializeFromObject: (obj) ->
+    if obj._className? and obj._data?
       for prop in @JSONProperties
-        this[prop] = deserializeFromObject(datas._data[prop])
+        if isSerializable(this[prop])
+          this[prop].deserializeFromObject obj._data[prop]
+        else
+          this[prop] = _deserializeFromObject obj._data[prop]
     else
-      throw "#{datas} is not serialized #{@className}"
+      throw "#{obj} is not serialized #{@className}"
     undefined
 
   deserialize: (jsonString) ->
-    @_deserialize JSON.parse jsonString
+    @deserializeFromObject JSON.parse jsonString
 
-window.Tools.serialize2object = serialize2object
-window.Tools.deserializeFromObject = deserializeFromObject
+window.Tools.serializeToobject = _serializeToObject
+window.Tools.deserializeFromObject = _deserializeFromObject
 window.Tools.serialize = serialize
 window.Tools.deserialize = deserialize
 window.Tools.JSONify = JSONify

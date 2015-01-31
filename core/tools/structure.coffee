@@ -10,7 +10,7 @@
 # каждое поле должно быть сложным объектом, дабы была возможность отслеживать его изменения
 
 deepCopy = Tools.deepCopy
-serialize2object = Tools.serialize2object
+serializeToObject = Tools.serializeToobject
 deserializeFromObject = Tools.deserializeFromObject
 
 saveByStructure = (structure) ->
@@ -19,7 +19,7 @@ saveByStructure = (structure) ->
   for objectName, element of structure
     for objectField in element.fields
       backup[objectName] = {} if not backup[objectName]?
-      backup[objectName][objectField] = serialize2object element.obj[objectField]
+      backup[objectName][objectField] = serializeToObject element.obj[objectField]
 
   backup
 

@@ -9,8 +9,8 @@
   getValScope = Tools.getValScope;
 
   Snapshot = (function() {
-    function Snapshot(_at_structure) {
-      this.structure = _at_structure;
+    function Snapshot(_at_obj) {
+      this.obj = _at_obj;
       this.datas = [];
       this.current = -1;
       this.add();
@@ -19,7 +19,7 @@
 
     Snapshot.prototype.add = function() {
       this.datas = this.datas.slice(0, this.current + 1);
-      this.datas.push(saveByStructure(this.structure));
+      this.datas.push(this.obj.serializeToObject());
       return this.current += 1;
     };
 
@@ -35,8 +35,8 @@
         id = this.current - 1;
       }
       this.current = getValScope(id, [0, this.data.length]);
-      loadByStructure(this.structure, this.datas[this.current]);
-      return void 0;
+      this.obj.deserializeFromObject(this.datas[this.current]);
+      return this.current;
     };
 
     Snapshot.prototype.undo = function() {
@@ -45,7 +45,7 @@
 
     Snapshot.prototype.redo = function() {
       this.current = getValScope(this.current + 1, [0, this.data.length]);
-      return loadByStructure(this.structure, this.datas[this.current]);
+      return _load(this.current);
     };
 
     return Snapshot;

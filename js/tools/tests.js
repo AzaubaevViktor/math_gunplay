@@ -22,6 +22,10 @@
 
   _TEST = function(variables, values, func) {
     var i, v, _i, _len, _results;
+    if (variables === void 0 || variables === null || variables === NaN) {
+      console.error("Bad value: " + variables);
+      return;
+    }
     if (typeof variables === "object") {
       _results = [];
       for (i = _i = 0, _len = variables.length; _i < _len; i = ++_i) {
@@ -52,6 +56,12 @@
 
   TEST_NEQ([1, 1, 2, 3], [2, 3, 2, 3]);
 
+  TEST_EQ(void 0, 1);
+
+  TEST_EQ(null, 1);
+
+  TEST_EQ(NaN, 1);
+
   console.groupEnd();
 
   JSONify = Tools.JSONify;
@@ -59,8 +69,8 @@
   JA = (function(_super) {
     __extends(JA, _super);
 
-    function JA() {
-      this.a = [1, 2, 3];
+    function JA(_at_a) {
+      this.a = _at_a;
       this.b = {
         a: 2,
         b: 4
@@ -83,7 +93,7 @@
 
     function JB() {
       this.x = [1, 2, 3];
-      this.y = new JA();
+      this.y = new JA([1, 2, 3]);
       this.z = true;
       this.a = {
         1: 'a',
@@ -102,7 +112,7 @@
 
   })(JSONify);
 
-  ja1 = new JA();
+  ja1 = new JA([1, 2, 3]);
 
   ja1.a = [2, 3, 1];
 
@@ -110,7 +120,7 @@
 
   serialized = ja1.serialize();
 
-  ja2 = new JA();
+  ja2 = new JA([1, 2, 3]);
 
   ja2.deserialize(serialized);
 
@@ -118,7 +128,7 @@
 
   TEST_EQ(ja2.b.a, ja2.test());
 
-  jb1 = new JB;
+  jb1 = new JB();
 
   jb1.y.b.c = -1234;
 
@@ -129,6 +139,8 @@
   jb2 = new JB();
 
   jb2.deserialize(serialized);
+
+  TEST_EQ(jb2.y.a, [1, 2, 3]);
 
   TEST_EQ(jb2.y.b.c, -1234);
 
@@ -212,7 +224,7 @@
 
   f = function() {
     console.group("Statistic Test");
-    TEST_NEQ(model.statistic.stats.all_treat.value, 0);
+    TEST_NEQ(model.statistic.stats.all_treat, 0);
     return console.groupEnd();
   };
 

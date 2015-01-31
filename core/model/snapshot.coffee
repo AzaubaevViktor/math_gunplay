@@ -5,7 +5,7 @@ loadByStructure = Tools.loadByStructure
 getValScope = Tools.getValScope
 
 class Snapshot
-  constructor: (@structure) ->
+  constructor: (@obj) ->
     @datas = []
     @current = -1
     @add()
@@ -15,7 +15,7 @@ class Snapshot
   add: ->
     @datas = @datas.slice 0, @current + 1
 
-    @datas.push saveByStructure @structure
+    @datas.push @obj.serializeToObject()
 
     @current += 1
 
@@ -28,16 +28,16 @@ class Snapshot
 
   _load: (id = @current - 1) ->
     @current = getValScope id, [0, @data.length]
-    loadByStructure @structure, @datas[@current]
+    @obj.deserializeFromObject @datas[@current]
 
-    undefined
+    @current
 
   undo: ->
     @_load()
 
   redo: ->
     @current = getValScope @current + 1, [0, @data.length]
-    loadByStructure @structure, @datas[@current]
+    _load @current
 
 
 window.Model.Snapshot = Snapshot

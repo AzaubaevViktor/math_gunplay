@@ -9,8 +9,8 @@
   storage = Tools.storage;
 
   Saves = (function() {
-    function Saves(_at_structure) {
-      this.structure = _at_structure;
+    function Saves(_at_obj) {
+      this.obj = _at_obj;
       this.protocolVersion = 1;
       this.saves = storage.load('saves');
       if (this.saves == null) {
@@ -32,7 +32,7 @@
       }
       this.saves.ids[id] = "" + now;
       this._save();
-      this._save(id, saveByStructure(this.structure, true));
+      this._save(id);
       return ["" + now, id];
     };
 
@@ -45,25 +45,22 @@
     Saves.prototype.load = function(id) {
       var rawData;
       rawData = storage.load("save" + id);
-      return loadByStructure(this.structure, rawData);
+      return this.obj.deserialize(rawData);
     };
 
     Saves.prototype.getList = function() {
       return this.saves.ids;
     };
 
-    Saves.prototype._save = function(id, data) {
+    Saves.prototype._save = function(id) {
       if (id == null) {
         id = -1;
-      }
-      if (data == null) {
-        data = void 0;
       }
       switch (id) {
         case -1:
           return storage.save('saves', this.saves);
         default:
-          return storage.save("save" + id, data);
+          return storage.save("save" + id, this.obj.serialize());
       }
     };
 

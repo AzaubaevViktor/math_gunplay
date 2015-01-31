@@ -5,7 +5,7 @@ loadByStructure = Tools.loadByStructure
 storage = Tools.storage
 
 class Saves
-  constructor: (@structure) ->
+  constructor: (@obj) ->
     @protocolVersion = 1
     @saves = storage.load 'saves'
     @saves = {ids: {}} if not @saves?
@@ -20,7 +20,7 @@ class Saves
 
     @saves.ids[id] = "#{now}"
     @_save()
-    @_save(id, saveByStructure(@structure, true))
+    @_save id
     ["#{now}", id]
 
   delete: (id) ->
@@ -30,15 +30,15 @@ class Saves
 
   load: (id) ->
     rawData =  storage.load "save#{id}"
-    loadByStructure(@structure, rawData)
+    @obj.deserialize rawData
 
   getList: ->
     @saves.ids
 
-  _save: (id = -1, data = undefined ) ->
+  _save: (id = -1) ->
     switch id
       when -1 then storage.save 'saves', @saves
-      else storage.save "save#{id}", data
+      else storage.save "save#{id}", @obj.serialize()
 
   _setDefault: ->
     delete @saves
