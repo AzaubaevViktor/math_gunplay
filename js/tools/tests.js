@@ -65,7 +65,8 @@
         this.a = _at_a;
         this.b = {
           a: 2,
-          b: 4
+          b: 4,
+          c: void 0
         };
         this.className = "JA";
         this.JSONProperties = ["b"];
@@ -86,6 +87,7 @@
         this.x = [1, 2, 3];
         this.y = new JA([1, 2, 3]);
         this.z = true;
+        this.undef = void 0;
         this.a = {
           1: 'a',
           12: {
@@ -95,7 +97,7 @@
           }
         };
         this.className = "JB";
-        this.JSONProperties = ["y", "a"];
+        this.JSONProperties = ["undef", "y", "a"];
         this.register(JB);
       }
 

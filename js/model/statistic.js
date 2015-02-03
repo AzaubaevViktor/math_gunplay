@@ -47,24 +47,25 @@
           player = _ref[id];
           if ("length" !== id) {
             player.eventBind(["attack"], (function(_this) {
-              return function(playerFrom, playerTo, value) {
+              return function(playerFrom, playerTo, value, type) {
                 return _this.stats.all_damage += value;
               };
             })(this));
             player.eventBind(["solveChanged"], (function(_this) {
-              return function(pF, pT, value) {
+              return function(pF, pT, value, type) {
+                console.log("hi " + value);
                 _this.solved += value;
                 return _this._solved_update();
               };
             })(this));
             player.eventBind(["unsolveChanged"], (function(_this) {
-              return function(pF, pT, value) {
+              return function(pF, pT, value, type) {
                 _this.unsolved += value;
                 return _this._solved_update();
               };
             })(this));
             _results.push(player.eventBind(["treat"], (function(_this) {
-              return function(pF, pT, value) {
+              return function(pF, pT, value, type) {
                 return _this.stats.all_treat += value;
               };
             })(this)));

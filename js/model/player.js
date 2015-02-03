@@ -170,8 +170,11 @@
         return this.metaEvents["all"] = ["attacked"].concat(this.metaEvents["smthChanged"]).concat(this.metaEvents["situations"]);
       };
 
-      Player.prototype._eventGenerate = function(eventName, playerTo, value) {
+      Player.prototype._eventGenerate = function(eventName, playerTo, value, parentEventName) {
         var callback, eventList, metaEventName, _, _ref, _ref1;
+        if (parentEventName == null) {
+          parentEventName = void 0;
+        }
         if (EVENTS_DEBUG) {
           console.group("`" + eventName + "` generate");
         }
@@ -188,15 +191,17 @@
             if (EVENTS_DEBUG) {
               console.info(this + " -->(" + value + ") " + playerTo);
             }
-            callback(this, playerTo, value);
+            callback(this, playerTo, value, parentEventName != null ? parentEventName : eventName);
             _ref1 = this.metaEvents;
             for (metaEventName in _ref1) {
               eventList = _ref1[metaEventName];
               if (EVENTS_DEBUG) {
-                console.info("Meta event `" + metaEventName + "` generate");
+                if (__indexOf.call(eventList, eventName) >= 0) {
+                  console.info("Meta event `" + metaEventName + "` generate");
+                }
               }
               if (__indexOf.call(eventList, eventName) >= 0) {
-                this._eventGenerate(metaEventName, playerTo, value);
+                this._eventGenerate(metaEventName, playerTo, value, eventName);
               }
             }
           }

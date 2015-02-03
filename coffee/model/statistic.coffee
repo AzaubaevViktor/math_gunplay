@@ -35,18 +35,19 @@ define ["tools/tools", "tools/jsonify"], (Tools, JSONify) ->
             for id, player of @_players
                 if "length" != id
 
-                    player.eventBind ["attack"], (playerFrom, playerTo, value) =>
+                    player.eventBind ["attack"], (playerFrom, playerTo, value, type) =>
                         @stats.all_damage += value
 
-                    player.eventBind ["solveChanged"], (pF, pT, value) =>
+                    player.eventBind ["solveChanged"], (pF, pT, value, type) =>
+                        console.log "hi #{value}"
                         @solved += value
                         @_solved_update()
 
-                    player.eventBind ["unsolveChanged"], (pF, pT, value) =>
+                    player.eventBind ["unsolveChanged"], (pF, pT, value, type) =>
                         @unsolved += value
                         @_solved_update()
 
-                    player.eventBind ["treat"], (pF, pT, value) =>
+                    player.eventBind ["treat"], (pF, pT, value, type) =>
                         @stats.all_treat += value
 
     return Statistic

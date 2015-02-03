@@ -4,7 +4,7 @@
     var JSONify, deserialize, isSerializable, serialize, _deserializeFromObject, _serializeToObject;
     window._JSONify_classes = {};
     isSerializable = function(obj) {
-      return obj.serialize != null;
+      return (obj != null) && (obj.serialize != null);
     };
     _serializeToObject = function(obj) {
       var k, res, v;
@@ -35,6 +35,9 @@
     _deserializeFromObject = function(obj) {
       var k, res, v;
       res = null;
+      if (obj == null) {
+        return void 0;
+      }
       if ((obj._className != null) && (obj._data != null)) {
         res = new window._JSONify_classes[obj._className];
         res.deserializeFromObject(obj);

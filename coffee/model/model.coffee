@@ -3,13 +3,13 @@ define ["tools/storage",
         "model/player",
         "model/statistic",
         "model/snapshot",
-        "model/saves"], (storage, JSONify, Player, Statistic, Snapshot, Saves) ->
+        "model/saves",
+        "model/history"], (storage, JSONify, Player, Statistic, Snapshot, Saves, History) ->
 
     class Model extends JSONify.JSONify
-
         constructor: (@settings) ->
             @className = "Model"
-            @JSONProperties = ["players", "statistic", "isGame"]
+            @JSONProperties = ["players", "statistic", "isGame", "history"]
             @register Model
 
             @isDay = 0
@@ -19,6 +19,7 @@ define ["tools/storage",
             @players = "length": 0
 
             @statistic = new Statistic(@players)
+            @history = new History(@players)
             @snapshots = new Snapshot(this)
             @saves = new Saves(this)
 
@@ -57,6 +58,7 @@ define ["tools/storage",
 
     #         Запускаем сбор сттистики
             @statistic.binds()
+            @history.binds()
 
         undo: ->
     #        На шаг назад

@@ -48,7 +48,7 @@ require ['tools/jsonify', 'model/settings', 'Model'], (JSONify, Settings, Model)
 
     class JA extends JSONify.JSONify
         constructor: (@a) ->
-            @b = {a:2, b:4}
+            @b = {a:2, b:4, c: undefined}
             @className = "JA"
             @JSONProperties = ["b"]
             @register JA
@@ -60,6 +60,7 @@ require ['tools/jsonify', 'model/settings', 'Model'], (JSONify, Settings, Model)
             @x = [1,2,3]
             @y = new JA([1,2,3])
             @z = true
+            @undef = undefined
             @a =
                 1:'a',
                 12:
@@ -67,7 +68,7 @@ require ['tools/jsonify', 'model/settings', 'Model'], (JSONify, Settings, Model)
                         1:22
 
             @className = "JB"
-            @JSONProperties = ["y", "a"]
+            @JSONProperties = ["undef", "y", "a"]
             @register JB
 
     ja1 = new JA([1,2,3])

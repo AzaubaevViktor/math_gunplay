@@ -3,7 +3,7 @@
   var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __hasProp = {}.hasOwnProperty;
 
-  define(["tools/storage", "tools/jsonify", "model/player", "model/statistic", "model/snapshot", "model/saves"], function(storage, JSONify, Player, Statistic, Snapshot, Saves) {
+  define(["tools/storage", "tools/jsonify", "model/player", "model/statistic", "model/snapshot", "model/saves", "model/history"], function(storage, JSONify, Player, Statistic, Snapshot, Saves, History) {
     var Model;
     Model = (function(_super) {
       __extends(Model, _super);
@@ -11,7 +11,7 @@
       function Model(_at_settings) {
         this.settings = _at_settings;
         this.className = "Model";
-        this.JSONProperties = ["players", "statistic", "isGame"];
+        this.JSONProperties = ["players", "statistic", "isGame", "history"];
         this.register(Model);
         this.isDay = 0;
         this.isGame = 0;
@@ -21,6 +21,7 @@
           "length": 0
         };
         this.statistic = new Statistic(this.players);
+        this.history = new History(this.players);
         this.snapshots = new Snapshot(this);
         this.saves = new Saves(this);
         void 0;
@@ -60,7 +61,8 @@
             };
           })(this));
         }
-        return this.statistic.binds();
+        this.statistic.binds();
+        return this.history.binds();
       };
 
       Model.prototype.undo = function() {

@@ -8,7 +8,7 @@ define () ->
     window._JSONify_classes = {}
 
     isSerializable = (obj) ->
-        obj.serialize?
+        obj? and obj.serialize?
 
     _serializeToObject = (obj) ->
         if isSerializable(obj)
@@ -29,6 +29,7 @@ define () ->
 
     _deserializeFromObject = (obj) ->
         res = null
+        return undefined if not obj?
         if obj._className? and obj._data?
             res = new window._JSONify_classes[obj._className]
             res.deserializeFromObject obj
