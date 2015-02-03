@@ -1,53 +1,52 @@
 # Сохранения в игре
 
-saveByStructure = Tools.saveByStructure
-loadByStructure = Tools.loadByStructure
-storage = Tools.storage
 
-class Saves
-    constructor: (@obj) ->
-        @protocolVersion = 1
-        @saves = storage.load 'saves'
-        @saves = {ids: {}} if not @saves?
-        @_setDefault() if @saves? and @saves.version isnt @protocolVersion
+define ["tools/storage"], (storage) ->
 
-    new: ->
-        now = (new Date).toLocaleString()
+    class Saves
+        constructor: (@obj) ->
+            @protocolVersion = 1
+            @saves = storage.load 'saves'
+            @saves = {ids: {}} if not @saves?
+            @_setDefault() if @saves? and @saves.version isnt @protocolVersion
 
-        id = 1488
-        while @saves.ids[id]?
-            id = Math.floor(Math.random() * 100000000000000000)
+        new: ->
+            now = (new Date).toLocaleString()
 
-        @saves.ids[id] = "#{now}"
-        @_save()
-        @_save id
-        ["#{now}", id]
+            id = 1488
+            while @saves.ids[id]?
+                id = Math.floor(Math.random() * 100000000000000000)
 
-    delete: (id) ->
-        delete @saves.ids[id]
-        @_save()
-        storage.delete("save#{id}")
+            @saves.ids[id] = "#{now}"
+            @_save()
+            @_save id
+            ["#{now}", id]
 
-    load: (id) ->
-        rawData = storage.load "save#{id}"
-        @obj.deserialize rawData
+        delete: (id) ->
+            delete @saves.ids[id]
+            @_save()
+            storage.delete("save#{id}")
 
-    getList: ->
-        @saves.ids
+        load: (id) ->
+            rawData = storage.load "save#{id}"
+            @obj.deserialize rawData
 
-    _save: (id = -1) ->
-        switch id
-            when -1 then storage.save 'saves', @saves
-            else storage.save "save#{id}", @obj.serialize()
+        getList: ->
+            @saves.ids
 
-    _setDefault: ->
-        delete @saves
-        @saves = {}
-        @saves =
-            version: @protocolVersion
-            ids: {}
+        _save: (id = -1) ->
+            switch id
+                when -1 then storage.save 'saves', @saves
+                else storage.save "save#{id}", @obj.serialize()
 
-        @_save()
+        _setDefault: ->
+            delete @saves
+            @saves = {}
+            @saves =
+                version: @protocolVersion
+                ids: {}
+
+            @_save()
 
 
-window.Model.Saves = Saves
+    return Saves

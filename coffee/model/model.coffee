@@ -1,101 +1,100 @@
-storage = Tools.storage
-JSONify = Tools.JSONify
-Player = Model.Player
-Statistic = Model.Statistic
-Snapshot = Model.Snapshot
-Saves = Model.Saves
+define ["tools/storage",
+        "tools/jsonify",
+        "model/player",
+        "model/statistic",
+        "model/snapshot",
+        "model/saves"], (storage, JSONify, Player, Statistic, Snapshot, Saves) ->
 
-class _Model extends JSONify
+    class Model extends JSONify.JSONify
 
-    constructor: (@settings) ->
-        @className = "_Model"
-        @JSONProperties = ["players", "statistic", "isGame"]
-        @register _Model
+        constructor: (@settings) ->
+            @className = "Model"
+            @JSONProperties = ["players", "statistic", "isGame"]
+            @register Model
 
-        @isDay = 0
-        @isGame = 0
-        @time = 0
-        @timer = undefined
-        @players = "length": 0
+            @isDay = 0
+            @isGame = 0
+            @time = 0
+            @timer = undefined
+            @players = "length": 0
 
-        @statistic = new Statistic(@players)
-        @snapshots = new Snapshot(this)
-        @saves = new Saves(this)
+            @statistic = new Statistic(@players)
+            @snapshots = new Snapshot(this)
+            @saves = new Saves(this)
 
-        (undefined)
+            (undefined)
 
-    addPlayer: (name) ->
-#        Добавляет игрока в игру
-        if @isGame then throw "Нельзя добавлять игроков во время игры"
+        addPlayer: (name) ->
+    #        Добавляет игрока в игру
+            if @isGame then throw "Нельзя добавлять игроков во время игры"
 
-        id = @players.length
+            id = @players.length
 
-        @players[id] = new Player(id, name, @settings)
-        @players.length += 1
+            @players[id] = new Player(id, name, @settings)
+            @players.length += 1
 
-        (undefined)
+            (undefined)
 
-    save: ->
-#        Создаёт сохранение
-        @saves.new()
-
-
-    load: (id) ->
-#        Загружает сохранение
-        @saves.load id
+        save: ->
+    #        Создаёт сохранение
+            @saves.new()
 
 
-    savesList: ->
-#        Список сохранений
-        @saves.getList()
+        load: (id) ->
+    #        Загружает сохранение
+            @saves.load id
 
-    startGame: ->
-#         Запускаем снапшоты
-        for player in @players
-            player.eventBind ["all"], (pF, pT, v) =>
-                @snapshots.add()
 
-#         Запускаем сбор сттистики
-        @statistic.binds()
+        savesList: ->
+    #        Список сохранений
+            @saves.getList()
 
-    undo: ->
-#        На шаг назад
-        @snapshots.undo()
+        startGame: ->
+    #         Запускаем снапшоты
+            for player in @players
+                player.eventBind ["all"], (pF, pT, v) =>
+                    @snapshots.add()
 
-    redo: ->
-#        На шаг вперёд
-        @snapshots.redo()
+    #         Запускаем сбор сттистики
+            @statistic.binds()
 
-    # Day/Night
+        undo: ->
+    #        На шаг назад
+            @snapshots.undo()
 
-    setDayTimer: () ->
-        @time = @settings.stTime * 60
+        redo: ->
+    #        На шаг вперёд
+            @snapshots.redo()
 
-        @timer = setInterval =>
-            @time -= 1
-            if @time <= 0
-                @changeDayNight()
-            else
+        # Day/Night
+
+        setDayTimer: () ->
+            @time = @settings.stTime * 60
+
+            @timer = setInterval =>
+                @time -= 1
+                if @time <= 0
+                    @changeDayNight()
+                else
+                    undefined
                 undefined
-            undefined
-        , 1000
-        (undefined)
+            , 1000
+            (undefined)
 
-    changeDayNight: ->
-        clearInterval @timer
+        changeDayNight: ->
+            clearInterval @timer
 
-        if not @isGame
-            @isGame = 1
-            @isDay = 1
-        else
-            @isDay = not @isDay
+            if not @isGame
+                @isGame = 1
+                @isDay = 1
+            else
+                @isDay = not @isDay
 
-        if @isDay
-            @setDayTimer()
+            if @isDay
+                @setDayTimer()
 
-        @snapshots.clear()
-        (undefined)
-
+            @snapshots.clear()
+            (undefined)
 
 
-window.Model.Model = _Model
+    return Model

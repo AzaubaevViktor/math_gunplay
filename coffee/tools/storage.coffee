@@ -1,6 +1,6 @@
 # Работа с хранилищем строковых данных
 
-storage =
+define
     save: (key, val) ->
         localStorage.setItem key, JSON.stringify val
         key
@@ -11,5 +11,3 @@ storage =
     delete: (key) ->
         localStorage.removeItem(key)
         key
-
-window.Tools.storage = storage
