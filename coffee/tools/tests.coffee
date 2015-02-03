@@ -122,6 +122,7 @@ require ['tools/jsonify', 'model/settings', 'Model'], (JSONify, Settings, Model)
     model.players[1].treat(3)
     hn = model.players[1].health
     TEST_NEQ(ho - hn, 0)
+    model.players[2].miss()
 
     console.groupEnd()
 
@@ -130,8 +131,8 @@ require ['tools/jsonify', 'model/settings', 'Model'], (JSONify, Settings, Model)
     console.group "Statistic And events Test"
     TEST_NEQ(model.statistic.stats.all_treat, 0)
     TEST_NEQ(model.statistic.stats.all_damage, 0)
-    TEST_EQ(model.statistic.stats.all_tasks, 4)
-    TEST_EQ(model.statistic.stats.solve_percent, 1)
+    TEST_EQ(model.statistic.stats.all_tasks, 5)
+    TEST_EQ(model.statistic.stats.solve_percent, 4/5)
     console.groupEnd()
 
     # ============================================
