@@ -116,7 +116,11 @@ define ["tools/tools", "tools/jsonify", "model/settings"], (Tools, JSONify, Sett
             inc = @getTreat solved
             @setHealth @getHealth() + inc
             @incTreatment()
+            @solve += solved
+            @unsolved += 3 - solved
             @_eventGenerate("treat", undefined, inc)
+            @_eventGenerate("solveChanged", undefined , solved)
+            @_eventGenerate("unsolveChanged", undefined , 3 - solved)
 
         penalty: () ->
             @penalty = getValScope @penalties += 1, [0, penalties_list.lenght() - 1]
@@ -135,15 +139,17 @@ define ["tools/tools", "tools/jsonify", "model/settings"], (Tools, JSONify, Sett
             @metaEvents["all"] = ["attacked"].concat(@metaEvents["smthChanged"]).concat(@metaEvents["situations"])
 
         _eventGenerate: (eventName, playerTo, value) ->
-            console.group "#{eventName} generate" if EVENTS_DEBUG
+            console.group "`#{eventName}` generate" if EVENTS_DEBUG
             if @callbacks[eventName]?
                 console.info "Callbacks exist" if EVENTS_DEBUG
                 for _, callback of @callbacks[eventName]
                     console.info "Callback id: #{_}" if EVENTS_DEBUG
+                    console.info "#{this} -->(#{value}) #{playerTo}" if EVENTS_DEBUG
                     callback(this, playerTo, value)
                     for metaEventName, eventList of @metaEvents
-                        console.info("Meta event #{metaEventName} generate") if eventName in eventList if EVENTS_DEBUG
-                        callback(this, playerTo, value) if eventName in eventList
+                        console.info("Meta event `#{metaEventName}` generate") if EVENTS_DEBUG
+                        @_eventGenerate(metaEventName, playerTo, value) if eventName in eventList
+
             console.groupEnd() if EVENTS_DEBUG
 
         eventBind: (eventsList, callback) ->

@@ -143,7 +143,11 @@
         inc = this.getTreat(solved);
         this.setHealth(this.getHealth() + inc);
         this.incTreatment();
-        return this._eventGenerate("treat", void 0, inc);
+        this.solve += solved;
+        this.unsolved += 3 - solved;
+        this._eventGenerate("treat", void 0, inc);
+        this._eventGenerate("solveChanged", void 0, solved);
+        return this._eventGenerate("unsolveChanged", void 0, 3 - solved);
       };
 
       Player.prototype.penalty = function() {
@@ -169,7 +173,7 @@
       Player.prototype._eventGenerate = function(eventName, playerTo, value) {
         var callback, eventList, metaEventName, _, _ref, _ref1;
         if (EVENTS_DEBUG) {
-          console.group(eventName + " generate");
+          console.group("`" + eventName + "` generate");
         }
         if (this.callbacks[eventName] != null) {
           if (EVENTS_DEBUG) {
@@ -181,17 +185,18 @@
             if (EVENTS_DEBUG) {
               console.info("Callback id: " + _);
             }
+            if (EVENTS_DEBUG) {
+              console.info(this + " -->(" + value + ") " + playerTo);
+            }
             callback(this, playerTo, value);
             _ref1 = this.metaEvents;
             for (metaEventName in _ref1) {
               eventList = _ref1[metaEventName];
               if (EVENTS_DEBUG) {
-                if (__indexOf.call(eventList, eventName) >= 0) {
-                  console.info("Meta event " + metaEventName + " generate");
-                }
+                console.info("Meta event `" + metaEventName + "` generate");
               }
               if (__indexOf.call(eventList, eventName) >= 0) {
-                callback(this, playerTo, value);
+                this._eventGenerate(metaEventName, playerTo, value);
               }
             }
           }

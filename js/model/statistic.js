@@ -48,14 +48,18 @@
           if ("length" !== id) {
             player.eventBind(["attack"], (function(_this) {
               return function(playerFrom, playerTo, value) {
-                _this.stats.all_damage += value;
-                _this.solved += 1;
+                return _this.stats.all_damage += value;
+              };
+            })(this));
+            player.eventBind(["solveChanged"], (function(_this) {
+              return function(pF, pT, value) {
+                _this.solved += value;
                 return _this._solved_update();
               };
             })(this));
-            player.eventBind(["miss"], (function(_this) {
+            player.eventBind(["unsolveChanged"], (function(_this) {
               return function(pF, pT, value) {
-                _this.unsolved += 1;
+                _this.unsolved += value;
                 return _this._solved_update();
               };
             })(this));

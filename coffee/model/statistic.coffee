@@ -37,11 +37,13 @@ define ["tools/tools", "tools/jsonify"], (Tools, JSONify) ->
 
                     player.eventBind ["attack"], (playerFrom, playerTo, value) =>
                         @stats.all_damage += value
-                        @solved += 1
+
+                    player.eventBind ["solveChanged"], (pF, pT, value) =>
+                        @solved += value
                         @_solved_update()
 
-                    player.eventBind ["miss"], (pF, pT, value) =>
-                        @unsolved += 1
+                    player.eventBind ["unsolveChanged"], (pF, pT, value) =>
+                        @unsolved += value
                         @_solved_update()
 
                     player.eventBind ["treat"], (pF, pT, value) =>
