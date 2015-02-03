@@ -2,20 +2,20 @@ _EQ = (a, b) -> a == b
 _NEQ = (a,b) -> a != b
 
 _TEST_ONCE = (variable, values, info, func) ->
-  if func variable, values
-  then console.info "OK:#{info}"
-  else console.error "FAIL: `#{variable}` and `#{values}`"
+    if func variable, values
+    then console.info "OK:#{info}"
+    else console.error "FAIL: `#{variable}` and `#{values}`"
 
 _TEST = (variables, values, func) ->
-  if variables is undefined or variables is null or variables is NaN
-    console.error "Bad value: #{variables}"
-    return
+    if variables is undefined or variables is null or variables is NaN
+        console.error "Bad value: #{variables}"
+        return
 
-  if typeof variables == "object"
-    for v, i in variables
-      _TEST_ONCE v, values[i], "#{v}, #{values[i]}", func
-  else
-    _TEST_ONCE variables, values, "#{variables}, #{values}", func
+    if typeof variables == "object"
+        for v, i in variables
+            _TEST_ONCE v, values[i], "#{v}, #{values[i]}", func
+    else
+        _TEST_ONCE variables, values, "#{variables}, #{values}", func
 
 TEST_EQ = (a,b) -> _TEST(a, b, _EQ)
 TEST_NEQ = (a,b) -> _TEST(a, b, _NEQ)
@@ -37,28 +37,28 @@ console.groupEnd()
 JSONify = Tools.JSONify
 
 class JA extends JSONify
-  constructor: (@a) ->
-    @b = {a:2, b:4}
-    @className = "JA"
-    @JSONProperties = ["b"]
-    @register JA
-  test: ->
-    @b.a
+    constructor: (@a) ->
+        @b = {a:2, b:4}
+        @className = "JA"
+        @JSONProperties = ["b"]
+        @register JA
+    test: ->
+        @b.a
 
 class JB extends JSONify
-  constructor: ->
-    @x = [1,2,3]
-    @y = new JA([1,2,3])
-    @z = true
-    @a =
-      1:'a',
-      12:
-        b:
-          1:22
+    constructor: ->
+        @x = [1,2,3]
+        @y = new JA([1,2,3])
+        @z = true
+        @a =
+            1:'a',
+            12:
+                b:
+                    1:22
 
-    @className = "JB"
-    @JSONProperties = ["y", "a"]
-    @register JB
+        @className = "JB"
+        @JSONProperties = ["y", "a"]
+        @register JB
 
 ja1 = new JA([1,2,3])
 ja1.a = [2,3,1]
@@ -100,9 +100,9 @@ Tools.observer.unobserve A, "x"
 f = () -> A.a = B.a = 333
 setTimeout f, 100
 f = () ->
-  console.group "ObserveTest"
-  TEST_EQ([A.counter, B.counter], [1,2])
-  console.groupEnd()
+    console.group "ObserveTest"
+    TEST_EQ([A.counter, B.counter], [1,2])
+    console.groupEnd()
 setTimeout f, 200
 
 # ===========================================

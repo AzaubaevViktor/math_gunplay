@@ -7,94 +7,94 @@ Saves = Model.Saves
 
 class _Model extends JSONify
 
-  constructor: (@settings) ->
-    @className = "_Model"
-    @JSONProperties = ["players", "statistic", "isGame"]
-    @register _Model
+    constructor: (@settings) ->
+        @className = "_Model"
+        @JSONProperties = ["players", "statistic", "isGame"]
+        @register _Model
 
-    @isDay = 0
-    @isGame = 0
-    @time = 0
-    @timer = undefined
-    @players = "length": 0
+        @isDay = 0
+        @isGame = 0
+        @time = 0
+        @timer = undefined
+        @players = "length": 0
 
-    @statistic = new Statistic(@players)
-    @snapshots = new Snapshot(this)
-    @saves = new Saves(this)
+        @statistic = new Statistic(@players)
+        @snapshots = new Snapshot(this)
+        @saves = new Saves(this)
 
-    (undefined)
+        (undefined)
 
-  addPlayer: (name) ->
-#    Добавляет игрока в игру
-    if @isGame then throw "Нельзя добавлять игроков во время игры"
+    addPlayer: (name) ->
+#        Добавляет игрока в игру
+        if @isGame then throw "Нельзя добавлять игроков во время игры"
 
-    id = @players.length
+        id = @players.length
 
-    @players[id] = new Player(id, name, @settings)
-    @players.length += 1
+        @players[id] = new Player(id, name, @settings)
+        @players.length += 1
 
-    (undefined)
+        (undefined)
 
-  save: ->
-#    Создаёт сохранение
-    @saves.new()
-
-
-  load: (id) ->
-#    Загружает сохранение
-    @saves.load id
+    save: ->
+#        Создаёт сохранение
+        @saves.new()
 
 
-  savesList: ->
-#    Список сохранений
-    @saves.getList()
+    load: (id) ->
+#        Загружает сохранение
+        @saves.load id
 
-  startGame: ->
-#     Запускаем снапшоты
-    for player in @players
-      player.eventBind ["all"], (pF, pT, v) =>
-        @snapshots.add()
 
-#     Запускаем сбор сттистики
-    @statistic.binds()
+    savesList: ->
+#        Список сохранений
+        @saves.getList()
 
-  undo: ->
-#    На шаг назад
-    @snapshots.undo()
+    startGame: ->
+#         Запускаем снапшоты
+        for player in @players
+            player.eventBind ["all"], (pF, pT, v) =>
+                @snapshots.add()
 
-  redo: ->
-#    На шаг вперёд
-    @snapshots.redo()
+#         Запускаем сбор сттистики
+        @statistic.binds()
 
-  # Day/Night
+    undo: ->
+#        На шаг назад
+        @snapshots.undo()
 
-  setDayTimer: () ->
-    @time = @settings.stTime * 60
+    redo: ->
+#        На шаг вперёд
+        @snapshots.redo()
 
-    @timer = setInterval =>
-      @time -= 1
-      if @time <= 0
-        @changeDayNight()
-      else
-        undefined
-      undefined
-    , 1000
-    (undefined)
+    # Day/Night
 
-  changeDayNight: ->
-    clearInterval @timer
+    setDayTimer: () ->
+        @time = @settings.stTime * 60
 
-    if not @isGame
-      @isGame = 1
-      @isDay = 1
-    else
-      @isDay = not @isDay
+        @timer = setInterval =>
+            @time -= 1
+            if @time <= 0
+                @changeDayNight()
+            else
+                undefined
+            undefined
+        , 1000
+        (undefined)
 
-    if @isDay
-      @setDayTimer()
+    changeDayNight: ->
+        clearInterval @timer
 
-    @snapshots.clear()
-    (undefined)
+        if not @isGame
+            @isGame = 1
+            @isDay = 1
+        else
+            @isDay = not @isDay
+
+        if @isDay
+            @setDayTimer()
+
+        @snapshots.clear()
+        (undefined)
 
 
 
