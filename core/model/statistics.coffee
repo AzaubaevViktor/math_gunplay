@@ -36,21 +36,17 @@ class Statistic extends JSONify
     for id, player of @_players
       if "length" != id
 
-        player.setWatcher "health", (type, oldValue, newValue) =>
-          dmg = getValScope oldValue - newValue, [0, +Infinity]
-          @stats.all_damage += dmg
-          treat = getValScope newValue - oldValue, [0, +Infinity]
-          @stats.all_treat += treat
+        player.eventBind ["attack"], (playerFrom, playerTo, value) =>
+            @stats.all_damage += value
+            @solved += 1
+            @_solved_update()
 
+        player.eventBind ["miss"], (pF, pT, value) =>
+            @unsolved += 1
+            @_solved_update()
 
-        player.setWatcher "solved", (t, o, n) =>
-          @solved += n - o
-          @_solved_update()
-
-
-        player.setWatcher "unsolved", (t, o ,n) =>
-          @unsolved += n - o
-          @_solved_update()
+        player.eventBind ["treat"], (pF, pT, value) =>
+            @stats.all_treat += value
 
 
 window.Model.Statistic = Statistic

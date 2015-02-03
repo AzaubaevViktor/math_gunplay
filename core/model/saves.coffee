@@ -29,7 +29,7 @@ class Saves
     storage.delete("save#{id}")
 
   load: (id) ->
-    rawData =  storage.load "save#{id}"
+    rawData = storage.load "save#{id}"
     @obj.deserialize rawData
 
   getList: ->

@@ -50,12 +50,13 @@ class _Model extends JSONify
     @saves.getList()
 
   startGame: ->
-#   Запускаем сбор сттистики
-    @statistic.binds()
-#   Запускаем снапшоты
+#     Запускаем снапшоты
     for player in @players
-      player.setWatcher "_all", (t, o, n) =>
+      player.eventBind ["all"], (pF, pT, v) =>
         @snapshots.add()
+
+#     Запускаем сбор сттистики
+    @statistic.binds()
 
   undo: ->
 #    На шаг назад

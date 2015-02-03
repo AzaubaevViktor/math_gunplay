@@ -30,11 +30,11 @@
       _results = [];
       for (i = _i = 0, _len = variables.length; _i < _len; i = ++_i) {
         v = variables[i];
-        _results.push(_TEST_ONCE(v, values[i], i, func));
+        _results.push(_TEST_ONCE(v, values[i], v + ", " + values[i], func));
       }
       return _results;
     } else {
-      return _TEST_ONCE(variables, values, variables, func);
+      return _TEST_ONCE(variables, values, variables + ", " + values, func);
     }
   };
 
@@ -222,13 +222,17 @@
 
   console.groupEnd();
 
-  f = function() {
-    console.group("Statistic Test");
-    TEST_NEQ(model.statistic.stats.all_treat, 0);
-    return console.groupEnd();
-  };
+  console.group("Statistic And events Test");
 
-  setTimeout(f, 100);
+  TEST_NEQ(model.statistic.stats.all_treat, 0);
+
+  TEST_NEQ(model.statistic.stats.all_damage, 0);
+
+  TEST_NEQ(model.statistic.stats.all_tasks, 0);
+
+  TEST_NEQ(model.statistic.stats.solve_percent, 0);
+
+  console.groupEnd();
 
   console.group("Snapshot Test");
 

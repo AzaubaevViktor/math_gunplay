@@ -1,8 +1,10 @@
 # Игрок
 getValScope = Tools.getValScope
-observer = Tools.observer
 JSONify = Tools.JSONify
+remove = Tools.remove
 settingsDesc = Model.settingsDesc
+
+EVENTS_DEBUG = false
 
 levels =
   square: [0.6, 1]
@@ -35,11 +37,12 @@ penalties_list = [
 
 class Player extends JSONify
   constructor: (@id = -1, @name = "ERR", @settings = settingsDesc) ->
+    @_eventInit()
     @setHealth 1
     @solved = @unsolved = @treatment = @penalties = 0
     @className = "Player"
     @JSONProperties = ["id", "name", "health", "solved", "unsolved", "treatment", "penalties"]
-    @register(Player)
+    @register Player
 
   _rawAttack: () ->
     # Функция подсчёта урона
@@ -51,7 +54,10 @@ class Player extends JSONify
     5 * solved + @solved - @unsolved - 3 * @treatment - 5
 
   setHealth: (health) ->
-    @health = getValScope health, [0, 1]
+    _health = getValScope health, [0, 1]
+    diff = _health - @health
+    @health = _health
+    @_eventGenerate("healthChanged", undefined, diff)
 
   getHealth: () ->
     @health
@@ -80,9 +86,13 @@ class Player extends JSONify
     dmg = @getAttackTo player
     player.setHealth player.getHealth() - dmg
     @solved += 1
+    @_eventGenerate("attack", player, dmg)
+    @_eventGenerate("attacked", undefined, dmg)
+    @_eventGenerate("solveChanged", undefined , 1)
 
   miss: () ->
     @unsolved += 1
+    @_eventGenerate("unsolveChanged", undefined , 1)
 
   getTreat: (solved) ->
     h = @_rawTreat solved
@@ -92,28 +102,68 @@ class Player extends JSONify
 
   incTreatment: () ->
     if ((@settings.nullTreatIfTreatResuscitation()) and (@getLevel() == "resuscitation"))
-      @treatment = 0
+      _treatment = -@treatment
     else
-      @treatment += 1
+      _treatment = 1
+
+    @treatment += _treatment
+    @_eventGenerate("treatChanged", undefined, _treatment)
 
   treat: (solved) ->
     inc = @getTreat solved
     @setHealth @getHealth() + inc
     @incTreatment()
+    @_eventGenerate("treat", undefined, inc)
 
   penalty: () ->
     @penalty = getValScope @penalties += 1, [0, penalties_list.lenght() - 1]
+    @_eventGenerate("penalty", undefined, 1)
+    @_eventGenerate("penaltyChanged", undefined, 1)
 
   toString: () ->
     "Player##{@id}♥#{@getHealth()}/#{@solved}:#{@unsolved}"
 
-  setWatcher: (property, callback) ->
-    if "_all" == property
-      for prop in ["solved", "unsolved", "penalties", "treatment"]
-#        health убрал отсюда из-за того, что когда 1 стреляет в 2, у 1 меняется solved, у 2 меняется health
-        @setWatcher prop, callback
-    else
-      observer.observe this, property, callback
+  _eventInit: ->
+    @callbacks = {}
+    @callbackIdList = {}
+    @metaEvents =
+      smthChanged: ["healthChanged", "solveChanged", "unsolveChanged", "penaltyChanged", "treatChanged"]
+      situations: ["attack", "miss", "treat", "penalty"]
+    @metaEvents["all"] = ["attacked"].concat(@metaEvents["smthChanged"]).concat(@metaEvents["situations"])
+
+  _eventGenerate: (eventName, playerTo, value) ->
+    console.group "#{eventName} generate" if EVENTS_DEBUG
+    if @callbacks[eventName]?
+      console.info "Callbacks exist" if EVENTS_DEBUG
+      for _, callback of @callbacks[eventName]
+        console.info "Callback id: #{_}" if EVENTS_DEBUG
+        callback(this, playerTo, value)
+        for metaEventName, eventList of @metaEvents
+          console.info("Meta event #{metaEventName} generate") if eventName in eventList if EVENTS_DEBUG
+          callback(this, playerTo, value) if eventName in eventList
+    console.groupEnd() if EVENTS_DEBUG
+
+  eventBind: (eventsList, callback) ->
+    if not eventsList?
+      throw "Список событий не может быть #{eventsList}"
+
+    id = 5
+    while @callbackIdList[id]?
+      id = Math.floor(Math.random() * 100000000000000000)
+
+    for eventName in eventsList
+      @callbacks[eventName] ?= {}
+
+      @callbacks[eventName][id] = callback
+      @callbackIdList[id] = eventName
+
+    id
+
+  eventUnbind: (callbackId) ->
+    remove(@callbackIdList, callbackId)
+    for eventName in @callbackIdList[callbackId]
+      delete @callbacks[eventName]
+
 
 
 window.Model.Player = Player

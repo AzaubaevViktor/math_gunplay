@@ -28,6 +28,10 @@ max = (a,b) ->
 min = (a,b) ->
   if a < b then a else b
 
+remove = (arr, element) ->
+  index = arr.indexOf(element)
+  arr.splice(index, 1) if index >= 0
+
 class _Carousel
   constructor: (@elem) ->
 
@@ -67,3 +71,4 @@ window.Tools.deepCopy = deepCopy
 window._Carousel = _Carousel
 window.Tools.max = max
 window.Tools.min = min
+window.Tools.remove = remove

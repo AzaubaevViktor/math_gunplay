@@ -2,18 +2,20 @@ _EQ = (a, b) -> a == b
 _NEQ = (a,b) -> a != b
 
 _TEST_ONCE = (variable, values, info, func) ->
-  if func(variable, values)
-  then console.info("OK:#{info}")
-  else console.error("FAIL: `#{variable}` and `#{values}`")
+  if func variable, values
+  then console.info "OK:#{info}"
+  else console.error "FAIL: `#{variable}` and `#{values}`"
 
 _TEST = (variables, values, func) ->
   if variables is undefined or variables is null or variables is NaN
-    console.error("Bad value: #{variables}")
+    console.error "Bad value: #{variables}"
     return
+
   if typeof variables == "object"
-  then for v, i in variables
-    _TEST_ONCE(v, values[i], i, func)
-  else _TEST_ONCE(variables, values, variables, func)
+    for v, i in variables
+      _TEST_ONCE v, values[i], "#{v}, #{values[i]}", func
+  else
+    _TEST_ONCE variables, values, "#{variables}, #{values}", func
 
 TEST_EQ = (a,b) -> _TEST(a, b, _EQ)
 TEST_NEQ = (a,b) -> _TEST(a, b, _NEQ)
@@ -133,12 +135,12 @@ console.groupEnd()
 
 # ============================================
 
-f = ->
-  console.group "Statistic Test"
-  TEST_NEQ(model.statistic.stats.all_treat, 0)
-  console.groupEnd()
-
-setTimeout f, 100
+console.group "Statistic And events Test"
+TEST_NEQ(model.statistic.stats.all_treat, 0)
+TEST_NEQ(model.statistic.stats.all_damage, 0)
+TEST_NEQ(model.statistic.stats.all_tasks, 0)
+TEST_NEQ(model.statistic.stats.solve_percent, 0)
+console.groupEnd()
 
 # ============================================
 

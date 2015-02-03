@@ -61,19 +61,17 @@
     };
 
     _Model.prototype.startGame = function() {
-      var player, _i, _len, _ref, _results;
-      this.statistic.binds();
+      var player, _i, _len, _ref;
       _ref = this.players;
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         player = _ref[_i];
-        _results.push(player.setWatcher("_all", (function(_this) {
-          return function(t, o, n) {
+        player.eventBind(["all"], (function(_this) {
+          return function(pF, pT, v) {
             return _this.snapshots.add();
           };
-        })(this)));
+        })(this));
       }
-      return _results;
+      return this.statistic.binds();
     };
 
     _Model.prototype.undo = function() {

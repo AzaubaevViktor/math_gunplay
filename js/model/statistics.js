@@ -50,25 +50,22 @@
       for (id in _ref) {
         player = _ref[id];
         if ("length" !== id) {
-          player.setWatcher("health", (function(_this) {
-            return function(type, oldValue, newValue) {
-              var dmg, treat;
-              dmg = getValScope(oldValue - newValue, [0, +Infinity]);
-              _this.stats.all_damage += dmg;
-              treat = getValScope(newValue - oldValue, [0, +Infinity]);
-              return _this.stats.all_treat += treat;
-            };
-          })(this));
-          player.setWatcher("solved", (function(_this) {
-            return function(t, o, n) {
-              _this.solved += n - o;
+          player.eventBind(["attack"], (function(_this) {
+            return function(playerFrom, playerTo, value) {
+              _this.stats.all_damage += value;
+              _this.solved += 1;
               return _this._solved_update();
             };
           })(this));
-          _results.push(player.setWatcher("unsolved", (function(_this) {
-            return function(t, o, n) {
-              _this.unsolved += n - o;
+          player.eventBind(["miss"], (function(_this) {
+            return function(pF, pT, value) {
+              _this.unsolved += 1;
               return _this._solved_update();
+            };
+          })(this));
+          _results.push(player.eventBind(["treat"], (function(_this) {
+            return function(pF, pT, value) {
+              return _this.stats.all_treat += value;
             };
           })(this)));
         } else {
