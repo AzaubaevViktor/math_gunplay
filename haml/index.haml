@@ -1,4 +1,28 @@
 !!! html5
 %html
-  %head
-    %title Математическая перестрелка
+  = Haml::Engine.new(File.read('_head.haml')).render
+  %body
+    = Haml::Engine.new(File.read( '_nav.haml')).render
+    = Haml::Engine.new(File.read( '_main.haml')).render
+    .container
+      .row
+        %table#players.table
+          %tr
+            %th ID
+            %th Команда
+            %th
+              %span.glyphicon.glyphicon-heart.with-tooltip(data-toogle="popover" data-placement="button" data-title="Здоровье")
+            %th
+              %span.glyphicon.glyphicon-screenshot.with-tooltip(data-toggle="popover" data-placement="bottom" data-title="Урон")
+            %th.with-tooltip(data-toggle="popover" data-placement="left" data-title="Количество решённых и нерешённых задач") Р/Н
+          %tr
+            %td 1
+            %td 2
+            %td 3
+          %tr
+            %td 2
+            %td 3
+            %td 4
+
+
+    = Haml::Engine.new(File.read( '_scripts.haml')).render
