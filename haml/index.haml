@@ -9,20 +9,24 @@
         %table#players.table
           %tr
             %th ID
-            %th Команда
+            %th.command Команда
             %th
-              %span.glyphicon.glyphicon-heart.with-tooltip(data-toogle="popover" data-placement="button" data-title="Здоровье")
+              %span.glyphicon.glyphicon-heart.with-tooltip(data-toogle="popover" data-placement="bottom" data-title="Здоровье")
             %th
               %span.glyphicon.glyphicon-screenshot.with-tooltip(data-toggle="popover" data-placement="bottom" data-title="Урон")
             %th.with-tooltip(data-toggle="popover" data-placement="left" data-title="Количество решённых и нерешённых задач") Р/Н
           %tr
             %td 1
-            %td 2
-            %td 3
+            %td.command Гвоздика
+            %td 100
+            %td 14
+            %td 12/4
           %tr
             %td 2
-            %td 3
-            %td 4
+            %td.command Земляника
+            %td 65
+            %td 12
+            %td 11/10
 
 
     = Haml::Engine.new(File.read( '_scripts.haml')).render

@@ -13,22 +13,22 @@
           <a class='navbar-brand'>Математическая перестрелка</a>
         </div>
         <div class='navbar-left'>
-          <button class='btn btn-default navbar-btn' data-container='body' data-placement='bottom' data-title='Отменить ход' data-toggle='popover' id='backward' type='button'>
+          <button class='btn btn-default navbar-btn with-tooltip' data-container='body' data-placement='bottom' data-title='Отменить ход' data-toggle='popover' id='backward' type='button'>
             <span class='glyphicon glyphicon-step-backward'></span>
           </button>
-          <button class='btn btn-default navbar-btn' data-container='body' data-placement='bottom' data-title='Повторить ход' data-toggle='popover' id='forward' type='button'>
+          <button class='btn btn-default navbar-btn with-tooltip' data-container='body' data-placement='bottom' data-title='Повторить ход' data-toggle='popover' id='forward' type='button'>
             <span class='glyphicon glyphicon-step-forward'></span>
           </button>
-          <button class='btn btn-default navbar-btn' data-container='body' data-placement='bottom' data-title='Текущий режим игры' data-toggle='popover' id='daynight' type='button'>
+          <button class='btn btn-default navbar-btn with-tooltip' data-container='body' data-placement='bottom' data-title='Текущий режим игры' data-toggle='popover' id='daynight' type='button'>
             Добавление игроков
           </button>
-          <button class='btn btn-default dropdown-toggle navbar-btn' data-container='body' data-placement='bottom' data-target='#settings-modal' data-title='Настройки игры (сохраняются автоматически)' data-toggle='modal' id='settings' type='button'>
+          <button class='btn btn-default dropdown-toggle navbar-btn with-tooltip' data-container='body' data-placement='bottom' data-target='#settings-modal' data-title='Настройки игры (сохраняются автоматически)' data-toggle='modal' id='settings' type='button'>
             <span class='glyphicon glyphicon-wrench'></span>
           </button>
-          <button class='btn btn-default dropdown-toggle navbar-btn' data-container='body' data-placement='bottom' data-target='#saves-modal' data-title='Сохранения' data-toggle='modal' id='saves' type='button'>
+          <button class='btn btn-default dropdown-toggle navbar-btn with-tooltip' data-container='body' data-placement='bottom' data-target='#saves-modal' data-title='Сохранения' data-toggle='modal' id='saves' type='button'>
             <span class='glyphicon glyphicon-floppy-disk'></span>
           </button>
-          <button class='btn btn-default dropdown-toggle navbar-btn' data-container='body' data-placement='bottom' data-target='#stats-modal' data-title='Статистика' data-toggle='modal' id='stats' type='button'>
+          <button class='btn btn-default dropdown-toggle navbar-btn with-tooltip' data-container='body' data-placement='bottom' data-target='#stats-modal' data-title='Статистика' data-toggle='modal' id='stats' type='button'>
             <span class='glyphicon glyphicon-stats'></span>
           </button>
         </div>
@@ -41,9 +41,9 @@
         <table class='table' id='players'>
           <tr>
             <th>ID</th>
-            <th>Команда</th>
+            <th class='command'>Команда</th>
             <th>
-              <span class='glyphicon glyphicon-heart with-tooltip' data-placement='button' data-title='Здоровье' data-toogle='popover'></span>
+              <span class='glyphicon glyphicon-heart with-tooltip' data-placement='bottom' data-title='Здоровье' data-toogle='popover'></span>
             </th>
             <th>
               <span class='glyphicon glyphicon-screenshot with-tooltip' data-placement='bottom' data-title='Урон' data-toggle='popover'></span>
@@ -52,13 +52,17 @@
           </tr>
           <tr>
             <td>1</td>
-            <td>2</td>
-            <td>3</td>
+            <td class='command'>Гвоздика</td>
+            <td>100</td>
+            <td>14</td>
+            <td>12/4</td>
           </tr>
           <tr>
             <td>2</td>
-            <td>3</td>
-            <td>4</td>
+            <td class='command'>Земляника</td>
+            <td>65</td>
+            <td>12</td>
+            <td>11/10</td>
           </tr>
         </table>
       </div>
@@ -67,5 +71,6 @@
     <script src='js/lib/bootstrap/tooltip.js' type='text/javascript'></script>
     <script src='js/lib/bootstrap/modal.js' type='text/javascript'></script>
     <script src='js/version.js' type='text/javascript'></script>
+    <script src='js/view/view.js' type='text/javascript'></script>
   </body>
 </html>
