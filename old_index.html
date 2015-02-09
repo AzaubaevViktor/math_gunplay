@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Математическая перестрелка</title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/site.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+<div class="sun"></div>
+
+	<!-- NAVIGATION TOP -->
+
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand">Математическая перестрелка</a>
+			</div>
+			<div class="navbar-left">
+				<button id="backward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Отменить ход">
+					<span class="glyphicon glyphicon-step-backward"></span>
+				</button>
+				<button id="forward" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Повторить ход">
+					<span class="glyphicon glyphicon-step-forward"></span>
+				</button>
+				<button id="daynight" type="button" class="btn btn-default navbar-btn" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Текущий режим игры">
+					Добавление игроков
+				</button>
+				<button id="settings" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#settings-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Настройки игры (сохраняются автоматически)">
+					<span class="glyphicon glyphicon-wrench"></span>
+				</button>
+				<button id="saves" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#saves-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Сохранения">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+				</button>
+				<button id="stats" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="modal" data-target="#stats-modal" data-toggle="dropdown" data-container="body" data-toggle="popover" data-placement="bottom" data-title="Статистика">
+					<span class="glyphicon glyphicon-stats"></span>
+				</button>
+			</div>
+
+
+			<p id="version" class="navbar-text navbar-right"></p>
+		</div>
+	</nav>
+
+	<div class="container">
+		<div class="row">
+			<!-- CAROUSEL -->
+
+			<div class="col-md-9 col-sm-9">
+				<div id="carousel" class="carousel slide" data-interval="10000">
+					<!-- Indicators -->
+					<ol class="carousel-indicators">
+						<li data-target="#carousel" data-slide-to="0" class="active"></li>
+						<li data-target="#carousel" data-slide-to="1"></li>
+						<li data-target="#carousel" data-slide-to="2"></li>
+						<li data-target="#carousel" data-slide-to="3"></li>
+					</ol>
+					<!-- Slides -->
+					<div class="carousel-inner">
+						<div id="item0" class="item active"></div>
+						<div id="item1" class="item"></div>
+						<div id="item2" class="item"></div>
+						<div id="item3" class="item"></div>
+					</div>
+					<!-- Controls -->
+					<a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
+						<span class="glyphicon glyphicon-chevron-left"></span>
+					</a>
+					<a class="right carousel-control" href="#carousel" role="button" data-slide="next">
+						<span class="glyphicon glyphicon-chevron-right"></span>
+					</a>
+				</div>
+			</div>
+
+			<!-- DESCRIPTION -->
+
+			<div class="description col-md-3 col-sm-3">
+				<table class="table table-bordered">
+					<tr class="square"><td>Площадь</td></tr>
+					<tr class="hospital"><td>Госпиталь</td></tr>
+					<tr class="resuscitation"><td>Реанимация</td></tr>
+					<tr class="morgue"><td>Морг</td></tr>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- SETTINGS -->
+
+	<!-- Modal -->
+	<div class="modal fade" id="settings-modal" tabindex="-1" role="dialog" aria-labelledby="settings-modal-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="#settings-modal-label">Настройки игры</h4>
+				</div>
+				<div class="modal-body">
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Готово</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- SAVES -->
+	<!-- Modal -->
+	<div class="modal fade" id="saves-modal" tabindex="-1" role="dialog" aria-labelledby="saves-modal-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="#saves-modal-label">Сохранения</h4>
+				</div>
+				<div class="modal-body">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Готово</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- STATS -->
+	<!-- Modal -->
+	<div class="modal fade" id="stats-modal" tabindex="-1" role="dialog" aria-labelledby="stats-modal-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="#stats-modal-label">Статистика</h4>
+				</div>
+				<div class="modal-body">
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- TEMPLATES -->
+
+	<!-- PLACE TEMPLATE -->
+
+	<table class="hidden">
+		<tbody id="place-template">
+			<tr class="square">
+				<td class="id"></td>
+				<td class="name"></td>
+				<td class="health"></td>
+				<td class="attack"></td>
+				<td class="tasks"></td>
+				<td class="actions" colspan="3">
+					<button type="button" class="btn btn-default btn-success solve">
+						Решена
+					</button>
+					<button type="button" class="btn btn-default btn-danger unsolve">
+						Не решена
+					</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-info dropdown-toggle" data-toggle="dropdown">
+							Лечиться <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a class="treat0" href="#">0 решённых</a></li>
+							<li><a class="treat1" href="#">1 решённая</a></li>
+							<li><a class="treat2" href="#">2 решённых</a></li>
+							<li><a class="treat3" href="#">3 решённых</a></li>
+						</ul>
+					</div>
+					<button type="button" class="btn btn-default btn-warning penalty">
+						Штраф
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<!-- HEAD TEMPLATE -->
+
+	<table id="players-template" class="table hidden">
+		<thead class="pl-head">
+			<tr>
+				<th style="width:1px">ID</th>
+				<th style="text-align:left; width:100%">Команда</th>
+				<th style="text-align:right"><span class="glyphicon glyphicon-heart with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Здоровье"></span></th>
+				<th style="width:1px"><span class="glyphicon glyphicon-screenshot with-tooltip" data-toggle="popover" data-placement="bottom" data-title="Урон"></span></th>
+				<th style="width:1px; white-space: nowrap" class="with-tooltip" data-toggle="popover" data-placement="left" data-title="Количество решённых и нерешённых задач">Р/Н</th>
+
+			</tr>
+		</thead>
+		<tbody class="pl-list"></tbody>
+	</table>
+
+	<!-- ADD PLAYER TEMPLATE -->
+
+  <table id="addplayer-template" class="hidden">
+		<tbody class="pl-addplayer">
+			<tr>
+				<td colspan=5>
+					<div class="form-group">
+						<input type="text" class="form-control input-sm" id="addplayer" placeholder="Введите имя игрока и нажмите Enter">
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+<!-- SCRIPTS -->
+
+	<script type="text/javascript" src="js/lib/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/bootstrap.js"></script>
+	<script type="text/javascript" src="js/version.js"></script>
+
+</body>
+</html>
