@@ -3642,6 +3642,35 @@ Elm.Html.Events.make = function (_elm) {
                              ,keyCode: keyCode};
    return _elm.Html.Events.values;
 };
+Elm.Html = Elm.Html || {};
+Elm.Html.Lazy = Elm.Html.Lazy || {};
+Elm.Html.Lazy.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.Lazy = _elm.Html.Lazy || {};
+   if (_elm.Html.Lazy.values)
+   return _elm.Html.Lazy.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Html.Lazy",
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $VirtualDom = Elm.VirtualDom.make(_elm);
+   var lazy3 = $VirtualDom.lazy3;
+   var lazy2 = $VirtualDom.lazy2;
+   var lazy = $VirtualDom.lazy;
+   _elm.Html.Lazy.values = {_op: _op
+                           ,lazy: lazy
+                           ,lazy2: lazy2
+                           ,lazy3: lazy3};
+   return _elm.Html.Lazy.values;
+};
 Elm.Json = Elm.Json || {};
 Elm.Json.Decode = Elm.Json.Decode || {};
 Elm.Json.Decode.make = function (_elm) {
@@ -4161,6 +4190,7 @@ Elm.Main.make = function (_elm) {
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
+   $MaterialWrapper = Elm.MaterialWrapper.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
@@ -4174,33 +4204,39 @@ Elm.Main.make = function (_elm) {
             case "Increment":
             return model + 1;}
          _U.badCase($moduleName,
-         "between lines 25 and 27");
+         "between lines 28 and 30");
       }();
    });
    var Decrement = {ctor: "Decrement"};
    var Increment = {ctor: "Increment"};
-   var btn_ripple_class = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect";
+   var model = 0;
+   var titlelinks = function (address) {
+      return _L.fromArray([{ctor: "_Tuple2"
+                           ,_0: _L.fromArray([A2($Html$Events.onClick,
+                                             address,
+                                             Increment)
+                                             ,$Html$Attributes.$class("mdl-button")])
+                           ,_1: _L.fromArray([$Html.text("+")])}
+                          ,{ctor: "_Tuple2"
+                           ,_0: _L.fromArray([$Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                                                   ,_0: "background-color"
+                                                                                   ,_1: "#bbb"}]))])
+                           ,_1: _L.fromArray([$Html.text($Basics.toString(model))])}
+                          ,{ctor: "_Tuple2"
+                           ,_0: _L.fromArray([A2($Html$Events.onClick,
+                           address,
+                           Decrement)])
+                           ,_1: _L.fromArray([$Html.text("-")])}]);
+   };
    var view = F2(function (address,
    model) {
-      return A2($Html.div,
+      return A3($MaterialWrapper.title_bar,
+      "Test",
+      titlelinks(address),
+      _L.fromArray([A2($Html.div,
       _L.fromArray([]),
-      _L.fromArray([A2($Html.button,
-                   _L.fromArray([A2($Html$Events.onClick,
-                                address,
-                                Decrement)
-                                ,$Html$Attributes.$class(btn_ripple_class)]),
-                   _L.fromArray([$Html.text("-")]))
-                   ,A2($Html.h1,
-                   _L.fromArray([]),
-                   _L.fromArray([$Html.text($Basics.toString(model))]))
-                   ,A2($Html.button,
-                   _L.fromArray([A2($Html$Events.onClick,
-                                address,
-                                Increment)
-                                ,$Html$Attributes.$class(btn_ripple_class)]),
-                   _L.fromArray([$Html.text("+")]))]));
+      _L.fromArray([$Html.text("Blya")]))]));
    });
-   var model = 0;
    var main = $StartApp.start({_: {}
                               ,model: model
                               ,update: update
@@ -4208,12 +4244,109 @@ Elm.Main.make = function (_elm) {
    _elm.Main.values = {_op: _op
                       ,main: main
                       ,model: model
-                      ,btn_ripple_class: btn_ripple_class
+                      ,titlelinks: titlelinks
                       ,view: view
                       ,Increment: Increment
                       ,Decrement: Decrement
                       ,update: update};
    return _elm.Main.values;
+};
+Elm.MaterialWrapper = Elm.MaterialWrapper || {};
+Elm.MaterialWrapper.make = function (_elm) {
+   "use strict";
+   _elm.MaterialWrapper = _elm.MaterialWrapper || {};
+   if (_elm.MaterialWrapper.values)
+   return _elm.MaterialWrapper.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "MaterialWrapper",
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var btn_ripple_class = _L.fromArray([$Html$Attributes.$class("mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect")]);
+   var btn_ripple = F2(function (attr,
+   html) {
+      return A2($Html.button,
+      A2($Basics._op["++"],
+      attr,
+      btn_ripple_class),
+      html);
+   });
+   var content_ = function (html) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("mdl-layout__content")]),
+      html);
+   };
+   var drawer_ = function (html) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("mdl-layout__drawer")]),
+      html);
+   };
+   var navigation_link_ = F2(function (attr,
+   html) {
+      return A2($Html.a,
+      A2($Basics._op["++"],
+      _L.fromArray([$Html$Attributes.$class("mdl-navigation__link")]),
+      attr),
+      html);
+   });
+   var nav_link = function (titlelink) {
+      return A2(navigation_link_,
+      $Basics.fst(titlelink),
+      $Basics.snd(titlelink));
+   };
+   var nav_links = function (titlelinks) {
+      return A2($List.map,
+      nav_link,
+      titlelinks);
+   };
+   var navigation_ = function (html) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("mdl-navigation")]),
+      html);
+   };
+   var title_ = function (html) {
+      return A2($Html.span,
+      _L.fromArray([$Html$Attributes.$class("mdl-layout-title")]),
+      html);
+   };
+   var header_row_ = function (html) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("mdl-layout__header-row")]),
+      html);
+   };
+   var header_ = function (html) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("mdl-layout__header")]),
+      html);
+   };
+   var root_ = function (html) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("mdl-layout mdl-js-layout mdl-layout--fixed-header")]),
+      html);
+   };
+   var title_bar = F3(function (title,
+   navigation,
+   content) {
+      return root_(_L.fromArray([header_(_L.fromArray([header_row_(_L.fromArray([title_(_L.fromArray([$Html.text(title)]))
+                                                                                ,navigation_(nav_links(navigation))]))]))
+                                ,content_(content)]));
+   });
+   var spacer = A2($Html.div,
+   _L.fromArray([$Html$Attributes.$class("mdl-layout-spacer")]),
+   _L.fromArray([]));
+   var main_tag = $Html.node("main");
+   var header = $Html.node("header");
+   _elm.MaterialWrapper.values = {_op: _op
+                                 ,btn_ripple: btn_ripple
+                                 ,title_bar: title_bar};
+   return _elm.MaterialWrapper.values;
 };
 Elm.Maybe = Elm.Maybe || {};
 Elm.Maybe.make = function (_elm) {

@@ -4,24 +4,27 @@ import Html.Events exposing (..)
 import Html.Events exposing (onClick)
 import StartApp
 
+import MaterialWrapper exposing (TitleLink, title_bar)
+
 main =
   StartApp.start { model = model, view = view, update = update }
 
 model = 0
 
-btn_ripple_class = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+--titlelinks :  List TitleLink
+titlelinks address = 
+    [ ([onClick address Increment, class "mdl-button"], [text "+"])
+    , ([style [("background-color", "#bbb")]], [text (toString model)])
+    , ([onClick address Decrement], [text "-"])
+    ]
 
 view address model =
-  div []
-    [ button [ onClick address Decrement, class btn_ripple_class] [ text "-" ]
-    , h1 [] [ text (toString model) ]
-    , button [ onClick address Increment, class btn_ripple_class ] [ text "+" ]
-    ]
+    title_bar "Test" (titlelinks address) [div [] [text "Blya"]]
 
 
 type Action = Increment | Decrement
 
 update action model =
-  case action of
-    Increment -> model + 1
-    Decrement -> model - 1
+    case action of
+        Increment -> model + 1
+        Decrement -> model - 1
