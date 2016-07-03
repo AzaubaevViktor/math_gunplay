@@ -54,20 +54,18 @@
     };
 
     ViewPlayer.prototype.update = function() {
-      var i, j, k, len, opt, penalties, ref, ref1;
+      var i, len, opt, penalties, ref;
       this.el.removeClass().addClass(this.player.getLevel()).addClass("player");
       penalties = "";
-      for (i = j = 1, ref = this.player.penalties; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
-        penalties += "*";
-      }
+      for (i = 0; i < this.player.penalties; i++) penalties += "*";
       this.el.find(".plId").text(this.player.id);
       this.el.find(".plName").text(this.player.name + penalties);
       this.el.find(".plHealth").text(this.player.health);
       this.el.find(".plDamage").text(this.player.getAttackValue());
       this.el.find(".plTreat").text(this.player.getTreatValue(3));
-      ref1 = this.el.find("option");
-      for (k = 0, len = ref1.length; k < len; k++) {
-        opt = ref1[k];
+      ref = this.el.find("option");
+      for (i = 0, len = ref.length; i < len; i++) {
+        opt = ref[i];
         opt = $(opt);
         opt.text((opt.attr('value')) + " верно (" + (this.player.getTreatValue(opt.attr('value'))) + ")");
       }
@@ -136,10 +134,10 @@
     };
 
     View.prototype.updatePlayers = function() {
-      var j, len, player, ref;
+      var i, len, player, ref;
       ref = mgModel.players;
-      for (j = 0, len = ref.length; j < len; j++) {
-        player = ref[j];
+      for (i = 0, len = ref.length; i < len; i++) {
+        player = ref[i];
         this.updatePlayer(player);
       }
     };
@@ -171,11 +169,11 @@
     };
 
     View.prototype.hideAllActions = function() {
-      var j, len, ref, results, vPl;
+      var i, len, ref, results, vPl;
       ref = this.viewPlayers;
       results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        vPl = ref[j];
+      for (i = 0, len = ref.length; i < len; i++) {
+        vPl = ref[i];
         results.push(vPl.hideActions(0));
       }
       return results;
@@ -186,16 +184,24 @@
       id = 1 * playerEl.attr('id').slice(6);
       console.log(id);
       vPlayer = this.viewPlayers[id];
-      if (viewSettings.fromPlId === -1) {
-        vPlayer.showActions(300);
-        viewSettings.fromPlId = id;
-      } else if (viewSettings.fromPlId === id) {
-        vPlayer.hideActions(300);
+      if (viewSettings.isAttack) {
+        mgModel.hit(viewSettings.fromPlId, id);
         viewSettings.fromPlId = -1;
-      } else {
+        viewSettings.isAttack = false;
         this.hideAllActions();
-        vPlayer.showActions(300);
-        viewSettings.fromPlId = id;
+        this.update();
+      } else {
+        if (viewSettings.fromPlId === -1) {
+          vPlayer.showActions(300);
+          viewSettings.fromPlId = id;
+        } else if (viewSettings.fromPlId === id) {
+          vPlayer.hideActions(300);
+          viewSettings.fromPlId = -1;
+        } else {
+          this.hideAllActions();
+          vPlayer.showActions(300);
+          viewSettings.fromPlId = id;
+        }
       }
     };
 

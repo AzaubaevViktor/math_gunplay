@@ -85,7 +85,7 @@ class Model
     attackValue = playerFrom.getAttackValue()
     playerFrom.solved += 1
 
-    if (playerTo.health == 0) || (playerFrom.level != playerTo.level)
+    if (playerTo.health == 0) || (playerFrom.getLevel() != playerTo.getLevel())
       return 0
 
     if fromId == toId

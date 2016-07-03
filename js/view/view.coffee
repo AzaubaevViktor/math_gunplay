@@ -57,8 +57,7 @@ class ViewPlayer
     @el.removeClass().addClass(@player.getLevel()).addClass("player")
 
     penalties = ""
-    for i in [1..@player.penalties]
-      penalties += "*"
+    `for (i = 0; i < this.player.penalties; i++) penalties += "*"`
 
     @el.find(".plId").text(@player.id)
     @el.find(".plName").text(@player.name + penalties)
@@ -155,17 +154,25 @@ class View
     console.log(id)
     vPlayer = @viewPlayers[id]
 
-    if viewSettings.fromPlId == -1
-      vPlayer.showActions(300)
-      viewSettings.fromPlId = id
-    else if viewSettings.fromPlId == id
-      vPlayer.hideActions(300)
-      viewSettings.fromPlId = -1
-    else
-      @hideAllActions()
+    if viewSettings.isAttack
+      mgModel.hit viewSettings.fromPlId, id
 
-      vPlayer.showActions(300)
-      viewSettings.fromPlId = id
+      viewSettings.fromPlId = -1
+      viewSettings.isAttack = false
+      @hideAllActions()
+      @update()
+    else
+      if viewSettings.fromPlId == -1
+        vPlayer.showActions 300
+        viewSettings.fromPlId = id
+      else if viewSettings.fromPlId == id
+        vPlayer.hideActions 300
+        viewSettings.fromPlId = -1
+      else
+        @hideAllActions()
+
+        vPlayer.showActions 300
+        viewSettings.fromPlId = id
 
     return
 
@@ -179,6 +186,7 @@ class View
     switch act
       when 'solve'
         viewSettings.isAttack = true
+        #TODO: Засерить плохие комнады
       when 'unsolve'
         mgModel.miss(viewSettings.fromPlId)
         @hideAllActions()
