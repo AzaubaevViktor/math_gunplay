@@ -2118,7 +2118,7 @@ ul {
 blockquote {
   margin: 20px 0;
   padding-left: 1.5rem;
-  border-left: 5px solid #ee6e73; }
+  border-left: 5px solid #eceff1; }
 
 i {
   line-height: inherit; }
@@ -2154,7 +2154,7 @@ video.responsive-video {
   .pagination li.active a {
     color: #fff; }
   .pagination li.active {
-    background-color: #ee6e73; }
+    background-color: #eceff1; }
   .pagination li.disabled a {
     cursor: default;
     color: #999; }
@@ -2289,7 +2289,7 @@ ul.staggered-list li {
 footer.page-footer {
   margin-top: 20px;
   padding-top: 20px;
-  background-color: #ee6e73; }
+  background-color: #eceff1; }
   footer.page-footer .footer-copyright {
     overflow: hidden;
     height: 50px;
@@ -3035,20 +3035,20 @@ input[type=range] + .thumb {
         left: 100%; } }
 
 nav {
-  color: #fff;
-  background-color: #ee6e73;
+  color: #212121;
+  background-color: #eceff1;
   width: 100%;
-  height: 56px;
-  line-height: 56px; }
+  height: 40px;
+  line-height: 40px; }
   nav a {
-    color: #fff; }
+    color: #212121; }
   nav i,
   nav [class^="mdi-"], nav [class*="mdi-"],
   nav i.material-icons {
     display: block;
     font-size: 2rem;
-    height: 56px;
-    line-height: 56px; }
+    height: 40px;
+    line-height: 40px; }
   nav .nav-wrapper {
     position: relative;
     height: 100%; }
@@ -3059,16 +3059,16 @@ nav {
     float: left;
     position: relative;
     z-index: 1;
-    height: 56px; }
+    height: 40px; }
     nav .button-collapse i {
       font-size: 2.7rem;
-      height: 56px;
-      line-height: 56px; }
+      height: 40px;
+      line-height: 40px; }
   nav .brand-logo {
     position: absolute;
-    color: #fff;
+    color: #212121;
     display: inline-block;
-    font-size: 2.1rem;
+    font-size: 1.1rem;
     padding: 0;
     white-space: nowrap; }
     nav .brand-logo.center {
@@ -3100,7 +3100,7 @@ nav {
     nav ul a {
       transition: background-color .3s;
       font-size: 1rem;
-      color: #fff;
+      color: #212121;
       display: inline-block;
       padding: 0 15px;
       cursor: pointer; }
@@ -3129,24 +3129,24 @@ nav {
         color: rgba(255, 255, 255, 0.7);
         transition: color .3s; }
       nav .input-field label.active i {
-        color: #fff; }
+        color: #212121; }
       nav .input-field label.active {
         transform: translateY(0); }
 
 .navbar-fixed {
   position: relative;
-  height: 56px;
+  height: 40px;
   z-index: 998; }
   .navbar-fixed nav {
     position: fixed; }
 
 @media only screen and (min-width: 601px) {
   nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
-    height: 64px;
-    line-height: 64px; }
+    height: 50px;
+    line-height: 50px; }
 
   .navbar-fixed {
-    height: 64px; } }
+    height: 50px; } }
 @font-face {
   font-family: "Roboto";
   src: local(Roboto Thin), url("../fonts/roboto/Roboto-Thin.eot");
@@ -3487,7 +3487,7 @@ small {
     width: 15%;
     min-width: 80px; }
     .tabs .tab a {
-      color: #ee6e73;
+      color: #eceff1;
       display: block;
       width: 100%;
       height: 100%;
@@ -3495,15 +3495,15 @@ small {
       overflow: hidden;
       transition: color .28s ease; }
       .tabs .tab a:hover {
-        color: #f9c9cb; }
+        color: white; }
     .tabs .tab.disabled a {
-      color: #f9c9cb;
+      color: white;
       cursor: default; }
   .tabs .indicator {
     position: absolute;
     bottom: 0;
     height: 2px;
-    background-color: #f6b2b5;
+    background-color: white;
     will-change: left, right; }
 
 .material-tooltip {
@@ -5049,7 +5049,7 @@ input[type=range]:focus::-ms-fill-upper {
       transform: translateX(105%); } }
 .side-nav .collapsible-body li.active,
 .side-nav.fixed .collapsible-body li.active {
-  background-color: #ee6e73; }
+  background-color: #eceff1; }
   .side-nav .collapsible-body li.active a,
   .side-nav.fixed .collapsible-body li.active a {
     color: #fff; }
