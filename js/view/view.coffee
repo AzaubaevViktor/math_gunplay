@@ -1,7 +1,7 @@
 class ViewSettings
   constructor: ->
-    @actionsOpened = -1
-    @action = null
+    @fromPlId = -1
+    @isAttack = false
     @attackTo = -1
 
 viewSettings = new ViewSettings()
@@ -56,8 +56,12 @@ class ViewPlayer
   update: ->
     @el.removeClass().addClass(@player.getLevel()).addClass("player")
 
+    penalties = ""
+    for i in [1..@player.penalties]
+      penalties += "*"
+
     @el.find(".plId").text(@player.id)
-    @el.find(".plName").text(@player.name)
+    @el.find(".plName").text(@player.name + penalties)
     @el.find(".plHealth").text(@player.health)
     @el.find(".plDamage").text(@player.getAttackValue())
     @el.find(".plTreat").text(@player.getTreatValue(3))
@@ -105,7 +109,7 @@ class View
 
   updatePlayer: (player) ->
     vPlayer = null
-    if mgModel.players.length <= player.id + 1
+    if @viewPlayers.length < player.id + 1
       vPlayer = new ViewPlayer(player)
       @viewPlayers.push(vPlayer)
       @tbody.append vPlayer.getEl()
@@ -142,29 +146,53 @@ class View
     @updatePlayers()
     @updatePanel()
 
+  hideAllActions: ->
+    for vPl in @viewPlayers
+      vPl.hideActions(0)
+
   playerClick: (playerEl) ->
     id = 1 * playerEl.attr('id')[6..]
     console.log(id)
     vPlayer = @viewPlayers[id]
 
-    if viewSettings.actionsOpened == -1
+    if viewSettings.fromPlId == -1
       vPlayer.showActions(300)
-      viewSettings.actionsOpened = id
-    else if viewSettings.actionsOpened == id
+      viewSettings.fromPlId = id
+    else if viewSettings.fromPlId == id
       vPlayer.hideActions(300)
-      viewSettings.actionsOpened = -1
+      viewSettings.fromPlId = -1
     else
-      for vPl in @viewPlayers
-        vPl.hideActions(0)
+      @hideAllActions()
 
       vPlayer.showActions(300)
-      viewSettings.actionsOpened = id
-
+      viewSettings.fromPlId = id
 
     return
 
   actionClick: (act, value) ->
     console.log act, value
+    viewSettings.isAttack = false
+
+    if viewSettings.isAttack
+      return
+
+    switch act
+      when 'solve'
+        viewSettings.isAttack = true
+      when 'unsolve'
+        mgModel.miss(viewSettings.fromPlId)
+        @hideAllActions()
+        viewSettings.fromPlId = -1
+      when 'treat'
+        mgModel.treat(viewSettings.fromPlId, value)
+        @hideAllActions()
+        viewSettings.fromPlId = -1
+      when 'penalty'
+        mgModel.penalty(viewSettings.fromPlId)
+        @hideAllActions()
+        viewSettings.fromPlId = -1
+
+    @update();
 
 
 

@@ -4,8 +4,8 @@
 
   ViewSettings = (function() {
     function ViewSettings() {
-      this.actionsOpened = -1;
-      this.action = null;
+      this.fromPlId = -1;
+      this.isAttack = false;
       this.attackTo = -1;
     }
 
@@ -54,16 +54,20 @@
     };
 
     ViewPlayer.prototype.update = function() {
-      var i, len, opt, ref;
+      var i, j, k, len, opt, penalties, ref, ref1;
       this.el.removeClass().addClass(this.player.getLevel()).addClass("player");
+      penalties = "";
+      for (i = j = 1, ref = this.player.penalties; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+        penalties += "*";
+      }
       this.el.find(".plId").text(this.player.id);
-      this.el.find(".plName").text(this.player.name);
+      this.el.find(".plName").text(this.player.name + penalties);
       this.el.find(".plHealth").text(this.player.health);
       this.el.find(".plDamage").text(this.player.getAttackValue());
       this.el.find(".plTreat").text(this.player.getTreatValue(3));
-      ref = this.el.find("option");
-      for (i = 0, len = ref.length; i < len; i++) {
-        opt = ref[i];
+      ref1 = this.el.find("option");
+      for (k = 0, len = ref1.length; k < len; k++) {
+        opt = ref1[k];
         opt = $(opt);
         opt.text((opt.attr('value')) + " верно (" + (this.player.getTreatValue(opt.attr('value'))) + ")");
       }
@@ -120,7 +124,7 @@
     View.prototype.updatePlayer = function(player) {
       var vPlayer;
       vPlayer = null;
-      if (mgModel.players.length <= player.id + 1) {
+      if (this.viewPlayers.length < player.id + 1) {
         vPlayer = new ViewPlayer(player);
         this.viewPlayers.push(vPlayer);
         this.tbody.append(vPlayer.getEl());
@@ -132,10 +136,10 @@
     };
 
     View.prototype.updatePlayers = function() {
-      var i, len, player, ref;
+      var j, len, player, ref;
       ref = mgModel.players;
-      for (i = 0, len = ref.length; i < len; i++) {
-        player = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        player = ref[j];
         this.updatePlayer(player);
       }
     };
@@ -166,30 +170,61 @@
       return this.updatePanel();
     };
 
+    View.prototype.hideAllActions = function() {
+      var j, len, ref, results, vPl;
+      ref = this.viewPlayers;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        vPl = ref[j];
+        results.push(vPl.hideActions(0));
+      }
+      return results;
+    };
+
     View.prototype.playerClick = function(playerEl) {
-      var i, id, len, ref, vPl, vPlayer;
+      var id, vPlayer;
       id = 1 * playerEl.attr('id').slice(6);
       console.log(id);
       vPlayer = this.viewPlayers[id];
-      if (viewSettings.actionsOpened === -1) {
+      if (viewSettings.fromPlId === -1) {
         vPlayer.showActions(300);
-        viewSettings.actionsOpened = id;
-      } else if (viewSettings.actionsOpened === id) {
+        viewSettings.fromPlId = id;
+      } else if (viewSettings.fromPlId === id) {
         vPlayer.hideActions(300);
-        viewSettings.actionsOpened = -1;
+        viewSettings.fromPlId = -1;
       } else {
-        ref = this.viewPlayers;
-        for (i = 0, len = ref.length; i < len; i++) {
-          vPl = ref[i];
-          vPl.hideActions(0);
-        }
+        this.hideAllActions();
         vPlayer.showActions(300);
-        viewSettings.actionsOpened = id;
+        viewSettings.fromPlId = id;
       }
     };
 
     View.prototype.actionClick = function(act, value) {
-      return console.log(act, value);
+      console.log(act, value);
+      viewSettings.isAttack = false;
+      if (viewSettings.isAttack) {
+        return;
+      }
+      switch (act) {
+        case 'solve':
+          viewSettings.isAttack = true;
+          break;
+        case 'unsolve':
+          mgModel.miss(viewSettings.fromPlId);
+          this.hideAllActions();
+          viewSettings.fromPlId = -1;
+          break;
+        case 'treat':
+          mgModel.treat(viewSettings.fromPlId, value);
+          this.hideAllActions();
+          viewSettings.fromPlId = -1;
+          break;
+        case 'penalty':
+          mgModel.penalty(viewSettings.fromPlId);
+          this.hideAllActions();
+          viewSettings.fromPlId = -1;
+      }
+      return this.update();
     };
 
     return View;

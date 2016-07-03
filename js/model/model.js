@@ -8,16 +8,16 @@
       "treat": 0,
       "attack": 0
     }, {
-      "treat": 0.01,
+      "treat": 1,
       "attack": 3
     }, {
-      "treat": 0.03,
+      "treat": 3,
       "attack": 6
     }, {
-      "treat": 0.05,
+      "treat": 5,
       "attack": 9
     }, {
-      "treat": 0.1,
+      "treat": 1,
       "attack": 12
     }
   ];
@@ -132,8 +132,8 @@
       var player, value;
       player = this.getPlayer(plId);
       value = player.getTreatValue(correct);
-      player.solved += correct;
-      player.unsolved += 3 - correct;
+      player.solved += 1 * correct;
+      player.unsolved += 3 - 1 * correct;
       if ((player.getLevel() === RESUSCITATION) && mgModelSettings.nullResus) {
         player.treatment = 0;
       } else {
@@ -213,7 +213,7 @@
     };
 
     Player.prototype.dHealth = function(delta) {
-      return this.health = getValScope(this.health - delta, [0, 100]);
+      return this.health = getValScope(this.health + delta, [0, 100]);
     };
 
     Player.prototype.addPenalty = function() {

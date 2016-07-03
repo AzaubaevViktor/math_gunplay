@@ -2,16 +2,16 @@ penalties = [
     "treat": 0,
     "attack": 0
   ,
-    "treat": 0.01,
+    "treat": 1,
     "attack": 3
   ,
-    "treat": 0.03,
+    "treat": 3,
     "attack": 6
   ,
-    "treat": 0.05,
+    "treat": 5,
     "attack": 9
   ,
-    "treat": 0.1,
+    "treat": 1,
     "attack": 12
 ]
 
@@ -106,8 +106,8 @@ class Model
     player = @getPlayer(plId)
     value = player.getTreatValue(correct)
 
-    player.solved += correct
-    player.unsolved += 3 - correct
+    player.solved += 1 * correct
+    player.unsolved += 3 - 1 * correct
 
     if (player.getLevel() == RESUSCITATION) && mgModelSettings.nullResus
       player.treatment = 0
@@ -133,8 +133,6 @@ class Model
       else
         mgModelSettings.daySecondCallback()
     , 1000
-
-
 
 
 window.mgModel = new Model()
@@ -171,7 +169,7 @@ class Player
     value
 
   dHealth: (delta) ->
-    @health = getValScope @health - delta, [0, 100]
+    @health = getValScope @health + delta, [0, 100]
 
   addPenalty: ->
     @penalties = getValScope @penalties + 1, [0, penalties.length - 1]
