@@ -362,6 +362,9 @@ footer.page-footer {
 // Tables
 table, th, td {
    border: none;
+   text-align: center;
+   border-collapse: collapse;
+   opacity: 0.9;
 }
 
 table {
@@ -403,11 +406,11 @@ thead {
 }
 
 td, th{
-  padding: 15px 5px;
+  padding: 8px 10px;
   display: table-cell;
-  text-align: left;
   vertical-align: middle;
   border-radius: 2px;
+  font-size: 38px;
 }
 
 // Responsive Table

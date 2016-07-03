@@ -2298,7 +2298,10 @@ footer.page-footer {
     background-color: rgba(51, 51, 51, 0.08); }
 
 table, th, td {
-  border: none; }
+  border: none;
+  text-align: center;
+  border-collapse: collapse;
+  opacity: 0.9; }
 
 table {
   width: 100%;
@@ -2320,11 +2323,11 @@ thead {
   border-bottom: 1px solid #d0d0d0; }
 
 td, th {
-  padding: 15px 5px;
+  padding: 8px 10px;
   display: table-cell;
-  text-align: left;
   vertical-align: middle;
-  border-radius: 2px; }
+  border-radius: 2px;
+  font-size: 38px; }
 
 @media only screen and (max-width: 992px) {
   table.responsive-table {
@@ -6147,5 +6150,38 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
 @media (min-height: 40.125em) {
   .picker--time .picker__box {
     margin-bottom: 5em; } }
+tr.not > td {
+  background-color: #555555 !important; }
+
+tr.level > td {
+  font-size: 25px;
+  padding: 0px 5px; }
+
+tr.square > td {
+  background-color: #56BFF3; }
+
+tr.square:hover > td {
+  background-color: #80EDF7; }
+
+tr.hospital > td {
+  background-color: #7FF14F; }
+
+tr.hospital:hover > td {
+  background-color: #B0F0A0; }
+
+tr.resuscitation > td {
+  background-color: #EED345; }
+
+tr.resuscitation:hover > td {
+  background-color: #FFF8A0; }
+
+tr.morgue > td {
+  background-color: #A5A5A5; }
+
+tr.morgue:hover > td {
+  background-color: #D6D6D6; }
+
+td.name, th.name {
+  text-align: left; }
 
 /*# sourceMappingURL=materialize.css.map */

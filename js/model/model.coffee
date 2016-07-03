@@ -15,7 +15,7 @@ penalties = [
     "attack": 12
 ]
 
-class Settings
+class ModelSettings
   constructor: ->
     @settingsVersion = 1
     @savesVersion = 1
@@ -27,9 +27,10 @@ class Settings
     @selfDestroyResuscitation = false
     @hospitalPlus = 10
     @nullResus = true # обнуление количества лечений в реанимации
+    @gameTime = 15
 
 
-window.mgSettings = new Settings()
+window.mgModelSettings = new ModelSettings()
 
 SQUARE = 0
 HOSPITAL = 1
@@ -66,9 +67,9 @@ class Model
 
     if fromId == toId
       if playerFrom.level == RESUSCITATION
-        if mgSettings.selfDestroyResuscitation
+        if mgModelSettings.selfDestroyResuscitation
           return 0
-      if !mgSettings.selfDestroyAttack
+      if !mgModelSettings.selfDestroyAttack
         return 0
 
     return playerTo.dHealth(-attackValue)
@@ -85,7 +86,7 @@ class Model
     player.solved += correct
     player.unsolved += 3 - correct
 
-    if (player.getLevel() == RESUSCITATION) && mgSettings.nullResus
+    if (player.getLevel() == RESUSCITATION) && mgModelSettings.nullResus
       player.treatment = 0
     else
       player.treatment += 1
@@ -95,6 +96,10 @@ class Model
   penalty: (plId) ->
     player = @getPlayer(plId)
     player.addPenalty()
+
+
+window.mgModel = Model()
+
 
 class Player
   constructor: (@id, @name) ->
@@ -111,18 +116,18 @@ class Player
 
   getAttackValue: ->
     penalty = penalties[@penalties]["attack"]
-    getValScope 10 + @solved - @unsolved - penalty - 3 * @treatment, [0, mgSettings.maxAttack]
+    getValScope 10 + @solved - @unsolved - penalty - 3 * @treatment, [0, mgModelSettings.maxAttack]
 
   getTreatValue: (correct) ->
     penalty = penalties[@penalties]["treat"]
     value = 5 * correct + @solved - @unsolved - 3 * @treatment - 5 - penalty
-    if mgSettings.selfDestroyTreat && (value < 0)
+    if mgModelSettings.selfDestroyTreat && (value < 0)
       return 0
-    if mgSettings.selfDestroyResuscitation && (@getLevel() == RESUSCITATION) && (value < 0)
+    if mgModelSettings.selfDestroyResuscitation && (@getLevel() == RESUSCITATION) && (value < 0)
       return 0
 
     if (@getLevel() == HOSPITAL)
-      value += mgSettings.hospitalPlus
+      value += mgModelSettings.hospitalPlus
 
     value
 
