@@ -32,15 +32,16 @@ class ModelSettings
 
 window.mgModelSettings = new ModelSettings()
 
-SQUARE = 0
-HOSPITAL = 1
-RESUSCITATION = 2
-MORGUE = 3
+SQUARE = "square"
+HOSPITAL = "hospital"
+RESUSCITATION = "resuscitation"
+MORGUE = "morgue"
+
 levels = {
-  SQUARE: [60, 100]
-  HOSPITAL: [30, 60]
-  RESUSCITATION: [0, 30]
-  MORGUE: [-100000, 0]
+  "#{SQUARE}": [60, 100]
+  "#{HOSPITAL}": [30, 60]
+  "#{RESUSCITATION}": [0, 30]
+  "#{MORGUE}": [-100000, 0]
 }
 
 class Model
@@ -98,7 +99,7 @@ class Model
     player.addPenalty()
 
 
-window.mgModel = Model()
+window.mgModel = new Model()
 
 
 class Player

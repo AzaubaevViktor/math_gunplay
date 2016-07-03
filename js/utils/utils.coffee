@@ -8,3 +8,5 @@ window.getValScope = (val, scope) ->
 
 window.deepCopy = (v) ->
   $.extend true, [], v
+
+  

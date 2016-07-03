@@ -13,7 +13,10 @@
     <div class="nav-wrapper">
         <a href="#!" class="brand-logo">Математическая перестрелка</a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="#!">Режим: режим<i class="material-icons right">skip_next</i></a></li>
+            <li><a href="#!"><i class="material-icons">skip_previous</i></a></li>
+            <li><a href="#!"><i class="material-icons">skip_next</i></a></li>
+            <li><a href="#!">Режим: режим<i class="material-icons right">done</i></a></li>
+            <li><a class="modal-trigger" href="#modalAddPlayer"><i class="material-icons">add</i></a></li>
             <li><a href="#!"><i class="material-icons">settings</i></a></li>
             <li><a href="#!"><i class="material-icons">save</i></a></li>
             <li><a href="#!"><i class="material-icons">equalizer</i></a></li>
@@ -33,13 +36,6 @@
     </thead>
     <tbody>
         <tr class="square level"><td colspan="5"><b>Площадь</b></td></tr>
-        <tr>
-            <td>1</td>
-            <td class="name">Имя команды*</td>
-            <td>10</td>
-            <td>13</td>
-            <td>3/4</td>
-        </tr>
         <tr class="hospital level"><td colspan="5"><b>Госпиталь</b></td></tr>
         <tr class="resuscitation level"><td colspan="5"><b>Реанимация</b></td></tr>
         <tr class="morgue level"><td colspan="5"><b>Морг</b></td></tr>
@@ -47,7 +43,44 @@
     </tbody>
 </table>
 
+<div id="modalAddPlayer" class="modal">
+    <div class="modal-content">
+        <h4>Добавить игрока</h4>
+        <div class="row">
+            <div class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Введите имя нового игрока" id="newPlayerName" type="text" class="validate">
+                        <label for="newPlayerName">Имя игрока</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" id="modalAddPlayerAgreeBtn" class=" modal-action modal-close waves-effect waves-green btn-flat">
+            Добавить
+        </a>
+    </div>
+</div>
+
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/materialize/bin/materialize.js"></script>
+
+<script type="text/javascript" src="js/utils/utils.js"></script>
+<script type="text/javascript" src="js/model/model.js"></script>
+<script type="text/javascript" src="js/view/view.js"></script>
+<script type="text/javascript" src="js/controller/controller.js"></script>
+<script>
+    $(document).ready(function(){
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('.modal-trigger').leanModal({
+            dismissible: true, // Modal can be dismissed by clicking outside of the modal
+            opacity: .5, // Opacity of modal background
+            in_duration: 300, // Transition in duration
+            out_duration: 200, // Transition out duration
+        });
+    });
+</script>
 </body>
 </html>
