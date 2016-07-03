@@ -15,6 +15,20 @@ penalties = [
     "attack": 12
 ]
 
+
+window.MODE_ADD = 1
+window.MODE_DAY = 2
+window.MODE_NIGHT = 3
+
+window.isMode = (gameModes) ->
+  if Array.isArray gameModes
+    return mgModelSettings.gameMode in gameModes
+  else
+    return mgModelSettings.gameMode == gameModes
+    
+window.setMode = (gameMode) ->
+  mgModelSettings.gameMode = gameMode
+
 class ModelSettings
   constructor: ->
     @settingsVersion = 1
@@ -28,6 +42,7 @@ class ModelSettings
     @hospitalPlus = 10
     @nullResus = true # обнуление количества лечений в реанимации
     @gameTime = 15
+    @gameMode = MODE_ADD
 
 
 window.mgModelSettings = new ModelSettings()
