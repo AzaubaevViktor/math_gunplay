@@ -33,10 +33,10 @@
       var name;
       name = $("#newPlayerName").val();
       $("#newPlayerName").val("");
-      if (name.length) {
-        mgModel.addPlayer(name);
-        mgView.update();
-      }
+      this.addNamedPlayer(name);
+    };
+
+    Controller.prototype.bindPlayersClick = function() {
       $("tr.player").unbind('click');
       $("tr.player").on('click', (function(_this) {
         return function(e) {
@@ -45,6 +45,14 @@
           }
         };
       })(this));
+    };
+
+    Controller.prototype.addNamedPlayer = function(name) {
+      if (name.length) {
+        mgModel.addPlayer(name);
+        mgView.update();
+      }
+      this.bindPlayersClick();
     };
 
     Controller.prototype.changeGameMode = function() {

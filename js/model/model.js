@@ -49,7 +49,7 @@
   ModelSettings = (function() {
     function ModelSettings() {
       this.settingsVersion = 1;
-      this.savesVersion = 1;
+      this.savesVersion = 2;
       this.maxAttack = 15;
       this.selfDestroyAttack = true;
       this.selfDestroyTreat = true;
@@ -62,7 +62,83 @@
       this.timer = null;
       this.endDayCallback = function() {};
       this.daySecondCallback = function() {};
+      this.connectToStorage();
     }
+
+    ModelSettings.prototype.connectToStorage = function() {
+      this.saves = JSON.parse(localStorage.getItem('saves'));
+      if ((this.saves == null) || this.saves.version !== this.savesVersion) {
+        this.saves = null;
+      }
+      if (this.saves === null) {
+        this.saves = {
+          version: this.savesVersion,
+          ids: {}
+        };
+      }
+      localStorage.setItem('saves', JSON.stringify(this.saves));
+    };
+
+    ModelSettings.prototype.findId = function() {
+      var id;
+      id = 1853;
+      while (id in this.saves.ids) {
+        id = Math.floor(Math.random() * 100000000000000000);
+      }
+      return id;
+    };
+
+    ModelSettings.prototype.writeSave = function(name) {
+      var id, now;
+      now = new Date();
+      id = this.findId();
+      this.saves.ids[id] = name;
+      localStorage.setItem('saves', JSON.stringify(this.saves));
+      return localStorage.setItem(id, JSON.stringify({
+        settings: {
+          maxAttack: this.maxAttack,
+          selfDestroyAttack: this.selfDestroyAttack,
+          selfDestroyTreat: this.selfDestroyTreat,
+          selfDestroyResuscitation: this.selfDestroyResuscitation,
+          hospitalPlus: this.hospitalPlus,
+          nullResus: this.nullResus,
+          dayTime: this.dayTime
+        },
+        players: mgModel.players,
+        date: now
+      }));
+    };
+
+    ModelSettings.prototype.deleteSave = function(id) {
+      delete this.saves.ids[id];
+      localStorage.setItem('saves', JSON.stringify(this.saves));
+      return localStorage.removeItem(id);
+    };
+
+    ModelSettings.prototype.loadSave = function(id) {
+      var i, len, mPlayer, player, ref, results, save;
+      save = JSON.parse(localStorage.getItem(id));
+      this.maxAttack = save.settings.maxAttack;
+      this.selfDestroyAttack = save.settings.selfDestroyAttack;
+      this.selfDestroyTreat = save.settings.selfDestroyTreat;
+      this.selfDestroyResuscitation = save.settings.selfDestroyResuscitation;
+      this.hospitalPlus = save.settings.hospitalPlus;
+      this.nullResus = save.settings.nullResus;
+      this.dayTime = save.settings.dayTime;
+      this.gameMode = MODE_NIGHT;
+      this.time = 0;
+      clearInterval(this.timer);
+      mgModel.players = [];
+      ref = save.players;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        player = ref[i];
+        mPlayer = new Player(player.id, player.name);
+        mPlayer.apply(player);
+        results.push(mgModel.players.push(mPlayer));
+      }
+      return results;
+    };
 
     return ModelSettings;
 
@@ -181,6 +257,15 @@
       this.treatment = 0;
       this.penalties = 0;
     }
+
+    Player.prototype.apply = function(d) {
+      this.name = d.name;
+      this.health = d.health;
+      this.solved = d.solved;
+      this.unsolved = d.unsolved;
+      this.treatment = d.treatment;
+      return this.penalties = d.penalties;
+    };
 
     Player.prototype.getLevel = function() {
       var level, ref, scope;

@@ -37,7 +37,7 @@ window.setMode = (gameMode) ->
 class ModelSettings
   constructor: ->
     @settingsVersion = 1
-    @savesVersion = 1
+    @savesVersion = 2
 
     # Параметры игры
     @maxAttack = 15
@@ -52,6 +52,76 @@ class ModelSettings
     @timer = null
     @endDayCallback = ->
     @daySecondCallback = ->
+
+    @connectToStorage()
+
+  connectToStorage: ->
+    @saves = JSON.parse localStorage.getItem 'saves'
+    if !@saves? || @saves.version != @savesVersion
+      @saves = null
+
+    if @saves == null
+      @saves = {
+        version: @savesVersion
+        ids: {}
+      }
+
+    localStorage.setItem 'saves', JSON.stringify @saves
+    return
+
+  findId: ->
+    id = 1853;
+    while id of this.saves.ids
+      id = Math.floor(Math.random() * 100000000000000000)
+    return id
+
+  writeSave: (name) ->
+    now = new Date()
+    id = @findId()
+    @saves.ids[id] = name
+    localStorage.setItem 'saves', JSON.stringify @saves
+    localStorage.setItem id, JSON.stringify {
+      settings: {
+        maxAttack: @maxAttack
+        selfDestroyAttack: @selfDestroyAttack
+        selfDestroyTreat: @selfDestroyTreat
+        selfDestroyResuscitation: @selfDestroyResuscitation
+        hospitalPlus: @hospitalPlus
+        nullResus: @nullResus
+        dayTime: @dayTime
+      }
+      players: mgModel.players
+      date: now
+    }
+
+  deleteSave: (id) ->
+    delete @saves.ids[id]
+    localStorage.setItem 'saves', JSON.stringify @saves
+    localStorage.removeItem id
+
+  loadSave: (id) ->
+    save = JSON.parse localStorage.getItem id
+    # Restore Settings
+    @maxAttack = save.settings.maxAttack
+    @selfDestroyAttack = save.settings.selfDestroyAttack
+    @selfDestroyTreat = save.settings.selfDestroyTreat
+    @selfDestroyResuscitation = save.settings.selfDestroyResuscitation
+    @hospitalPlus = save.settings.hospitalPlus
+    @nullResus = save.settings.nullResus
+    @dayTime = save.settings.dayTime
+
+    @gameMode = MODE_NIGHT
+    @time = 0
+    clearInterval @timer
+
+    # Restore Players
+
+    mgModel.players = []
+
+    for player in save.players
+      mPlayer = new Player player.id, player.name
+      mPlayer.apply player
+      mgModel.players.push mPlayer
 
 
 window.mgModelSettings = new ModelSettings()
@@ -147,6 +217,14 @@ class Player
     @unsolved = 0
     @treatment = 0
     @penalties = 0
+
+  apply: (d) ->
+    @name = d.name
+    @health = d.health
+    @solved = d.solved
+    @unsolved = d.unsolved
+    @treatment = d.treatment
+    @penalties = d.penalties
 
   getLevel: ->
     for level, scope of levels

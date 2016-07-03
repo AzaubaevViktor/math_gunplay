@@ -21,16 +21,24 @@ class Controller
   addPlayer:  ->
     name = $("#newPlayerName").val()
     $("#newPlayerName").val("")
-    if name.length
-      mgModel.addPlayer(name)
-      mgView.update()
+    @addNamedPlayer(name)
+    return
 
+  bindPlayersClick: ->
     # playerClick
     $("tr.player").unbind 'click'
     $("tr.player").on 'click', (e) =>
       if !$(e.toElement).attr('class').includes 'btn'
         @playerClick($ e.currentTarget)
     return
+
+  addNamedPlayer: (name) ->
+    if name.length
+      mgModel.addPlayer(name)
+      mgView.update()
+    @bindPlayersClick()
+    return
+
 
   changeGameMode: ->
     if isMode MODE_ADD
