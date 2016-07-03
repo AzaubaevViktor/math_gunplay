@@ -42,10 +42,16 @@ class Controller
       setMode MODE_NIGHT
     else if isMode MODE_NIGHT
       setMode MODE_DAY
+      mgViewSettings.fromPlId = -1
+      mgViewSettings.isAttack = false
+      mgViewSettings.currentLevel = null
     mgView.update()
     return
 
   playerClick: (playerEl) ->
+    if ! isMode MODE_NIGHT
+      return
+
     id = 1 * playerEl.attr('id')[6..]
     console.log(id)
 

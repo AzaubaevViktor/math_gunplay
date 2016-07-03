@@ -2,7 +2,6 @@ class ViewSettings
   constructor: ->
     @fromPlId = -1
     @isAttack = false
-    @attackTo = -1
     @currentLevel = null
 
 mgViewSettings = new ViewSettings()
@@ -158,7 +157,7 @@ class View
     @updatePlayers()
     @updateActions()
 
-  showActionsOnly: (plId) ->
+  showActionsOnlyFor: (plId) ->
     for vPl in @viewPlayers
       if vPl.player.id == plId
         vPl.showActions(300)
@@ -167,15 +166,19 @@ class View
     return
 
   updateActions: ->
+    if ! isMode MODE_NIGHT
+      @showActionsOnlyFor(-1)
+      return
+
     if mgViewSettings.fromPlId == -1
-      @showActionsOnly(-1)
+      @showActionsOnlyFor(-1)
     else
       if mgViewSettings.isAttack
         for vPlayer in @viewPlayers
           if vPlayer.player.getLevel() != mgViewSettings.currentLevel
             vPlayer.el.addClass "not"
       else
-        @showActionsOnly(mgViewSettings.fromPlId)
+        @showActionsOnlyFor(mgViewSettings.fromPlId)
         $(".player").removeClass("not")
 
 

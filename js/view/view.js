@@ -6,7 +6,6 @@
     function ViewSettings() {
       this.fromPlId = -1;
       this.isAttack = false;
-      this.attackTo = -1;
       this.currentLevel = null;
     }
 
@@ -184,7 +183,7 @@
       return this.updateActions();
     };
 
-    View.prototype.showActionsOnly = function(plId) {
+    View.prototype.showActionsOnlyFor = function(plId) {
       var i, len, ref, vPl;
       ref = this.viewPlayers;
       for (i = 0, len = ref.length; i < len; i++) {
@@ -199,8 +198,12 @@
 
     View.prototype.updateActions = function() {
       var i, len, ref, results, vPlayer;
+      if (!isMode(MODE_NIGHT)) {
+        this.showActionsOnlyFor(-1);
+        return;
+      }
       if (mgViewSettings.fromPlId === -1) {
-        return this.showActionsOnly(-1);
+        return this.showActionsOnlyFor(-1);
       } else {
         if (mgViewSettings.isAttack) {
           ref = this.viewPlayers;
@@ -215,7 +218,7 @@
           }
           return results;
         } else {
-          this.showActionsOnly(mgViewSettings.fromPlId);
+          this.showActionsOnlyFor(mgViewSettings.fromPlId);
           return $(".player").removeClass("not");
         }
       }

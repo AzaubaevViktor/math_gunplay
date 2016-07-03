@@ -58,12 +58,18 @@
         setMode(MODE_NIGHT);
       } else if (isMode(MODE_NIGHT)) {
         setMode(MODE_DAY);
+        mgViewSettings.fromPlId = -1;
+        mgViewSettings.isAttack = false;
+        mgViewSettings.currentLevel = null;
       }
       mgView.update();
     };
 
     Controller.prototype.playerClick = function(playerEl) {
       var id;
+      if (!isMode(MODE_NIGHT)) {
+        return;
+      }
       id = 1 * playerEl.attr('id').slice(6);
       console.log(id);
       if (mgViewSettings.isAttack) {

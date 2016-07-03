@@ -30,6 +30,8 @@ window.setMode = (gameMode) ->
   mgModelSettings.gameMode = gameMode
   if isMode MODE_DAY
     mgModel.setDayTimer()
+  else
+    clearInterval mgModelSettings.timer
 
 
 class ModelSettings

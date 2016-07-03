@@ -41,6 +41,8 @@
     mgModelSettings.gameMode = gameMode;
     if (isMode(MODE_DAY)) {
       return mgModel.setDayTimer();
+    } else {
+      return clearInterval(mgModelSettings.timer);
     }
   };
 
