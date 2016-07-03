@@ -26,6 +26,7 @@
           return _this.changeGameMode();
         };
       })(this);
+      return;
     }
 
     Controller.prototype.addPlayer = function() {
@@ -34,8 +35,14 @@
       $("#newPlayerName").val("");
       if (name.length) {
         mgModel.addPlayer(name);
-        return mgView.update();
+        mgView.update();
       }
+      $("tr.player").unbind('click');
+      $("tr.player").on('click', function(e) {
+        if (!$(e.toElement).attr('class').includes('btn')) {
+          return mgView.playerClick($(e.currentTarget));
+        }
+      });
     };
 
     Controller.prototype.changeGameMode = function() {
@@ -50,7 +57,7 @@
       } else if (isMode(MODE_NIGHT)) {
         setMode(MODE_DAY);
       }
-      return mgView.update();
+      mgView.update();
     };
 
     return Controller;

@@ -10,5 +10,5 @@ window.deepCopy = (v) ->
   $.extend true, [], v
 
 
-window.btn = (id, text, color) ->
-  $("<a id='#{id}'>").addClass("waves-effect waves-light btn #{color}").text(text)
+window.btn = (act, text, color, callback) ->
+  $("<a act='#{act}'>").addClass("waves-effect waves-light btn #{color}").text(text).on('click', callback)

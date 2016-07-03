@@ -14,8 +14,8 @@
     return $.extend(true, [], v);
   };
 
-  window.btn = function(id, text, color) {
-    return $("<a id='" + id + "'>").addClass("waves-effect waves-light btn " + color).text(text);
+  window.btn = function(act, text, color, callback) {
+    return $("<a act='" + act + "'>").addClass("waves-effect waves-light btn " + color).text(text).on('click', callback);
   };
 
 }).call(this);

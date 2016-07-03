@@ -6188,6 +6188,14 @@ td > .btn, td > .btn-large {
   padding: 0px 12px; }
 
 .plActions {
-  white-space: nowrap; }
+  white-space: nowrap;
+  text-align: right; }
+
+.plHealth {
+  text-align: right; }
+
+option {
+  background-color: white;
+  color: black; }
 
 /*# sourceMappingURL=materialize.css.map */

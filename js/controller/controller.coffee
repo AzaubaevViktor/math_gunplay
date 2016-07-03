@@ -1,3 +1,5 @@
+
+
 class Controller
   constructor: ->
     # addPlayer
@@ -14,14 +16,23 @@ class Controller
     mgModelSettings.endDayCallback = =>
       @changeGameMode()
 
-  addPlayer: () ->
+    return
+
+  addPlayer:  ->
     name = $("#newPlayerName").val()
     $("#newPlayerName").val("")
     if name.length
       mgModel.addPlayer(name)
       mgView.update()
 
-  changeGameMode: () ->
+    # playerClick
+    $("tr.player").unbind 'click'
+    $("tr.player").on 'click', (e) ->
+      if !$(e.toElement).attr('class').includes 'btn'
+        mgView.playerClick($ e.currentTarget)
+    return
+
+  changeGameMode: ->
     if isMode MODE_ADD
       if mgModel.players.length == 0
         Materialize.toast("Вы не добавили ни одного игрока. Нажмите на + на верхней панели, чтобы добавить игроков", 4000, "red darken-4" );
@@ -32,6 +43,7 @@ class Controller
     else if isMode MODE_NIGHT
       setMode MODE_DAY
     mgView.update()
+    return
 
 
 window.mgController = new Controller()
