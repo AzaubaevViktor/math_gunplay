@@ -27,9 +27,9 @@ class Controller
 
     # playerClick
     $("tr.player").unbind 'click'
-    $("tr.player").on 'click', (e) ->
+    $("tr.player").on 'click', (e) =>
       if !$(e.toElement).attr('class').includes 'btn'
-        mgView.playerClick($ e.currentTarget)
+        @playerClick($ e.currentTarget)
     return
 
   changeGameMode: ->
@@ -42,6 +42,58 @@ class Controller
       setMode MODE_NIGHT
     else if isMode MODE_NIGHT
       setMode MODE_DAY
+    mgView.update()
+    return
+
+  playerClick: (playerEl) ->
+    id = 1 * playerEl.attr('id')[6..]
+    console.log(id)
+
+    if mgViewSettings.isAttack
+      mgModel.hit mgViewSettings.fromPlId, id
+
+      mgViewSettings.fromPlId = -1
+      mgViewSettings.isAttack = false
+      mgViewSettings.currentLevel = null
+    else
+      if mgViewSettings.fromPlId == -1
+        mgViewSettings.fromPlId = id
+      else if mgViewSettings.fromPlId == id
+        mgViewSettings.fromPlId = -1
+      else
+        mgViewSettings.fromPlId = id
+
+    mgView.update()
+    return
+
+  actionClick: (act, value) ->
+    console.log act, value
+
+    if mgViewSettings.isAttack
+      if act == 'solve'
+        mgViewSettings.isAttack = false
+        mgViewSettings.currentLevel = null
+        mgView.update()
+        return
+      else
+        return
+
+    mgViewSettings.isAttack = false
+
+    switch act
+      when 'solve'
+        mgViewSettings.isAttack = true
+        mgViewSettings.currentLevel = mgModel.players[mgViewSettings.fromPlId].getLevel()
+      when 'unsolve'
+        mgModel.miss(mgViewSettings.fromPlId)
+        mgViewSettings.fromPlId = -1
+      when 'treat'
+        mgModel.treat(mgViewSettings.fromPlId, value)
+        mgViewSettings.fromPlId = -1
+      when 'penalty'
+        mgModel.penalty(mgViewSettings.fromPlId)
+        mgViewSettings.fromPlId = -1
+
     mgView.update()
     return
 

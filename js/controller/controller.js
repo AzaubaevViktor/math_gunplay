@@ -38,11 +38,13 @@
         mgView.update();
       }
       $("tr.player").unbind('click');
-      $("tr.player").on('click', function(e) {
-        if (!$(e.toElement).attr('class').includes('btn')) {
-          return mgView.playerClick($(e.currentTarget));
-        }
-      });
+      $("tr.player").on('click', (function(_this) {
+        return function(e) {
+          if (!$(e.toElement).attr('class').includes('btn')) {
+            return _this.playerClick($(e.currentTarget));
+          }
+        };
+      })(this));
     };
 
     Controller.prototype.changeGameMode = function() {
@@ -56,6 +58,60 @@
         setMode(MODE_NIGHT);
       } else if (isMode(MODE_NIGHT)) {
         setMode(MODE_DAY);
+      }
+      mgView.update();
+    };
+
+    Controller.prototype.playerClick = function(playerEl) {
+      var id;
+      id = 1 * playerEl.attr('id').slice(6);
+      console.log(id);
+      if (mgViewSettings.isAttack) {
+        mgModel.hit(mgViewSettings.fromPlId, id);
+        mgViewSettings.fromPlId = -1;
+        mgViewSettings.isAttack = false;
+        mgViewSettings.currentLevel = null;
+      } else {
+        if (mgViewSettings.fromPlId === -1) {
+          mgViewSettings.fromPlId = id;
+        } else if (mgViewSettings.fromPlId === id) {
+          mgViewSettings.fromPlId = -1;
+        } else {
+          mgViewSettings.fromPlId = id;
+        }
+      }
+      mgView.update();
+    };
+
+    Controller.prototype.actionClick = function(act, value) {
+      console.log(act, value);
+      if (mgViewSettings.isAttack) {
+        if (act === 'solve') {
+          mgViewSettings.isAttack = false;
+          mgViewSettings.currentLevel = null;
+          mgView.update();
+          return;
+        } else {
+          return;
+        }
+      }
+      mgViewSettings.isAttack = false;
+      switch (act) {
+        case 'solve':
+          mgViewSettings.isAttack = true;
+          mgViewSettings.currentLevel = mgModel.players[mgViewSettings.fromPlId].getLevel();
+          break;
+        case 'unsolve':
+          mgModel.miss(mgViewSettings.fromPlId);
+          mgViewSettings.fromPlId = -1;
+          break;
+        case 'treat':
+          mgModel.treat(mgViewSettings.fromPlId, value);
+          mgViewSettings.fromPlId = -1;
+          break;
+        case 'penalty':
+          mgModel.penalty(mgViewSettings.fromPlId);
+          mgViewSettings.fromPlId = -1;
       }
       mgView.update();
     };

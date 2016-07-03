@@ -3,8 +3,10 @@ class ViewSettings
     @fromPlId = -1
     @isAttack = false
     @attackTo = -1
+    @currentLevel = null
 
-viewSettings = new ViewSettings()
+mgViewSettings = new ViewSettings()
+window.mgViewSettings = mgViewSettings
 
 checkShowHide = (element, condition) ->
   if condition
@@ -19,6 +21,7 @@ checkShowHideGameMode = (element, gameModeList) ->
 class ViewPlayer
   constructor: (@player) ->
     @el = null
+    @actionShowed = false
 
   getEl: ->
     if @el?
@@ -44,6 +47,7 @@ class ViewPlayer
         btn("solve", "Решена", "green darken-1", @generateActionClickCallback())
         btn("unsolve", "Не решена", "red darken-1", @generateActionClickCallback())
         $("<select act='treat'>").addClass("waves-effect waves-light btn blue darken-1").append([
+          $("<option value='-1'>"),
           $("<option value='0'>"),
           $("<option value='1'>"),
           $("<option value='2'>"),
@@ -64,34 +68,42 @@ class ViewPlayer
     @el.find(".plHealth").text(@player.health)
     @el.find(".plDamage").text(@player.getAttackValue())
     @el.find(".plTreat").text(@player.getTreatValue(3))
+    @el.find("select").val(-1)
     for opt in @el.find("option")
       opt = $(opt)
-      opt.text("#{opt.attr('value')} верно (#{@player.getTreatValue opt.attr('value')})")
+      if opt.attr('value') == '-1'
+        opt.text("Задач верно:")
+      else
+        opt.text("#{opt.attr('value')} верно (#{@player.getTreatValue opt.attr('value')})")
     @el.find(".plSolvedUnsolved").text("#{@player.solved}/#{@player.unsolved}")
 
     @show(1000)
     return
 
   showActions: (time) ->
-    @el.find(".plHealth").hide()
-    @el.find(".plDamage").hide()
-    @el.find(".plTreat").hide()
-    @el.find(".plSolvedUnsolved").hide()
-    @el.find(".plActions").show(time)
+    if !@actionShowed
+      @el.find(".plHealth").hide()
+      @el.find(".plDamage").hide()
+      @el.find(".plTreat").hide()
+      @el.find(".plSolvedUnsolved").hide()
+      @el.find(".plActions").show(time)
+      @actionShowed = true
 
   hideActions: (time) ->
-    @el.find(".plActions").hide()
-    @el.find(".plHealth").show(time)
-    @el.find(".plDamage").show(time)
-    @el.find(".plTreat").show(time)
-    @el.find(".plSolvedUnsolved").show(time)
+    if @actionShowed
+      @el.find(".plActions").hide()
+      @el.find(".plHealth").show(time)
+      @el.find(".plDamage").show(time)
+      @el.find(".plTreat").show(time)
+      @el.find(".plSolvedUnsolved").show(time)
+      @actionShowed = false
 
   generateActionClickCallback: () ->
     return (e) =>
       target = $ e.currentTarget
       actName = target.attr('act')
       value = target.val()
-      mgView.actionClick(actName, value)
+      mgController.actionClick(actName, value)
 
 
 
@@ -142,65 +154,30 @@ class View
     checkShowHideGameMode @addPlayerButton, MODE_ADD
 
   update: ->
-    @updatePlayers()
     @updatePanel()
+    @updatePlayers()
+    @updateActions()
 
-  hideAllActions: ->
+  showActionsOnly: (plId) ->
     for vPl in @viewPlayers
-      vPl.hideActions(0)
-
-  playerClick: (playerEl) ->
-    id = 1 * playerEl.attr('id')[6..]
-    console.log(id)
-    vPlayer = @viewPlayers[id]
-
-    if viewSettings.isAttack
-      mgModel.hit viewSettings.fromPlId, id
-
-      viewSettings.fromPlId = -1
-      viewSettings.isAttack = false
-      @hideAllActions()
-      @update()
-    else
-      if viewSettings.fromPlId == -1
-        vPlayer.showActions 300
-        viewSettings.fromPlId = id
-      else if viewSettings.fromPlId == id
-        vPlayer.hideActions 300
-        viewSettings.fromPlId = -1
+      if vPl.player.id == plId
+        vPl.showActions(300)
       else
-        @hideAllActions()
-
-        vPlayer.showActions 300
-        viewSettings.fromPlId = id
-
+        vPl.hideActions(0)
     return
 
-  actionClick: (act, value) ->
-    console.log act, value
-    viewSettings.isAttack = false
+  updateActions: ->
+    if mgViewSettings.fromPlId == -1
+      @showActionsOnly(-1)
+    else
+      if mgViewSettings.isAttack
+        for vPlayer in @viewPlayers
+          if vPlayer.player.getLevel() != mgViewSettings.currentLevel
+            vPlayer.el.addClass "not"
+      else
+        @showActionsOnly(mgViewSettings.fromPlId)
+        $(".player").removeClass("not")
 
-    if viewSettings.isAttack
-      return
-
-    switch act
-      when 'solve'
-        viewSettings.isAttack = true
-        #TODO: Засерить плохие комнады
-      when 'unsolve'
-        mgModel.miss(viewSettings.fromPlId)
-        @hideAllActions()
-        viewSettings.fromPlId = -1
-      when 'treat'
-        mgModel.treat(viewSettings.fromPlId, value)
-        @hideAllActions()
-        viewSettings.fromPlId = -1
-      when 'penalty'
-        mgModel.penalty(viewSettings.fromPlId)
-        @hideAllActions()
-        viewSettings.fromPlId = -1
-
-    @update();
 
 
 
