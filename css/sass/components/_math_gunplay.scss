@@ -42,3 +42,13 @@ tr.morgue:hover>td {
 td.name, th.name, td.plName {
   text-align: left;
 }
+
+td>.btn {
+  font-size: 18px;
+  margin: 2px;
+  padding: 0px 12px;
+}
+
+.plActions {
+  white-space: nowrap;
+}

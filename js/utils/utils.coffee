@@ -9,4 +9,6 @@ window.getValScope = (val, scope) ->
 window.deepCopy = (v) ->
   $.extend true, [], v
 
-  
+
+window.btn = (id, text, color) ->
+  $("<a id='#{id}'>").addClass("waves-effect waves-light btn #{color}").text(text)

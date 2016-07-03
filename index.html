@@ -27,19 +27,34 @@
     </div>
 </nav>
 
-<table class="bordered">
-    <thead>
-    <tr>
-        <th data-field="id">ID</th>
-        <th class="name" data-field="team" style="width: 100%;">Команда</th>
-        <th data-field="health">❤</th>
-        <th data-field="damage"><i class="material-icons small">gps_fixed</i></th>
-        <th data-field="attitude" style="white-space: nowrap;">Р/Н</th>
-    </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<div class="row">
+    <div class="col s9">
+        <table id="mainTable" class="bordered">
+            <thead>
+            <tr>
+                <th data-field="id" style="width:1px;">ID</th>
+                <th class="name" data-field="team" style="width: 100%;">Команда</th>
+                <th data-field="health" style="text-align: right;">❤</th>
+                <th data-field="damage" style="width: 1px;"><i class="material-icons small">gps_fixed</i></th>
+                <th data-field="treat" style="width: 1px;"><i class="material-icons small">local_hospital</i></th>
+                <th data-field="attitude" style="width: 1px; white-space: nowrap;">Р/Н</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col s3">
+        <table class="table table-bordered">
+            <tbody><tr class="square"><td>Площадь</td></tr>
+            <tr class="hospital"><td>Госпиталь</td></tr>
+            <tr class="resuscitation"><td>Реанимация</td></tr>
+            <tr class="morgue"><td>Морг</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <div id="modalAddPlayer" class="modal">
     <div class="modal-content">

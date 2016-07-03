@@ -16,7 +16,7 @@
 
   View = (function() {
     function View() {
-      this.table = $("table");
+      this.table = $("#mainTable");
       this.tbody = this.table.find("tbody");
       this.addPlayerButton = $('#addPlayerButton');
       this.modeButtonText = $("#modeText");
@@ -28,11 +28,11 @@
     }
 
     View.prototype.generatePlayer = function(player) {
-      return $("<tr>").addClass("player").attr("id", "player" + player.id).append([$("<td>").addClass("plId"), $("<td>").addClass("plName"), $("<td>").addClass("plHealth"), $("<td>").addClass("plDamage"), $("<td>").addClass("plSolvedUnsolved")]);
+      return $("<tr>").addClass("player").attr("id", "player" + player.id).append([$("<td>").addClass("plId"), $("<td>").addClass("plName"), $("<td>").addClass("plHealth"), $("<td>").addClass("plDamage"), $("<td>").addClass("plTreat"), $("<td>").addClass("plSolvedUnsolved"), $("<td colspan='3'>").addClass("plActions").append([btn("solve" + player.id, "Решена", "green darken-1"), btn("unsolve" + player.id, "Не решена", "red darken-1"), $("<select id='treat" + player.id + "'>").addClass("waves-effect waves-light btn blue darken-1").append([$("<option value='0'>"), $("<option value='1'>"), $("<option value='2'>"), $("<option value='3'>")]), btn("penalty" + player.id, "Штраф", "orange darken-1")])]);
     };
 
     View.prototype.updatePlayer = function(player) {
-      var playerEl;
+      var i, len, opt, playerEl, ref;
       playerEl = $("#player" + player.id);
       if (!playerEl.length) {
         playerEl = this.generatePlayer(player);
@@ -44,6 +44,13 @@
       playerEl.find(".plName").text(player.name);
       playerEl.find(".plHealth").text(player.health);
       playerEl.find(".plDamage").text(player.getAttackValue());
+      playerEl.find(".plTreat").text(player.getTreatValue(3));
+      ref = playerEl.find("option");
+      for (i = 0, len = ref.length; i < len; i++) {
+        opt = ref[i];
+        opt = $(opt);
+        opt.text((opt.val()) + " верно (" + (player.getTreatValue(opt.val())) + ")");
+      }
       playerEl.find(".plSolvedUnsolved").text(player.solved + "/" + player.unsolved);
       playerEl.show(1000);
     };

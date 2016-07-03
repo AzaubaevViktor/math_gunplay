@@ -14,6 +14,10 @@
     return $.extend(true, [], v);
   };
 
+  window.btn = function(id, text, color) {
+    return $("<a id='" + id + "'>").addClass("waves-effect waves-light btn " + color).text(text);
+  };
+
 }).call(this);
 
 //# sourceMappingURL=utils.js.map
