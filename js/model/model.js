@@ -38,7 +38,10 @@
   };
 
   window.setMode = function(gameMode) {
-    return mgModelSettings.gameMode = gameMode;
+    mgModelSettings.gameMode = gameMode;
+    if (isMode(MODE_DAY)) {
+      return mgModel.setDayTimer();
+    }
   };
 
   ModelSettings = (function() {
@@ -51,8 +54,12 @@
       this.selfDestroyResuscitation = false;
       this.hospitalPlus = 10;
       this.nullResus = true;
-      this.gameTime = 15;
+      this.dayTime = 4;
       this.gameMode = MODE_ADD;
+      this.time = 0;
+      this.timer = null;
+      this.endDayCallback = function() {};
+      this.daySecondCallback = function() {};
     }
 
     return ModelSettings;
@@ -139,6 +146,21 @@
       var player;
       player = this.getPlayer(plId);
       return player.addPenalty();
+    };
+
+    Model.prototype.setDayTimer = function() {
+      clearInterval(mgModelSettings.timer);
+      mgModelSettings.time = Math.max(1, mgModelSettings.dayTime);
+      return mgModelSettings.timer = setInterval(function() {
+        mgModelSettings.time -= 1;
+        if (mgModelSettings.time <= 0) {
+          mgModelSettings.endDayCallback();
+          clearInterval(mgModelSettings.timer);
+          return mgModelSettings.timer = null;
+        } else {
+          return mgModelSettings.daySecondCallback();
+        }
+      }, 1000);
     };
 
     return Model;

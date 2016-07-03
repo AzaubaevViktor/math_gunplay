@@ -11,6 +11,9 @@ class Controller
     $("#modeButton").on "click", =>
       @changeGameMode()
 
+    mgModelSettings.endDayCallback = =>
+      @changeGameMode()
+
   addPlayer: () ->
     name = $("#newPlayerName").val()
     $("#newPlayerName").val("")

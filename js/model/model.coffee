@@ -28,6 +28,9 @@ window.isMode = (gameModes) ->
     
 window.setMode = (gameMode) ->
   mgModelSettings.gameMode = gameMode
+  if isMode MODE_DAY
+    mgModel.setDayTimer()
+
 
 class ModelSettings
   constructor: ->
@@ -41,8 +44,12 @@ class ModelSettings
     @selfDestroyResuscitation = false
     @hospitalPlus = 10
     @nullResus = true # обнуление количества лечений в реанимации
-    @gameTime = 15
+    @dayTime = 4
     @gameMode = MODE_ADD
+    @time = 0
+    @timer = null
+    @endDayCallback = ->
+    @daySecondCallback = ->
 
 
 window.mgModelSettings = new ModelSettings()
@@ -112,6 +119,22 @@ class Model
   penalty: (plId) ->
     player = @getPlayer(plId)
     player.addPenalty()
+
+  setDayTimer: ->
+    clearInterval mgModelSettings.timer
+    mgModelSettings.time = Math.max(1, mgModelSettings.dayTime )
+
+    mgModelSettings.timer = setInterval ->
+      mgModelSettings.time -= 1
+      if mgModelSettings.time <= 0
+        mgModelSettings.endDayCallback()
+        clearInterval mgModelSettings.timer
+        mgModelSettings.timer = null
+      else
+        mgModelSettings.daySecondCallback()
+    , 1000
+
+
 
 
 window.mgModel = new Model()

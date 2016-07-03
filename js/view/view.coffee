@@ -1,6 +1,3 @@
-class ViewSettings
-  constructor: ->
-
 checkShowHide = (element, condition) ->
   if condition
     element.show(100)
@@ -16,6 +13,9 @@ class View
     @tbody = @table.find("tbody")
     @addPlayerButton = $('#addPlayerButton')
     @modeButtonText = $("#modeText")
+
+    mgModelSettings.daySecondCallback = =>
+      @updateTime()
 
   generatePlayer: (player) ->
     $("<tr>").addClass("player").attr("id", "player#{player.id}").append [
@@ -43,26 +43,32 @@ class View
     playerEl.show(1000)
     return
 
-  redrawPlayers: ->
+  updatePlayers: ->
     for player in mgModel.players
       @updatePlayer(player)
     return
 
-  redrawPanel: ->
+  updateTime: ->
+    time = mgModelSettings.time
+    min = Math.floor(time / 60)
+    min = if min < 10 then "0" + min else min
+    sec = time % 60
+    sec = if sec < 10 then "0" + sec else sec
+    @modeButtonText.text "День (#{min}:#{sec})"
+
+  updatePanel: ->
     if isMode MODE_ADD
       @modeButtonText.text "Добавление игроков"
     else if isMode MODE_DAY
-      @modeButtonText.text "День (ВРЕМЯ)"
+      @updateTime()
     else if isMode MODE_NIGHT
       @modeButtonText.text "Ночь"
 
     checkShowHideGameMode @addPlayerButton, MODE_ADD
 
-    
-
   update: ->
-    @redrawPlayers()
-    @redrawPanel()
+    @updatePlayers()
+    @updatePanel()
 
 window.mgView = new View()
 mgView.update()

@@ -21,6 +21,11 @@
           return _this.changeGameMode();
         };
       })(this));
+      mgModelSettings.endDayCallback = (function(_this) {
+        return function() {
+          return _this.changeGameMode();
+        };
+      })(this);
     }
 
     Controller.prototype.addPlayer = function() {

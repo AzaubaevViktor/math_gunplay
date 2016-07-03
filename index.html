@@ -11,7 +11,10 @@
 
 <nav>
     <div class="nav-wrapper">
-        <a href="#!" class="brand-logo">Математическая перестрелка</a>
+        <a href="#!" class="brand-logo">
+            Математическая перестрелка
+            <p id="version" style="display:inline; color:gray; font-size:1.1rem"> v0.1.12a</p>
+        </a>
         <ul class="right hide-on-med-and-down">
             <li><a href="#!"><i class="material-icons">skip_previous</i></a></li>
             <li><a href="#!"><i class="material-icons">skip_next</i></a></li>
@@ -66,6 +69,7 @@
 <script type="text/javascript" src="js/model/model.js"></script>
 <script type="text/javascript" src="js/view/view.js"></script>
 <script type="text/javascript" src="js/controller/controller.js"></script>
+<script type="text/javascript" src="js/version.js"></script>
 <script>
     $(document).ready(function(){
         // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
@@ -75,6 +79,8 @@
             in_duration: 300, // Transition in duration
             out_duration: 200 // Transition out duration
         });
+
+        $("#version").text(__version__);
     });
 </script>
 </body>
