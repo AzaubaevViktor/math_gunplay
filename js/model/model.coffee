@@ -54,6 +54,7 @@ class ModelSettings
     @daySecondCallback = ->
 
     @connectToStorage()
+    @loadSettings()
 
   connectToStorage: ->
     @saves = JSON.parse localStorage.getItem 'saves'
@@ -123,6 +124,32 @@ class ModelSettings
       mPlayer.apply player
       mgModel.players.push mPlayer
 
+  saveSettings: ->
+    localStorage.setItem 'settings', JSON.stringify {
+      version: @settingsVersion
+      maxAttack: @maxAttack
+      selfDestroyAttack: @selfDestroyAttack
+      selfDestroyTreat: @selfDestroyTreat
+      selfDestroyResuscitation: @selfDestroyResuscitation
+      hospitalPlus: @hospitalPlus
+      nullResus: @nullResus
+      dayTime: @dayTime
+    }
+    return 
+
+  loadSettings: ->
+    _sett = JSON.parse localStorage.getItem 'settings'
+    if !_sett? || _sett.version != @settingsVersion
+      @saveSettings()
+
+    @maxAttack = _sett.maxAttack
+    @selfDestroyAttack = _sett.selfDestroyAttack
+    @selfDestroyTreat = _sett.selfDestroyTreat
+    @selfDestroyResuscitation = _sett.selfDestroyResuscitation
+    @hospitalPlus = _sett.hospitalPlus
+    @nullResus = _sett.nullResus
+    @dayTime = _sett.dayTime
+    return
 
 window.mgModelSettings = new ModelSettings()
 

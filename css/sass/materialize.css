@@ -6198,4 +6198,9 @@ option {
   background-color: white;
   color: black; }
 
+#modalSettings p {
+  margin: 0px; }
+#modalSettings .row {
+  margin-bottom: 5px; }
+
 /*# sourceMappingURL=materialize.css.map */

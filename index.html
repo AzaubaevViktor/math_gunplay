@@ -20,7 +20,7 @@
             <li><a href="#!"><i class="material-icons">skip_next</i></a></li>
             <li id="addPlayerButton"><a class="modal-trigger" href="#modalAddPlayer"><i class="material-icons">add</i></a></li>
             <li id="modeButton"><a href="#!">Режим: <p id="modeText" style="display:inline;">режим</p><i class="material-icons right">done</i></a></li>
-            <li><a href="#!"><i class="material-icons">settings</i></a></li>
+            <li><a class="modal-trigger" href="#modalSettings"><i class="material-icons">settings</i></a></li>
             <li><a href="#!"><i class="material-icons">save</i></a></li>
             <li><a href="#!"><i class="material-icons">equalizer</i></a></li>
         </ul>
@@ -77,12 +77,25 @@
     </div>
 </div>
 
+<div id="modalSettings" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>Настройки</h4>
+        <div class="row">
+            <div id="modalSettingsBody" class="col s12">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/materialize/bin/materialize.js"></script>
 
 <script type="text/javascript" src="js/utils/utils.js"></script>
 <script type="text/javascript" src="js/model/model.js"></script>
 <script type="text/javascript" src="js/view/view.js"></script>
+<script type="text/javascript" src="js/settings/settings.js"></script>
 <script type="text/javascript" src="js/controller/controller.js"></script>
 <script type="text/javascript" src="js/version.js"></script>
 <script>

@@ -63,6 +63,7 @@
       this.endDayCallback = function() {};
       this.daySecondCallback = function() {};
       this.connectToStorage();
+      this.loadSettings();
     }
 
     ModelSettings.prototype.connectToStorage = function() {
@@ -138,6 +139,34 @@
         results.push(mgModel.players.push(mPlayer));
       }
       return results;
+    };
+
+    ModelSettings.prototype.saveSettings = function() {
+      localStorage.setItem('settings', JSON.stringify({
+        version: this.settingsVersion,
+        maxAttack: this.maxAttack,
+        selfDestroyAttack: this.selfDestroyAttack,
+        selfDestroyTreat: this.selfDestroyTreat,
+        selfDestroyResuscitation: this.selfDestroyResuscitation,
+        hospitalPlus: this.hospitalPlus,
+        nullResus: this.nullResus,
+        dayTime: this.dayTime
+      }));
+    };
+
+    ModelSettings.prototype.loadSettings = function() {
+      var _sett;
+      _sett = JSON.parse(localStorage.getItem('settings'));
+      if ((_sett == null) || _sett.version !== this.settingsVersion) {
+        this.saveSettings();
+      }
+      this.maxAttack = _sett.maxAttack;
+      this.selfDestroyAttack = _sett.selfDestroyAttack;
+      this.selfDestroyTreat = _sett.selfDestroyTreat;
+      this.selfDestroyResuscitation = _sett.selfDestroyResuscitation;
+      this.hospitalPlus = _sett.hospitalPlus;
+      this.nullResus = _sett.nullResus;
+      this.dayTime = _sett.dayTime;
     };
 
     return ModelSettings;
