@@ -28,6 +28,9 @@ class Controller
       Materialize.toast "Для того, чтобы начать НОВУЮ ИГРУ (ТЕКУЩАЯ ИГРА УДАЛИТСЯ, ЕСЛИ ОНА НЕ СОХРАНЕНА), нажми
       <a href=# onclick='mgController.newGame()'>сюда</a>", 3000
 
+    # чтобы при загрузке сразу можно было тыкать
+    @bindPlayersClick()
+
     return
 
   addPlayer:  ->

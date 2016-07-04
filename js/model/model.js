@@ -105,6 +105,7 @@
       var id, now;
       now = new Date();
       id = this.findId();
+      console.log("Write new save " + id + ": " + name);
       this.saves.ids[id] = name;
       Stor.set('saves', this.saves);
       Stor.set(id, {
@@ -123,6 +124,7 @@
     };
 
     ModelSettings.prototype.deleteSave = function(id) {
+      console.log("Write save " + id);
       delete this.saves.ids[id];
       Stor.set('saves', this.saves);
       Stor.remove(id);
@@ -130,6 +132,7 @@
 
     ModelSettings.prototype.loadSave = function(id) {
       var save;
+      console.group("loadSave");
       save = Stor.get(id);
       this.maxAttack = save.settings.maxAttack;
       this.selfDestroyAttack = save.settings.selfDestroyAttack;
@@ -138,10 +141,11 @@
       this.hospitalPlus = save.settings.hospitalPlus;
       this.nullResus = save.settings.nullResus;
       this.dayTime = save.settings.dayTime;
-      this.gameMode = MODE_NIGHT;
+      setMode(MODE_NIGHT, false);
       this.time = 0;
       clearInterval(this.timer);
       restorePlayers(save.players);
+      console.groupEnd();
     };
 
     ModelSettings.prototype.saveSettings = function() {

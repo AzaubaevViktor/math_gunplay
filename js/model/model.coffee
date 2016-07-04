@@ -90,6 +90,7 @@ class ModelSettings
   writeSave: (name) ->
     now = new Date()
     id = @findId()
+    console.log "Write new save #{id}: #{name}"
     @saves.ids[id] = name
     Stor.set 'saves',  @saves
     Stor.set id, {
@@ -108,12 +109,14 @@ class ModelSettings
     return
 
   deleteSave: (id) ->
+    console.log "Write save #{id}"
     delete @saves.ids[id]
     Stor.set 'saves', @saves
     Stor.remove id
     return
 
   loadSave: (id) ->
+    console.group "loadSave"
     save = Stor.get id
     # Restore Settings
     @maxAttack = save.settings.maxAttack
@@ -124,11 +127,13 @@ class ModelSettings
     @nullResus = save.settings.nullResus
     @dayTime = save.settings.dayTime
 
-    @gameMode = MODE_NIGHT
+    setMode MODE_NIGHT, false
+
     @time = 0
     clearInterval @timer
 
     restorePlayers save.players
+    console.groupEnd()
     return
 
   saveSettings: ->
