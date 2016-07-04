@@ -115,6 +115,10 @@
       })(this);
     };
 
+    ViewPlayer.prototype.remove = function() {
+      return this.el.remove();
+    };
+
     return ViewPlayer;
 
   })();
@@ -144,16 +148,25 @@
       } else {
         vPlayer = this.viewPlayers[player.id];
       }
+      vPlayer.player = player;
       return vPlayer.update();
     };
 
     View.prototype.updatePlayers = function() {
-      var i, len, player, ref;
+      var i, len, maxId, player, ref;
+      maxId = 0;
       ref = mgModel.players;
       for (i = 0, len = ref.length; i < len; i++) {
         player = ref[i];
         this.updatePlayer(player);
+        maxId = Math.max(maxId, player.id);
       }
+      for (id = maxId + 1; id < this.viewPlayers.length; ++id) {
+        var ref;
+        if ((ref = this.viewPlayers.pop()) != null) {
+            ref.remove();
+        }
+    };
     };
 
     View.prototype.updateTime = function() {
@@ -174,7 +187,9 @@
       } else if (isMode(MODE_NIGHT)) {
         this.modeButtonText.text("Ночь");
       }
-      return checkShowHideGameMode(this.addPlayerButton, MODE_ADD);
+      checkShowHideGameMode(this.addPlayerButton, MODE_ADD);
+      checkShowHide($("#prevSnap"), snapshotter.isPrev());
+      return checkShowHide($("#nextSnap"), snapshotter.isNext());
     };
 
     View.prototype.update = function() {

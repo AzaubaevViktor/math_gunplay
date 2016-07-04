@@ -26,6 +26,25 @@
           return _this.changeGameMode();
         };
       })(this);
+      $("#prevSnap").on('click', (function(_this) {
+        return function() {
+          snapshotter.prevSnapshot();
+          mgView.update();
+          return _this.bindPlayersClick();
+        };
+      })(this));
+      $("#nextSnap").on('click', (function(_this) {
+        return function() {
+          snapshotter.nextSnapshot();
+          mgView.update();
+          return _this.bindPlayersClick();
+        };
+      })(this));
+      $("#newGame").on('click', (function(_this) {
+        return function() {
+          return Materialize.toast("Для того, чтобы начать НОВУЮ ИГРУ (ТЕКУЩАЯ ИГРА УДАЛИТСЯ, ЕСЛИ ОНА НЕ СОХРАНЕНА), нажми <a href=# onclick='mgController.newGame()'>сюда</a>", 3000);
+        };
+      })(this));
       return;
     }
 
@@ -128,6 +147,12 @@
           mgViewSettings.fromPlId = -1;
       }
       mgView.update();
+    };
+
+    Controller.prototype.newGame = function() {
+      snapshotter.removeSnapshots();
+      mgView.update();
+      return this.bindPlayersClick();
     };
 
     return Controller;

@@ -104,6 +104,8 @@ class ViewPlayer
       value = target.val()
       mgController.actionClick(actName, value)
 
+  remove: ->
+    @el.remove()
 
 
 class View
@@ -127,11 +129,22 @@ class View
     else
       vPlayer = @viewPlayers[player.id]
 
+    vPlayer.player = player
     vPlayer.update()
 
   updatePlayers: ->
+    maxId = 0
     for player in mgModel.players
       @updatePlayer(player)
+      maxId = Math.max maxId, player.id
+
+    `for (id = maxId + 1; id < this.viewPlayers.length; ++id) {
+        var ref;
+        if ((ref = this.viewPlayers.pop()) != null) {
+            ref.remove();
+        }
+    }`
+
     return
 
   updateTime: ->
@@ -151,6 +164,9 @@ class View
       @modeButtonText.text "Ночь"
 
     checkShowHideGameMode @addPlayerButton, MODE_ADD
+    
+    checkShowHide $("#prevSnap"), snapshotter.isPrev()
+    checkShowHide $("#nextSnap"), snapshotter.isNext()
 
   update: ->
     @updatePanel()

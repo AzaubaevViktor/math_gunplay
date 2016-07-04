@@ -1,5 +1,3 @@
-
-
 class Controller
   constructor: ->
     # addPlayer
@@ -15,6 +13,20 @@ class Controller
 
     mgModelSettings.endDayCallback = =>
       @changeGameMode()
+
+    $("#prevSnap").on 'click', =>
+      snapshotter.prevSnapshot()
+      mgView.update()
+      @bindPlayersClick()
+
+    $("#nextSnap").on 'click', =>
+      snapshotter.nextSnapshot()
+      mgView.update()
+      @bindPlayersClick()
+
+    $("#newGame").on 'click', =>
+      Materialize.toast "Для того, чтобы начать НОВУЮ ИГРУ (ТЕКУЩАЯ ИГРА УДАЛИТСЯ, ЕСЛИ ОНА НЕ СОХРАНЕНА), нажми
+      <a href=# onclick='mgController.newGame()'>сюда</a>", 3000
 
     return
 
@@ -110,6 +122,11 @@ class Controller
 
     mgView.update()
     return
+
+  newGame: ->
+    snapshotter.removeSnapshots()
+    mgView.update()
+    @bindPlayersClick()
 
 
 window.mgController = new Controller()

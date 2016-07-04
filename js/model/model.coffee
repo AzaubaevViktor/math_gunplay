@@ -1,37 +1,48 @@
-penalties = [
-    "treat": 0,
-    "attack": 0
-  ,
-    "treat": 1,
-    "attack": 3
-  ,
-    "treat": 3,
-    "attack": 6
-  ,
-    "treat": 5,
-    "attack": 9
-  ,
-    "treat": 1,
-    "attack": 12
-]
-
-
 window.MODE_ADD = 1
 window.MODE_DAY = 2
 window.MODE_NIGHT = 3
+
+takeSnapshot = ->
+  console.log "Take Snapshot ещё не готов"
+
 
 window.isMode = (gameModes) ->
   if Array.isArray gameModes
     return mgModelSettings.gameMode in gameModes
   else
     return mgModelSettings.gameMode == gameModes
-    
-window.setMode = (gameMode) ->
+
+
+window.setMode = (gameMode, isTakeSnapshot=true) ->
+  console.group "Change mode to #{gameMode}"
   mgModelSettings.gameMode = gameMode
   if isMode MODE_DAY
     mgModel.setDayTimer()
   else
     clearInterval mgModelSettings.timer
+  if isTakeSnapshot
+    takeSnapshot()
+  console.groupEnd()
+
+
+restorePlayers = (players) ->
+  console.group "Restore players"
+
+  if !mgModel?
+    console.log "Model not found. End"
+    console.groupEnd()
+    return
+  mgModel.players = []
+
+  for player in players
+    console.log "Add Player ##{player.id}: #{player.name}"
+
+    mPlayer = new Player player.id, player.name
+    mPlayer.apply player
+    mgModel.players.push mPlayer
+
+  console.groupEnd()
+  return
 
 
 class ModelSettings
@@ -57,7 +68,7 @@ class ModelSettings
     @loadSettings()
 
   connectToStorage: ->
-    @saves = JSON.parse localStorage.getItem 'saves'
+    @saves = Stor.get 'saves'
     if !@saves? || @saves.version != @savesVersion
       @saves = null
 
@@ -67,7 +78,7 @@ class ModelSettings
         ids: {}
       }
 
-    localStorage.setItem 'saves', JSON.stringify @saves
+    Stor.set 'saves', @saves
     return
 
   findId: ->
@@ -80,8 +91,8 @@ class ModelSettings
     now = new Date()
     id = @findId()
     @saves.ids[id] = name
-    localStorage.setItem 'saves', JSON.stringify @saves
-    localStorage.setItem id, JSON.stringify {
+    Stor.set 'saves',  @saves
+    Stor.set id, {
       settings: {
         maxAttack: @maxAttack
         selfDestroyAttack: @selfDestroyAttack
@@ -94,14 +105,16 @@ class ModelSettings
       players: mgModel.players
       date: now
     }
+    return
 
   deleteSave: (id) ->
     delete @saves.ids[id]
-    localStorage.setItem 'saves', JSON.stringify @saves
-    localStorage.removeItem id
+    Stor.set 'saves', @saves
+    Stor.remove id
+    return
 
   loadSave: (id) ->
-    save = JSON.parse localStorage.getItem id
+    save = Stor.get id
     # Restore Settings
     @maxAttack = save.settings.maxAttack
     @selfDestroyAttack = save.settings.selfDestroyAttack
@@ -115,17 +128,11 @@ class ModelSettings
     @time = 0
     clearInterval @timer
 
-    # Restore Players
-
-    mgModel.players = []
-
-    for player in save.players
-      mPlayer = new Player player.id, player.name
-      mPlayer.apply player
-      mgModel.players.push mPlayer
+    restorePlayers save.players
+    return
 
   saveSettings: ->
-    localStorage.setItem 'settings', JSON.stringify {
+    Stor.set 'settings', {
       version: @settingsVersion
       maxAttack: @maxAttack
       selfDestroyAttack: @selfDestroyAttack
@@ -138,7 +145,7 @@ class ModelSettings
     return 
 
   loadSettings: ->
-    _sett = JSON.parse localStorage.getItem 'settings'
+    _sett = Stor.get 'settings'
     if !_sett? || _sett.version != @settingsVersion
       @saveSettings()
 
@@ -153,18 +160,6 @@ class ModelSettings
 
 window.mgModelSettings = new ModelSettings()
 
-SQUARE = "square"
-HOSPITAL = "hospital"
-RESUSCITATION = "resuscitation"
-MORGUE = "morgue"
-
-levels = {
-  "#{SQUARE}": [60, 100]
-  "#{HOSPITAL}": [30, 60]
-  "#{RESUSCITATION}": [0, 30]
-  "#{MORGUE}": [-100000, 0]
-}
-
 class Model
   constructor: ->
     @players = []
@@ -172,6 +167,7 @@ class Model
 
   addPlayer: (name) ->
     @players.push(new Player(@players.length, name))
+    takeSnapshot()
     return
 
   getPlayer: (id) ->
@@ -185,20 +181,26 @@ class Model
     playerFrom.solved += 1
 
     if (playerTo.health == 0) || (playerFrom.getLevel() != playerTo.getLevel())
+      takeSnapshot()
       return 0
 
     if fromId == toId
       if playerFrom.level == RESUSCITATION
         if mgModelSettings.selfDestroyResuscitation
+          takeSnapshot()
           return 0
       if !mgModelSettings.selfDestroyAttack
+        takeSnapshot()
         return 0
 
-    return playerTo.dHealth(-attackValue)
+    newLife = playerTo.dHealth(-attackValue)
+    takeSnapshot()
+    return newLife
 
   miss: (plId) ->
     player = @getPlayer(plId)
     player.unsolved += 1
+    takeSnapshot()
     return 0
 
   treat: (plId, correct) ->
@@ -213,11 +215,14 @@ class Model
     else
       player.treatment += 1
 
-    player.dHealth(value)
+    newLife = player.dHealth(value)
+    takeSnapshot()
+    newLife
 
   penalty: (plId) ->
     player = @getPlayer(plId)
     player.addPenalty()
+    takeSnapshot()
 
   setDayTimer: ->
     clearInterval mgModelSettings.timer
@@ -237,46 +242,82 @@ class Model
 window.mgModel = new Model()
 
 
-class Player
-  constructor: (@id, @name) ->
-    @health = 100
-    @solved = 0
-    @unsolved = 0
-    @treatment = 0
-    @penalties = 0
+class Snapshotter
+  constructor: ->
+    @loadSnapshot()
 
-  apply: (d) ->
-    @name = d.name
-    @health = d.health
-    @solved = d.solved
-    @unsolved = d.unsolved
-    @treatment = d.treatment
-    @penalties = d.penalties
+  saveSnapshot: ->
+    console.group "Saving Snapshot"
 
-  getLevel: ->
-    for level, scope of levels
-      if scope[0] < @health <= scope[1]
-        return level
+    snapshots = Stor.get 'snapshots'
+    id = snapshots.currentId += 1
+    snapshots.maxId = Math.max(id, snapshots.maxId)
+    for _id in [id..snapshots.maxId]
+      Stor.remove "snap_#{_id}"
 
-  getAttackValue: ->
-    penalty = penalties[@penalties]["attack"]
-    getValScope 10 + @solved - @unsolved - penalty - 3 * @treatment, [0, mgModelSettings.maxAttack]
+    Stor.set "snap_#{id}", {
+      players: if mgModel? then mgModel.players else []
+      gameMode: mgModelSettings.gameMode
+    }
+    Stor.set "snapshots", snapshots
+    console.groupEnd()
+    return
 
-  getTreatValue: (correct) ->
-    penalty = penalties[@penalties]["treat"]
-    value = 5 * correct + @solved - @unsolved - 3 * @treatment - 5 - penalty
-    if mgModelSettings.selfDestroyTreat && (value < 0)
-      return 0
-    if mgModelSettings.selfDestroyResuscitation && (@getLevel() == RESUSCITATION) && (value < 0)
-      return 0
+  loadSnapshot: ->
+    console.group("Load Snapshot")
+    snapshots = Stor.get 'snapshots'
+    if !snapshots? || snapshots.maxId == -1
+      console.log("Create new game")
+      Stor.set 'snapshots', {
+        currentId: -1
+        maxId: -1
+      }
+      @saveSnapshot()
+      snapshots = Stor.get 'snapshots'
 
-    if (@getLevel() == HOSPITAL)
-      value += mgModelSettings.hospitalPlus
+    snapshot = Stor.get "snap_#{snapshots.currentId}"
+    Stor.set 'snapshots', snapshots
 
-    value
+    restorePlayers snapshot.players
+    setMode snapshot.gameMode, false
+    console.groupEnd()
 
-  dHealth: (delta) ->
-    @health = getValScope @health + delta, [0, 100]
+  prevSnapshot: ->
+    console.group "Take previous snapshot"
+    snapshots = Stor.get 'snapshots'
+    if @isPrev()
+      snapshots.currentId -= 1
+    Stor.set 'snapshots', snapshots
+    @loadSnapshot()
+    console.groupEnd()
 
-  addPenalty: ->
-    @penalties = getValScope @penalties + 1, [0, penalties.length - 1]
+  nextSnapshot: ->
+    console.group "Take next snapshot"
+    snapshots = Stor.get 'snapshots'
+    if @isNext()
+      snapshots.currentId += 1
+    Stor.set 'snapshots', snapshots
+    @loadSnapshot()
+    console.groupEnd()
+
+  removeSnapshots: ->
+    console.group "NEW GAME"
+    snapshots = Stor.get 'snapshots'
+    for id in [0..snapshots.maxId]
+      Stor.remove "snap_#{id}"
+    Stor.remove 'snapshots'
+    mgModel.players = []
+    @loadSnapshot()
+    console.groupEnd()
+
+  isPrev: ->
+    snapshots = Stor.get 'snapshots'
+    snapshots? && snapshots.currentId != 0
+
+  isNext: ->
+    snapshots = Stor.get 'snapshots'
+    snapshots? && snapshots.currentId != snapshots.maxId
+
+
+window.snapshotter = new Snapshotter()
+takeSnapshot = snapshotter.saveSnapshot

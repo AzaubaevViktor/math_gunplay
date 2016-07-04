@@ -12,3 +12,18 @@ window.deepCopy = (v) ->
 
 window.btn = (act, text, color, callback) ->
   $("<a act='#{act}'>").addClass("waves-effect waves-light btn #{color}").text(text).on('click', callback)
+
+
+class Stor
+  constructor: ->
+
+  get: (key) ->
+    JSON.parse localStorage.getItem(key)
+
+  set: (key, obj) ->
+    localStorage.setItem key, JSON.stringify obj
+
+  remove: (key) ->
+    localStorage.removeItem key
+
+window.Stor = new Stor()
