@@ -155,14 +155,17 @@
 
     View.prototype.updatePlayers = function() {
       var i, len, maxId, player, ref;
-      maxId = 0;
+      maxId = -1;
       ref = mgModel.players;
       for (i = 0, len = ref.length; i < len; i++) {
         player = ref[i];
         this.updatePlayer(player);
         maxId = Math.max(maxId, player.id);
       }
-      for (id = maxId + 1; id < this.viewPlayers.length; ++id) {
+      
+    // Длинна меняется во время исполнения цикла
+    len = this.viewPlayers.length;
+    for (id = maxId + 1; id < len; ++id) {
         var ref;
         if ((ref = this.viewPlayers.pop()) != null) {
             ref.remove();

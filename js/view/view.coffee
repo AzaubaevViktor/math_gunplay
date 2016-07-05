@@ -135,12 +135,15 @@ class View
     vPlayer.update()
 
   updatePlayers: ->
-    maxId = 0
+    maxId = -1
     for player in mgModel.players
       @updatePlayer(player)
       maxId = Math.max maxId, player.id
 
-    `for (id = maxId + 1; id < this.viewPlayers.length; ++id) {
+    `
+    // Длинна меняется во время исполнения цикла
+    len = this.viewPlayers.length;
+    for (id = maxId + 1; id < len; ++id) {
         var ref;
         if ((ref = this.viewPlayers.pop()) != null) {
             ref.remove();
