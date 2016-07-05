@@ -10,7 +10,7 @@
   window.MODE_NIGHT = 3;
 
   takeSnapshot = function() {
-    return console.log("Take Snapshot ещё не готов");
+    return console.warn("Take Snapshot ещё не готов");
   };
 
   window.isMode = function(gameModes) {
@@ -50,7 +50,7 @@
     mgModel.players = [];
     for (i = 0, len = players.length; i < len; i++) {
       player = players[i];
-      console.log("Add Player #" + player.id + ": " + player.name);
+      console.log("Restore Player #" + player.id + ": " + player.name);
       mPlayer = new Player(player.id, player.name);
       mPlayer.apply(player);
       mgModel.players.push(mPlayer);
@@ -60,6 +60,7 @@
 
   ModelSettings = (function() {
     function ModelSettings() {
+      console.info("Create ModelSettings");
       this.settingsVersion = 1;
       this.savesVersion = 2;
       this.maxAttack = 15;
@@ -76,20 +77,26 @@
       this.daySecondCallback = function() {};
       this.connectToStorage();
       this.loadSettings();
+      console.groupEnd();
+      return;
     }
 
     ModelSettings.prototype.connectToStorage = function() {
+      console.group("Connecting to local storage");
       this.saves = Stor.get('saves');
       if ((this.saves == null) || this.saves.version !== this.savesVersion) {
+        console.info("Обнаружена старая версия сохранений (" + this.saves.version + "), они будут удалены");
         this.saves = null;
       }
       if (this.saves === null) {
+        console.info("Создаю новый каталог сохранений, протокол " + this.savesVersion);
         this.saves = {
           version: this.savesVersion,
           ids: {}
         };
       }
       Stor.set('saves', this.saves);
+      console.groupEnd();
     };
 
     ModelSettings.prototype.findId = function() {
@@ -149,6 +156,7 @@
     };
 
     ModelSettings.prototype.saveSettings = function() {
+      console.log("Save Settings");
       Stor.set('settings', {
         version: this.settingsVersion,
         maxAttack: this.maxAttack,
@@ -163,8 +171,10 @@
 
     ModelSettings.prototype.loadSettings = function() {
       var _sett;
+      console.group("Load settings");
       _sett = Stor.get('settings');
       if ((_sett == null) || _sett.version !== this.settingsVersion) {
+        console.info("Обнаружена старая версия настроек (" + _sett.version + "), пересохраняю");
         this.saveSettings();
       }
       this.maxAttack = _sett.maxAttack;
@@ -174,6 +184,7 @@
       this.hospitalPlus = _sett.hospitalPlus;
       this.nullResus = _sett.nullResus;
       this.dayTime = _sett.dayTime;
+      console.groupEnd();
     };
 
     return ModelSettings;
@@ -184,11 +195,13 @@
 
   Model = (function() {
     function Model() {
+      console.info("Create Model");
       this.players = [];
       return;
     }
 
     Model.prototype.addPlayer = function(name) {
+      console.log("Был добавлен пользователь " + name);
       this.players.push(new Player(this.players.length, name));
       takeSnapshot();
     };
@@ -219,6 +232,7 @@
           return 0;
         }
       }
+      console.log("Попадание игрока " + playerFrom.name + " в " + playerTo.name + ", урон " + attackValue);
       newLife = playerTo.dHealth(-attackValue);
       takeSnapshot();
       return newLife;
@@ -227,6 +241,7 @@
     Model.prototype.miss = function(plId) {
       var player;
       player = this.getPlayer(plId);
+      console.log("Промах игрока " + player.name);
       player.unsolved += 1;
       takeSnapshot();
       return 0;
@@ -243,6 +258,7 @@
       } else {
         player.treatment += 1;
       }
+      console.log("Игрок " + player.name + " лечится с " + correct + " решёнными задачи, восстанавливает " + value + " здоровья");
       newLife = player.dHealth(value);
       takeSnapshot();
       return newLife;
@@ -251,6 +267,7 @@
     Model.prototype.penalty = function(plId) {
       var player;
       player = this.getPlayer(plId);
+      console.log("Игрок " + player.name + " оштрафован");
       player.addPenalty();
       return takeSnapshot();
     };
@@ -278,6 +295,7 @@
 
   Snapshotter = (function() {
     function Snapshotter() {
+      console.info("Create Snapshotter");
       this.loadSnapshot();
     }
 

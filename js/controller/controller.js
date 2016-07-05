@@ -4,6 +4,7 @@
 
   Controller = (function() {
     function Controller() {
+      console.info("Create Controller");
       $("#modalAddPlayerAgreeBtn").on("click", (function(_this) {
         return function() {
           return _this.addPlayer();
@@ -99,7 +100,6 @@
         return;
       }
       id = 1 * playerEl.attr('id').slice(6);
-      console.log(id);
       if (mgViewSettings.isAttack) {
         mgModel.hit(mgViewSettings.fromPlId, id);
         mgViewSettings.fromPlId = -1;
@@ -118,7 +118,6 @@
     };
 
     Controller.prototype.actionClick = function(act, value) {
-      console.log(act, value);
       if (mgViewSettings.isAttack) {
         if (act === 'solve') {
           mgViewSettings.isAttack = false;

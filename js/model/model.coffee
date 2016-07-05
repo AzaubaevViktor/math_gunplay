@@ -3,7 +3,7 @@ window.MODE_DAY = 2
 window.MODE_NIGHT = 3
 
 takeSnapshot = ->
-  console.log "Take Snapshot ещё не готов"
+  console.warn "Take Snapshot ещё не готов"
 
 
 window.isMode = (gameModes) ->
@@ -35,7 +35,7 @@ restorePlayers = (players) ->
   mgModel.players = []
 
   for player in players
-    console.log "Add Player ##{player.id}: #{player.name}"
+    console.log "Restore Player ##{player.id}: #{player.name}"
 
     mPlayer = new Player player.id, player.name
     mPlayer.apply player
@@ -47,6 +47,7 @@ restorePlayers = (players) ->
 
 class ModelSettings
   constructor: ->
+    console.info "Create ModelSettings"
     @settingsVersion = 1
     @savesVersion = 2
 
@@ -66,19 +67,25 @@ class ModelSettings
 
     @connectToStorage()
     @loadSettings()
+    console.groupEnd()
+    return
 
   connectToStorage: ->
+    console.group "Connecting to local storage"
     @saves = Stor.get 'saves'
     if !@saves? || @saves.version != @savesVersion
+      console.info "Обнаружена старая версия сохранений (#{@saves.version}), они будут удалены"
       @saves = null
 
     if @saves == null
+      console.info "Создаю новый каталог сохранений, протокол #{@savesVersion}"
       @saves = {
         version: @savesVersion
         ids: {}
       }
 
     Stor.set 'saves', @saves
+    console.groupEnd()
     return
 
   findId: ->
@@ -137,6 +144,8 @@ class ModelSettings
     return
 
   saveSettings: ->
+    console.log "Save Settings"
+
     Stor.set 'settings', {
       version: @settingsVersion
       maxAttack: @maxAttack
@@ -150,8 +159,11 @@ class ModelSettings
     return 
 
   loadSettings: ->
+    console.group "Load settings"
+
     _sett = Stor.get 'settings'
     if !_sett? || _sett.version != @settingsVersion
+      console.info "Обнаружена старая версия настроек (#{_sett.version}), пересохраняю"
       @saveSettings()
 
     @maxAttack = _sett.maxAttack
@@ -161,16 +173,19 @@ class ModelSettings
     @hospitalPlus = _sett.hospitalPlus
     @nullResus = _sett.nullResus
     @dayTime = _sett.dayTime
+    console.groupEnd()
     return
 
 window.mgModelSettings = new ModelSettings()
 
 class Model
   constructor: ->
+    console.info "Create Model"
     @players = []
     return
 
   addPlayer: (name) ->
+    console.log "Был добавлен пользователь #{name}"
     @players.push(new Player(@players.length, name))
     takeSnapshot()
     return
@@ -198,12 +213,15 @@ class Model
         takeSnapshot()
         return 0
 
+    console.log "Попадание игрока #{playerFrom.name} в #{playerTo.name}, урон #{attackValue}"
+
     newLife = playerTo.dHealth(-attackValue)
     takeSnapshot()
     return newLife
 
   miss: (plId) ->
     player = @getPlayer(plId)
+    console.log "Промах игрока #{player.name}"
     player.unsolved += 1
     takeSnapshot()
     return 0
@@ -220,12 +238,15 @@ class Model
     else
       player.treatment += 1
 
+    console.log "Игрок #{player.name} лечится с #{correct} решёнными задачи, восстанавливает #{value} здоровья"
+
     newLife = player.dHealth(value)
     takeSnapshot()
     newLife
 
   penalty: (plId) ->
     player = @getPlayer(plId)
+    console.log "Игрок #{player.name} оштрафован"
     player.addPenalty()
     takeSnapshot()
 
@@ -249,6 +270,7 @@ window.mgModel = new Model()
 
 class Snapshotter
   constructor: ->
+    console.info "Create Snapshotter"
     @loadSnapshot()
 
   saveSnapshot: ->

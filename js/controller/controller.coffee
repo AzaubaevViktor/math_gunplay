@@ -1,5 +1,6 @@
 class Controller
   constructor: ->
+    console.info "Create Controller"
     # addPlayer
     $("#modalAddPlayerAgreeBtn").on "click", =>
       @addPlayer()
@@ -76,7 +77,6 @@ class Controller
       return
 
     id = 1 * playerEl.attr('id')[6..]
-    console.log(id)
 
     if mgViewSettings.isAttack
       mgModel.hit mgViewSettings.fromPlId, id
@@ -96,7 +96,6 @@ class Controller
     return
 
   actionClick: (act, value) ->
-    console.log act, value
 
     if mgViewSettings.isAttack
       if act == 'solve'

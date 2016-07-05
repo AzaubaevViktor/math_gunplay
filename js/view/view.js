@@ -125,6 +125,7 @@
 
   View = (function() {
     function View() {
+      console.info("Create View");
       this.table = $("#mainTable");
       this.tbody = this.table.find("tbody");
       this.addPlayerButton = $('#addPlayerButton');
@@ -193,6 +194,7 @@
     };
 
     View.prototype.update = function() {
+      console.log("Update Screen");
       this.updatePanel();
       this.updatePlayers();
       return this.updateActions();

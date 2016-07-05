@@ -110,6 +110,8 @@ class ViewPlayer
 
 class View
   constructor: ->
+    console.info "Create View"
+
     @table = $("#mainTable")
     @tbody = @table.find("tbody")
     @addPlayerButton = $('#addPlayerButton')
@@ -169,6 +171,7 @@ class View
     checkShowHide $("#nextSnap"), snapshotter.isNext()
 
   update: ->
+    console.log "Update Screen"
     @updatePanel()
     @updatePlayers()
     @updateActions()
