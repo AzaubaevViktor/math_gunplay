@@ -109,14 +109,14 @@ class ModelSettings
     return
 
   deleteSave: (id) ->
-    console.log "Write save #{id}"
+    console.log "Delete save #{id}"
     delete @saves.ids[id]
     Stor.set 'saves', @saves
     Stor.remove id
     return
 
   loadSave: (id) ->
-    console.group "loadSave"
+    console.group "Load save"
     save = Stor.get id
     # Restore Settings
     @maxAttack = save.settings.maxAttack
@@ -312,6 +312,7 @@ class Snapshotter
       Stor.remove "snap_#{id}"
     Stor.remove 'snapshots'
     mgModel.players = []
+    setMode(MODE_ADD, false)
     @loadSnapshot()
     console.groupEnd()
 

@@ -124,7 +124,7 @@
     };
 
     ModelSettings.prototype.deleteSave = function(id) {
-      console.log("Write save " + id);
+      console.log("Delete save " + id);
       delete this.saves.ids[id];
       Stor.set('saves', this.saves);
       Stor.remove(id);
@@ -132,7 +132,7 @@
 
     ModelSettings.prototype.loadSave = function(id) {
       var save;
-      console.group("loadSave");
+      console.group("Load save");
       save = Stor.get(id);
       this.maxAttack = save.settings.maxAttack;
       this.selfDestroyAttack = save.settings.selfDestroyAttack;
@@ -351,6 +351,7 @@
       }
       Stor.remove('snapshots');
       mgModel.players = [];
+      setMode(MODE_ADD, false);
       this.loadSnapshot();
       return console.groupEnd();
     };
