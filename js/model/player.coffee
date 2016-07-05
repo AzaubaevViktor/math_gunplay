@@ -55,9 +55,9 @@ window.Player = class Player
   getTreatValue: (correct) ->
     penalty = penalties[@penalties]["treat"]
     value = 5 * correct + @solved - @unsolved - 3 * @treatment - 5 - penalty
-    if mgModelSettings.selfDestroyTreat && (value < 0)
+    if !mgModelSettings.selfDestroyTreat && (value < 0)
       return 0
-    if mgModelSettings.selfDestroyResuscitation && (@getLevel() == RESUSCITATION) && (value < 0)
+    if !mgModelSettings.selfDestroyResuscitation && (@getLevel() == RESUSCITATION) && (value < 0)
       return 0
 
     if (@getLevel() == HOSPITAL)
