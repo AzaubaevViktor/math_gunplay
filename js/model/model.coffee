@@ -74,7 +74,7 @@ class ModelSettings
     console.group "Connecting to local storage"
     @saves = Stor.get 'saves'
     if !@saves? || @saves.version != @savesVersion
-      console.info "Обнаружена старая версия сохранений (#{@saves.version}), они будут удалены"
+      console.info "Обнаружена старая версия сохранений (#{@saves?.version}), они будут удалены"
       @saves = null
 
     if @saves == null
@@ -163,8 +163,9 @@ class ModelSettings
 
     _sett = Stor.get 'settings'
     if !_sett? || _sett.version != @settingsVersion
-      console.info "Обнаружена старая версия настроек (#{_sett.version}), пересохраняю"
+      console.info "Обнаружена старая версия настроек (#{_sett?.version}), пересохраняю"
       @saveSettings()
+      _sett = Stor.get 'settings'
 
     @maxAttack = _sett.maxAttack
     @selfDestroyAttack = _sett.selfDestroyAttack

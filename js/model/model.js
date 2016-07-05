@@ -82,10 +82,11 @@
     }
 
     ModelSettings.prototype.connectToStorage = function() {
+      var ref;
       console.group("Connecting to local storage");
       this.saves = Stor.get('saves');
       if ((this.saves == null) || this.saves.version !== this.savesVersion) {
-        console.info("Обнаружена старая версия сохранений (" + this.saves.version + "), они будут удалены");
+        console.info("Обнаружена старая версия сохранений (" + ((ref = this.saves) != null ? ref.version : void 0) + "), они будут удалены");
         this.saves = null;
       }
       if (this.saves === null) {
@@ -174,8 +175,9 @@
       console.group("Load settings");
       _sett = Stor.get('settings');
       if ((_sett == null) || _sett.version !== this.settingsVersion) {
-        console.info("Обнаружена старая версия настроек (" + _sett.version + "), пересохраняю");
+        console.info("Обнаружена старая версия настроек (" + (_sett != null ? _sett.version : void 0) + "), пересохраняю");
         this.saveSettings();
+        _sett = Stor.get('settings');
       }
       this.maxAttack = _sett.maxAttack;
       this.selfDestroyAttack = _sett.selfDestroyAttack;
