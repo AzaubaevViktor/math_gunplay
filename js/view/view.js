@@ -133,6 +133,7 @@
       this.addPlayerButton = $('#addPlayerButton');
       this.modeButtonText = $("#modeText");
       this.viewPlayers = [];
+      this.progress = $("#progress-nav");
       mgModelSettings.daySecondCallback = (function(_this) {
         return function() {
           return _this.updateTime();
@@ -176,8 +177,10 @@
     };
 
     View.prototype.updateTime = function() {
-      var min, sec, time;
+      var dT, min, sec, time;
       time = mgModelSettings.time;
+      dT = mgModelSettings.dayTime * 60;
+      this.setProgress((dT - time) / dT * 100);
       min = Math.floor(time / 60);
       min = min < 10 ? "0" + min : min;
       sec = time % 60;
@@ -244,6 +247,10 @@
           return $(".player").removeClass("not");
         }
       }
+    };
+
+    View.prototype.setProgress = function(percent) {
+      return this.progress.css('width', percent + "%");
     };
 
     return View;

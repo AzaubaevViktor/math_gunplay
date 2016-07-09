@@ -6204,4 +6204,12 @@ option {
 #modalSettings .row {
   margin-bottom: 5px; }
 
+#progress-nav {
+  width: 0;
+  height: 100%;
+  transition: width 1s linear;
+  position: absolute;
+  background-color: #000080;
+  opacity: 0.3; }
+
 /*# sourceMappingURL=materialize.css.map */

@@ -120,6 +120,7 @@ class View
     @addPlayerButton = $('#addPlayerButton')
     @modeButtonText = $("#modeText")
     @viewPlayers = []
+    @progress = $("#progress-nav")
 
     mgModelSettings.daySecondCallback = =>
       @updateTime()
@@ -157,6 +158,8 @@ class View
 
   updateTime: ->
     time = mgModelSettings.time
+    dT = mgModelSettings.dayTime * 60
+    @setProgress (dT - time) / dT * 100
     min = Math.floor(time / 60)
     min = if min < 10 then "0" + min else min
     sec = time % 60
@@ -205,6 +208,9 @@ class View
       else
         @showActionsOnlyFor(mgViewSettings.fromPlId)
         $(".player").removeClass("not")
+
+  setProgress: (percent) ->
+    @progress.css('width', "#{percent}%")
 
 
 
