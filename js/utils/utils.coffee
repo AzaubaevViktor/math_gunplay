@@ -27,3 +27,42 @@ class Stor
     localStorage.removeItem key
 
 window.Stor = new Stor()
+
+window.MGDebug = () ->
+  console.group 'DEBUG'
+  if window.mgModelSettings?
+    console.info 'window.mgModelSettings:'
+    console.log JSON.stringify window.mgModelSettings
+  else
+    console.warn 'Model Settings not found'
+
+  if window.mgModel?
+    console.info 'window.mgModel:'
+    console.log JSON.stringify window.mgModel
+  else
+    console.warn 'Model not found'
+
+  if window.snapshotter?
+    console.info 'window.snapshotter OK'
+  else
+    console.warn 'Snapshotter not found'
+
+
+  if window.mgViewSettings?
+    console.info 'window.mgViewSettings:'
+    console.log JSON.stringify window.mgViewSettings
+  else
+    console.warn 'ViewSettings not found'
+
+  if window.mgView?
+    console.info 'window.mgView:'
+    console.log JSON.stringify window.mgView
+  else
+    console.warn 'View not found'
+
+  if window.mgController?
+    console.info 'window.mgController:'
+    console.log JSON.stringify window.mgController
+  else
+    console.warn 'Controller not found'
+  console.groupEnd()
