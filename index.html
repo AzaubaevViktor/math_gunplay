@@ -16,14 +16,41 @@
             <p id="version" style="display:inline; color:gray; font-size:1.1rem"> v0.1.12a</p>
         </a>
         <ul class="right hide-on-med-and-down">
-            <li><a id="prevSnap" href="#!"><i class="material-icons">skip_previous</i></a></li>
-            <li><a id="nextSnap" href="#!"><i class="material-icons">skip_next</i></a></li>
-            <li id="addPlayerButton"><a class="modal-trigger" href="#modalAddPlayer"><i class="material-icons">add</i></a></li>
-            <li id="modeButton"><a href="#!">Режим: <p id="modeText" style="display:inline;">режим</p><i class="material-icons right">done</i></a></li>
-            <li><a class="modal-trigger" href="#modalSettings"><i class="material-icons">settings</i></a></li>
-            <li><a class="modal-trigger" href="#modalSaves"><i class="material-icons">save</i></a></li>
-            <li><a href="#!"><i class="material-icons">equalizer</i></a></li>
-            <li><a id="newGame" href="#!"><i class="material-icons">insert_drive_file</i></a></li>
+            <li id="prevSnap"><a href="#!"
+                                 class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Отменить">
+                <i class="material-icons">skip_previous</i>
+            </a></li>
+            <li id="nextSnap"><a href="#!"
+                                 class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Повторить">
+                <i class="material-icons">skip_next</i>
+            </a></li>
+            <li id="addPlayerButton">
+                <a class="modal-trigger tooltipped" data-position="bottom" data-delay="100" data-tooltip="Добавить игрока" href="#modalAddPlayer">
+                    <i class="material-icons green-text">add</i>
+                </a>
+            </li>
+            <li id="modeButton">
+                <a href="#!" class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Сменить режим">
+                    Режим: <p id="modeText" style="display:inline;">режим</p><i class="material-icons right">done</i>
+                </a></li>
+            <li>
+                <a class="modal-trigger tooltipped" href="#modalSettings"
+                   data-position="bottom" data-delay="100" data-tooltip="Настройки">
+                    <i class="material-icons">settings</i>
+                </a>
+            </li>
+            <li>
+                <a class="modal-trigger tooltipped" href="#modalSaves"
+                   data-position="bottom" data-delay="100" data-tooltip="Управление сохранениями">
+                    <i class="material-icons">save</i>
+                </a>
+            </li>
+            <li><a href="#!" class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Статистика (не реализовано)">
+                <i class="material-icons">equalizer</i>
+            </a></li>
+            <li><a id="newGame" href="#!" class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Создать новую игру">
+                <i class="material-icons red-text">close</i>
+            </a></li>
         </ul>
     </div>
 </nav>
@@ -35,10 +62,21 @@
             <tr>
                 <th data-field="id" style="width:1px;">ID</th>
                 <th class="name" data-field="team" style="width: 100%;">Команда</th>
-                <th data-field="health" style="text-align: right;">❤</th>
-                <th data-field="damage" style="width: 1px;"><i class="material-icons small">gps_fixed</i></th>
-                <th data-field="treat" style="width: 1px;"><i class="material-icons small">local_hospital</i></th>
-                <th data-field="attitude" style="width: 1px; white-space: nowrap;">Р/Н</th>
+                <th></th>
+                <th data-field="health" style="width: 1px;" class="tooltipped"
+                    data-position="bottom" data-delay="100" data-tooltip="Здоровье">❤</th>
+                <th data-field="damage" style="width: 1px;"
+                    class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Атака">
+                    <i class="material-icons small">gps_fixed</i>
+                </th>
+                <th data-field="treat" style="width: 1px;"
+                    class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Лечение">
+                    <i class="material-icons small">local_hospital</i>
+                </th>
+                <th data-field="attitude" style="width: 1px; white-space: nowrap;"
+                    class="tooltipped" data-position="bottom" data-delay="100" data-tooltip="Количество решённых и нерешённых задач">
+                    Р/Н
+                </th>
             </tr>
             </thead>
             <tbody>

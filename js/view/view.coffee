@@ -38,11 +38,12 @@ class ViewPlayer
     @el = $("<tr>").addClass("player").attr("id", "player#{@player.id}").append [
       $("<td>").addClass("plId"),
       $("<td>").addClass("plName"),
+      $("<td>").addClass("plDummy"),
       $("<td>").addClass("plHealth"),
       $("<td>").addClass("plDamage"),
       $("<td>").addClass("plTreat"),
       $("<td>").addClass("plSolvedUnsolved"),
-      $("<td colspan='4'>").hide().addClass("plActions").append [
+      $("<td colspan='5'>").hide().addClass("plActions").append [
         btn("solve", "Решена", "green darken-1", @generateActionClickCallback())
         btn("unsolve", "Не решена", "red darken-1", @generateActionClickCallback())
         $("<select act='treat'>").addClass("waves-effect waves-light btn blue darken-1").append([
@@ -81,6 +82,7 @@ class ViewPlayer
 
   showActions: (time) ->
     if !@actionShowed
+      @el.find(".plDummy").hide()
       @el.find(".plHealth").hide()
       @el.find(".plDamage").hide()
       @el.find(".plTreat").hide()
@@ -94,6 +96,7 @@ class ViewPlayer
       @el.find(".plHealth").show(time)
       @el.find(".plDamage").show(time)
       @el.find(".plTreat").show(time)
+      @el.find(".plDummy").show(time)
       @el.find(".plSolvedUnsolved").show(time)
       @actionShowed = false
 

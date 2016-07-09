@@ -53,7 +53,7 @@
     };
 
     ViewPlayer.prototype.generatePlayer = function() {
-      return this.el = $("<tr>").addClass("player").attr("id", "player" + this.player.id).append([$("<td>").addClass("plId"), $("<td>").addClass("plName"), $("<td>").addClass("plHealth"), $("<td>").addClass("plDamage"), $("<td>").addClass("plTreat"), $("<td>").addClass("plSolvedUnsolved"), $("<td colspan='4'>").hide().addClass("plActions").append([btn("solve", "Решена", "green darken-1", this.generateActionClickCallback()), btn("unsolve", "Не решена", "red darken-1", this.generateActionClickCallback()), $("<select act='treat'>").addClass("waves-effect waves-light btn blue darken-1").append([$("<option value='-1'>"), $("<option value='0'>"), $("<option value='1'>"), $("<option value='2'>"), $("<option value='3'>")]).on('change', this.generateActionClickCallback()), btn("penalty", "Штраф", "orange darken-1", this.generateActionClickCallback())])]);
+      return this.el = $("<tr>").addClass("player").attr("id", "player" + this.player.id).append([$("<td>").addClass("plId"), $("<td>").addClass("plName"), $("<td>").addClass("plDummy"), $("<td>").addClass("plHealth"), $("<td>").addClass("plDamage"), $("<td>").addClass("plTreat"), $("<td>").addClass("plSolvedUnsolved"), $("<td colspan='5'>").hide().addClass("plActions").append([btn("solve", "Решена", "green darken-1", this.generateActionClickCallback()), btn("unsolve", "Не решена", "red darken-1", this.generateActionClickCallback()), $("<select act='treat'>").addClass("waves-effect waves-light btn blue darken-1").append([$("<option value='-1'>"), $("<option value='0'>"), $("<option value='1'>"), $("<option value='2'>"), $("<option value='3'>")]).on('change', this.generateActionClickCallback()), btn("penalty", "Штраф", "orange darken-1", this.generateActionClickCallback())])]);
     };
 
     ViewPlayer.prototype.update = function() {
@@ -83,6 +83,7 @@
 
     ViewPlayer.prototype.showActions = function(time) {
       if (!this.actionShowed) {
+        this.el.find(".plDummy").hide();
         this.el.find(".plHealth").hide();
         this.el.find(".plDamage").hide();
         this.el.find(".plTreat").hide();
@@ -98,6 +99,7 @@
         this.el.find(".plHealth").show(time);
         this.el.find(".plDamage").show(time);
         this.el.find(".plTreat").show(time);
+        this.el.find(".plDummy").show(time);
         this.el.find(".plSolvedUnsolved").show(time);
         return this.actionShowed = false;
       }
