@@ -169,10 +169,12 @@ class View
   updatePanel: ->
     if isMode MODE_ADD
       @modeButtonText.text "Добавление игроков"
+      @setProgress 0
     else if isMode MODE_DAY
       @updateTime()
     else if isMode MODE_NIGHT
       @modeButtonText.text "Ночь"
+      @setProgress 100
 
     checkShowHideGameMode @addPlayerButton, MODE_ADD
     

@@ -191,10 +191,12 @@
     View.prototype.updatePanel = function() {
       if (isMode(MODE_ADD)) {
         this.modeButtonText.text("Добавление игроков");
+        this.setProgress(0);
       } else if (isMode(MODE_DAY)) {
         this.updateTime();
       } else if (isMode(MODE_NIGHT)) {
         this.modeButtonText.text("Ночь");
+        this.setProgress(100);
       }
       checkShowHideGameMode(this.addPlayerButton, MODE_ADD);
       checkShowHide($("#prevSnap"), snapshotter.isPrev());
