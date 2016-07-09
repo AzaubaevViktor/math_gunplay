@@ -78,10 +78,10 @@
       var penalty, value;
       penalty = penalties[this.penalties]["treat"];
       value = 5 * correct + this.solved - this.unsolved - 3 * this.treatment - 5 - penalty;
-      if (mgModelSettings.selfDestroyTreat && (value < 0)) {
+      if (!mgModelSettings.selfDestroyTreat && (value < 0)) {
         return 0;
       }
-      if (mgModelSettings.selfDestroyResuscitation && (this.getLevel() === RESUSCITATION) && (value < 0)) {
+      if (!mgModelSettings.selfDestroyResuscitation && (this.getLevel() === RESUSCITATION) && (value < 0)) {
         return 0;
       }
       if (this.getLevel() === HOSPITAL) {

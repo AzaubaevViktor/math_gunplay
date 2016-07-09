@@ -3097,7 +3097,8 @@ nav {
     nav ul li {
       transition: background-color .3s;
       float: left;
-      padding: 0; }
+      padding: 0;
+      max-height: 50px; }
       nav ul li.active {
         background-color: rgba(0, 0, 0, 0.1); }
     nav ul a {

@@ -141,7 +141,7 @@ class View
       maxId = Math.max maxId, player.id
 
     `
-    // Длинна меняется во время исполнения цикла
+    // Длинна viewPlayers меняется во время исполнения цикла
     len = this.viewPlayers.length;
     for (id = maxId + 1; id < len; ++id) {
         var ref;

@@ -253,7 +253,7 @@ class Model
 
   setDayTimer: ->
     clearInterval mgModelSettings.timer
-    mgModelSettings.time = Math.max(1, mgModelSettings.dayTime )
+    mgModelSettings.time = Math.max 1, mgModelSettings.dayTime * 60
 
     mgModelSettings.timer = setInterval ->
       mgModelSettings.time -= 1

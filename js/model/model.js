@@ -276,7 +276,7 @@
 
     Model.prototype.setDayTimer = function() {
       clearInterval(mgModelSettings.timer);
-      mgModelSettings.time = Math.max(1, mgModelSettings.dayTime);
+      mgModelSettings.time = Math.max(1, mgModelSettings.dayTime * 60);
       return mgModelSettings.timer = setInterval(function() {
         mgModelSettings.time -= 1;
         if (mgModelSettings.time <= 0) {
